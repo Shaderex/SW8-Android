@@ -36,3 +36,4 @@ All development must support [SDK versions 19 and 21](http://developer.android.c
 - Before merging back to `master`, first pull `master` in to your branch, and:
     - Ensure that the code compiles.
     - If some automated tests do not pass, comment upon this in the commit message.
+- **Never** delete a branch.
