@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21)
-public class MainActivityTest {
+public class ExampleUITest {
 
     private MainActivity mainActivity;
 
