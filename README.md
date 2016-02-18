@@ -37,3 +37,23 @@ All development must support [SDK versions 19 and 21](http://developer.android.c
     - Ensure that the code compiles.
     - If some automated tests do not pass, comment upon this in the commit message.
 - **Never** delete a branch.
+
+## Testing
+
+This project is test-driven, meaning you should test before you implement, and then implement as little as possible to make the test pass.
+
+### Business Logic
+
+- For testing the Business Logic utilize the standard JUnit framework
+([JUnit](http://junit.org/))
+    - An example of such a test is `app/src/test/java/dk/aau/sw808f16/sw808f16/ExampleUnitTest.java`
+
+### UI Logic
+
+- For testing the UI elements utilize the Robolectric framework ([Robolectric](http://robolectric.org/))
+    - An example of such a test is `app/src/test/java/dk/aau/sw808f16/sw808f16/ExampleUITest.java`
+
+- If it is absolutely nessesary to run *on-device* UI test utilize the standard Android test framework built into Android Studio
+    - An example of such a test is `app/src/test/java/dk/aau/sw808f16/sw808f16/ApplicationTest.java`
+    - **NOTE**: this can not be tested on jenkins!
+
