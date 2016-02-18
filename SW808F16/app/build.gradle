@@ -27,3 +27,17 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.0.3'
 
 }
+
+apply plugin: 'checkstyle'
+
+checkstyle {
+    toolVersion = '6.15'
+}
+
+task checkstyle(type: Checkstyle) {
+    configFile = new File(rootDir, "/../google_checks.xml")
+    source 'src'
+    include '**/*.java'
+    exclude '**/gen/**'
+    classpath = files()
+}
