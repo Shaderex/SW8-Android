@@ -1,4 +1,7 @@
 apply plugin: 'com.android.application'
+apply plugin: 'checkstyle'
+
+apply from: '../jacoco.gradle'
 
 android {
     compileSdkVersion 21
@@ -28,7 +31,7 @@ dependencies {
 
 }
 
-apply plugin: 'checkstyle'
+
 
 checkstyle {
     toolVersion = '6.15'
@@ -41,3 +44,6 @@ task checkstyle(type: Checkstyle) {
     exclude '**/gen/**'
     classpath = files()
 }
+
+
+
