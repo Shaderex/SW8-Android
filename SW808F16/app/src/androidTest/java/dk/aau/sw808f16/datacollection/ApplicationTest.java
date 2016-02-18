@@ -1,4 +1,4 @@
-package dk.aau.sw808f16.sw808f16;
+package dk.aau.sw808f16.datacollection;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

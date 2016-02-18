@@ -1,4 +1,4 @@
-package dk.aau.sw808f16.sw808f16;
+package dk.aau.sw808f16.datacollection;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
