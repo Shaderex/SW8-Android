@@ -36,16 +36,17 @@ public class Question {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
+  public boolean equals(Object object) {
+    if (this == object) {
       return true;
     }
-    if (!(o instanceof Question) || o == null) {
+    if (!(object instanceof Question) || object == null) {
       return false;
     }
 
-    Question instance = (Question) o;
+    Question instance = (Question) object;
 
-    return instance.getQuestion().equals(this.getQuestion()) && instance.getAnswer() == this.getAnswer();
+    return instance.getQuestion().equals(this.getQuestion())
+        && instance.getAnswer() == this.getAnswer();
   }
 }

@@ -21,15 +21,15 @@ public class Questionnaire {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
+  public boolean equals(Object obj) {
+    if (this == obj) {
       return true;
     }
-    if (o == null || !(o instanceof Questionnaire)) {
+    if (obj == null || !(obj instanceof Questionnaire)) {
       return false;
     }
 
-    Questionnaire instance = (Questionnaire) o;
+    Questionnaire instance = (Questionnaire) obj;
 
     return this.getQuestions().equals(instance.getQuestions());
   }
