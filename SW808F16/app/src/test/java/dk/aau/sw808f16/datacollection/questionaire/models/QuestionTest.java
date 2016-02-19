@@ -26,9 +26,9 @@ public class QuestionTest extends TestCase {
     try {
       Question question = new Question(questionString);
       fail("The constructor did not throw an exception");
-    } catch (Exception e) {
-      assertTrue(e instanceof IllegalArgumentException);
-      assertEquals(e.getMessage(), "Question cannot be empty");
+    } catch (Exception exception) {
+      assertTrue(exception instanceof IllegalArgumentException);
+      assertEquals(exception.getMessage(), "Question cannot be empty");
     }
   }
 
@@ -39,9 +39,9 @@ public class QuestionTest extends TestCase {
     try {
       Question question = new Question(questionString);
       fail("The constructor did not throw an exception");
-    } catch (Exception e) {
-      assertTrue(e instanceof NullPointerException);
-      assertEquals(e.getMessage(), "Question cannot be null");
+    } catch (Exception exception) {
+      assertTrue(exception instanceof NullPointerException);
+      assertEquals(exception.getMessage(), "Question cannot be null");
     }
   }
 
