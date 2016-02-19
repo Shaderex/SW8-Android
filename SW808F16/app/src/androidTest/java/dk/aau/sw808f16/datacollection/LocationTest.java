@@ -6,8 +6,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.test.ApplicationTestCase;
 
-import org.junit.Assert;
-import org.junit.Test;
+import junit.framework.Assert;
 
 /**
  * Created by Marhlder on 18-02-2016.
@@ -18,7 +17,6 @@ public class LocationTest extends ApplicationTestCase<Application> {
     super(Application.class);
   }
 
-  @Test
   public void testLastFixedLocation() {
 
     String locationProvider = LocationManager.PASSIVE_PROVIDER;

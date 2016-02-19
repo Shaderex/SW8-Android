@@ -9,8 +9,6 @@ import android.hardware.SensorManager;
 import android.test.ApplicationTestCase;
 import android.util.Log;
 
-import org.junit.Test;
-
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
@@ -24,7 +22,6 @@ public class BarometerTest extends ApplicationTestCase<Application> {
     super(Application.class);
   }
 
-  @Test
   public void testBarometer() {
 
     final long now = System.currentTimeMillis();

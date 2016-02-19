@@ -7,8 +7,6 @@ import android.net.wifi.WifiManager;
 import android.test.ApplicationTestCase;
 import android.util.Log;
 
-import org.junit.Test;
-
 import java.util.List;
 
 /**
@@ -20,7 +18,6 @@ public class WifiTest extends ApplicationTestCase<Application> {
     super(Application.class);
   }
 
-  @Test
   public void testWifi() {
 
     final WifiManager manager = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);

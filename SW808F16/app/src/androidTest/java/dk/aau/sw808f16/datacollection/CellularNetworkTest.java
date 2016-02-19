@@ -7,8 +7,6 @@ import android.telephony.TelephonyManager;
 import android.test.ApplicationTestCase;
 import android.util.Log;
 
-import org.junit.Test;
-
 import java.util.List;
 
 /**
@@ -20,7 +18,6 @@ public class CellularNetworkTest extends ApplicationTestCase<Application> {
     super(Application.class);
   }
 
-  @Test
   public void testCellularNetwork() {
 
     final TelephonyManager manager = (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);

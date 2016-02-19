@@ -13,8 +13,6 @@ import android.hardware.SensorManager;
 import android.test.ApplicationTestCase;
 import android.util.Log;
 
-import org.junit.Test;
-
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
@@ -152,7 +150,6 @@ public class OrientationTest extends ApplicationTestCase<Application> {
     };
   }
 
-  @Test
   public void testCompass() {
 
     final long now = System.currentTimeMillis();
