@@ -1,22 +1,29 @@
 package dk.aau.sw808f16.datacollection.questionaire.models;
 
+import android.os.Parcel;
+
 import junit.framework.TestCase;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by rex on 19-02-2016.
- */
+import dk.aau.sw808f16.datacollection.BuildConfig;
+
+@RunWith(RobolectricGradleTestRunner.class)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class QuestionnaireTest extends TestCase {
 
   Question question1;
   Question question2;
   List<Question> questions;
   List<Question> questionsSame;
+  List<Question> questionsSameDifferentOrder;
   List<Question> questionsDifferent;
 
   @Before
@@ -31,6 +38,10 @@ public class QuestionnaireTest extends TestCase {
     questionsSame = new ArrayList<>();
     questionsSame.add(question1);
     questionsSame.add(question2);
+
+    questionsSameDifferentOrder = new ArrayList<>();
+    questionsSameDifferentOrder.add(question2);
+    questionsSameDifferentOrder.add(question1);
 
     questionsDifferent = new ArrayList<>();
     questionsDifferent.add(new Question("Annie are you okay?"));
@@ -75,6 +86,14 @@ public class QuestionnaireTest extends TestCase {
   }
 
   @Test
+  public void testEqualsOrderDependent() {
+    Questionnaire questionnaire1 = new Questionnaire(questions);
+    Questionnaire questionnaire2 = new Questionnaire(questionsSameDifferentOrder);
+
+    assertFalse(questionnaire1.equals(questionnaire2));
+  }
+
+  @Test
   public void testNotEquals() {
     Questionnaire questionnaire1 = new Questionnaire(questions);
     Questionnaire questionnaire2 = new Questionnaire(questionsDifferent);
@@ -96,5 +115,19 @@ public class QuestionnaireTest extends TestCase {
     assertEquals(questions.get(0), questionnaire.getNextQuestion());
 
     assertEquals(questions.get(1), questionnaire.getNextQuestion());
+  }
+
+  @Test
+  public void testParcelable() {
+    Questionnaire questionnaire = new Questionnaire();
+
+    Parcel parcel = Parcel.obtain();
+    questionnaire.writeToParcel(parcel, 0);
+
+    parcel.setDataPosition(0);
+
+    Questionnaire createdFromParcel = Questionnaire.CREATOR.createFromParcel(parcel);
+
+    assertEquals(questionnaire, createdFromParcel);
   }
 }
