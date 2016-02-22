@@ -1,4 +1,4 @@
-package dk.aau.sw808f16.datacollection.questionaire;
+package dk.aau.sw808f16.datacollection;
 
 
 import android.content.Intent;
