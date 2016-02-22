@@ -84,4 +84,56 @@ public class QuestionnaireActivityTest {
     questionnaireActivity = Robolectric.buildActivity(QuestionnaireActivity.class).create().get();
   }
 
+  @Test
+  public void testYesAnswerButtonAnnotatesQuestion() {
+    Button yesButton = (Button) questionnaireActivity.findViewById(R.id.questionnaire_answer_button_yes);
+
+    yesButton.performClick();
+
+    final Boolean expected = true;
+    Assert.assertEquals(expected, questionnaire.getQuestions().get(0).getAnswer());
+  }
+
+  @Test
+  public void testNoAnswerButtonAnnotatesQuestion() {
+    Button yesButton = (Button) questionnaireActivity.findViewById(R.id.questionnaire_answer_button_no);
+
+    yesButton.performClick();
+
+    final Boolean expected = false;
+    Assert.assertEquals(expected, questionnaire.getQuestions().get(0).getAnswer());
+  }
+
+  @Test
+  public void testQuestionNotAnsweredYet() {
+    final Boolean expected = null;
+    Assert.assertEquals(expected, questionnaire.getQuestions().get(0).getAnswer());
+  }
+
+  @Test
+  public void testYesAnswerButtonGoesToNextQuestion() {
+    TextView questionTextView = (TextView) questionnaireActivity.findViewById(R.id.questionnaire_question_text);
+    Button yesButton = (Button) questionnaireActivity.findViewById(R.id.questionnaire_answer_button_yes);
+
+    yesButton.performClick();
+
+    final String expected = questionnaire.getQuestions().get(1).getQuestion();
+    final String actual = (String) questionTextView.getText();
+
+    Assert.assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testNoAnswerButtonGoesToNextQuestion() {
+    TextView questionTextView = (TextView) questionnaireActivity.findViewById(R.id.questionnaire_question_text);
+    Button noButton = (Button) questionnaireActivity.findViewById(R.id.questionnaire_answer_button_no);
+
+    noButton.performClick();
+
+    final String expected = questionnaire.getQuestions().get(1).getQuestion();
+    final String actual = (String) questionTextView.getText();
+
+    Assert.assertEquals(expected, actual);
+  }
+
 }
