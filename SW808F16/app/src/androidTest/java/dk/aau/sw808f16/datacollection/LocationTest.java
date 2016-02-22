@@ -8,9 +8,6 @@ import android.test.ApplicationTestCase;
 
 import junit.framework.Assert;
 
-/**
- * Created by Marhlder on 18-02-2016.
- */
 public class LocationTest extends ApplicationTestCase<Application> {
 
   public LocationTest() {
