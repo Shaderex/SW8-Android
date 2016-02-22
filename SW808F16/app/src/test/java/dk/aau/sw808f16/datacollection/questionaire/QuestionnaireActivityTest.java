@@ -136,4 +136,15 @@ public class QuestionnaireActivityTest {
     Assert.assertEquals(expected, actual);
   }
 
+  @Test
+  public void testAnsweredLastQuestion() {
+    Button yesButton = (Button) questionnaireActivity.findViewById(R.id.questionnaire_answer_button_yes);
+
+    for(int i = 0; i < questionnaire.getQuestions().size(); i++) {
+      yesButton.performClick();
+    }
+
+    Assert.assertTrue(questionnaireActivity.isFinishing());
+  }
+
 }

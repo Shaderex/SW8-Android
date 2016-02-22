@@ -13,7 +13,13 @@ import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
 public class QuestionnaireActivity extends Activity {
 
   public static final String QUESTIONNAIRE_PARCEL_IDENTIFIER = "QUESTIONNAIRE_PARCEL_IDENTIFIER";
+
+  // Questionnaire
+  private Questionnaire questionnaire;
   private Question currentQuestion = null;
+
+  // Views
+  TextView questionText;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -21,7 +27,7 @@ public class QuestionnaireActivity extends Activity {
     setContentView(R.layout.activity_questionnaire);
 
     Intent intent = getIntent();
-    final Questionnaire questionnaire = intent.getParcelableExtra(QUESTIONNAIRE_PARCEL_IDENTIFIER);
+     questionnaire = intent.getParcelableExtra(QUESTIONNAIRE_PARCEL_IDENTIFIER);
 
     if (questionnaire == null) {
       throw new IllegalArgumentException("Illegal intent sent to activity. Questionnaire was null");
@@ -29,7 +35,7 @@ public class QuestionnaireActivity extends Activity {
 
     currentQuestion = questionnaire.getNextQuestion();
 
-    final TextView questionText = (TextView) findViewById(R.id.questionnaire_question_text);
+    questionText = (TextView) findViewById(R.id.questionnaire_question_text);
     questionText.setText(currentQuestion.getQuestion());
 
     final Button yesAnswerButton = (Button) findViewById(R.id.questionnaire_answer_button_yes);
@@ -39,9 +45,7 @@ public class QuestionnaireActivity extends Activity {
       @Override
       public void onClick(View v) {
         currentQuestion.setAnswer(true);
-
-        currentQuestion = questionnaire.getNextQuestion();
-        questionText.setText(currentQuestion.getQuestion());
+        goToNextQuestion();
       }
     });
 
@@ -49,10 +53,19 @@ public class QuestionnaireActivity extends Activity {
       @Override
       public void onClick(View v) {
         currentQuestion.setAnswer(false);
-
-        currentQuestion = questionnaire.getNextQuestion();
-        questionText.setText(currentQuestion.getQuestion());
+        goToNextQuestion();
       }
     });
+  }
+
+  private void goToNextQuestion() {
+    try {
+      currentQuestion = questionnaire.getNextQuestion();
+      questionText.setText(currentQuestion.getQuestion());
+    }
+    catch (IndexOutOfBoundsException e) {
+      // There are no more questions
+      finish();
+    }
   }
 }
