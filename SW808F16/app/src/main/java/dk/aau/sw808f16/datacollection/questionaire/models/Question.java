@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 public class Question implements Parcelable {
 
-  private boolean answer;
+  private Boolean answer;
   private String question;
 
   public Question(String question) {
@@ -13,7 +13,16 @@ public class Question implements Parcelable {
   }
 
   protected Question(Parcel in) {
-    answer = in.readByte() != 0;
+    byte byteAnswer = in.readByte();
+
+    if (byteAnswer == -1) {
+      answer = null;
+    } else if (byteAnswer == 1) {
+      answer = true;
+    } else {
+      answer = false;
+    }
+
     question = in.readString();
   }
 
@@ -44,11 +53,11 @@ public class Question implements Parcelable {
     this.question = question;
   }
 
-  public void setAnswer(boolean answer) {
+  public void setAnswer(Boolean answer) {
     this.answer = answer;
   }
 
-  public boolean getAnswer() {
+  public Boolean getAnswer() {
     return this.answer;
   }
 
@@ -74,7 +83,17 @@ public class Question implements Parcelable {
 
   @Override
   public void writeToParcel(Parcel dest, int flags) {
-    dest.writeByte((byte) (answer ? 1 : 0));
+    byte byteAnswer;
+
+    if (answer == null) {
+      byteAnswer = -1;
+    } else if (answer) {
+      byteAnswer = 1;
+    } else {
+      byteAnswer = 0;
+    }
+
+    dest.writeByte(byteAnswer);
     dest.writeString(question);
   }
 }

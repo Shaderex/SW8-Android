@@ -62,11 +62,18 @@ public class QuestionTest extends TestCase {
 
   @Test
   public void testGetAnswer() {
-
     Question question = new Question(this.question);
     question.setAnswer(false);
 
-    assertEquals("Answer not as expected", false, question.getAnswer());
+    final Boolean expected = false;
+    assertEquals("Answer not as expected", expected, question.getAnswer());
+  }
+
+  @Test
+  public void testGetAnswerNotYetAnswered() {
+    Question question = new Question(this.question);
+
+    assertNull(question.getAnswer());
   }
 
   @Test
