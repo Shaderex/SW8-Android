@@ -34,5 +34,19 @@ public class QuestionnaireActivityTest {
 
   }
 
+  @Test
+  public void testQuestionYesButtonExists() {
+
+    Assert.assertTrue(questionnaireActivity.findViewById(R.id.questionnaire_answer_button_yes) instanceof TextView);
+
+  }
+
+  @Test
+  public void testQuestionNoButtonExists() {
+
+    Assert.assertTrue(questionnaireActivity.findViewById(R.id.questionnaire_answer_button_no) instanceof TextView);
+
+  }
+
 
 }

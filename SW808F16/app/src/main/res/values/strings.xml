@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SW808F16</string>
+    <string name="questionnaire_question_yes_answer">Yes</string>
+    <string name="questionnaire_question_no_answer">No</string>
 </resources>
