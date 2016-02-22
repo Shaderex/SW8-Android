@@ -1,10 +1,19 @@
 package dk.aau.sw808f16.datacollection.questionaire.models;
 
+import android.os.Parcel;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.annotation.Config;
 
+import dk.aau.sw808f16.datacollection.BuildConfig;
+
+@RunWith(RobolectricGradleTestRunner.class)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class QuestionTest extends TestCase {
 
 
@@ -81,5 +90,34 @@ public class QuestionTest extends TestCase {
     Question question1 = new Question(this.question);
 
     assertEquals(question1, question1);
+  }
+
+  @Test
+  public void testParcelableWithoutAnswer() {
+    Question question = new Question("Are you okay annie?");
+
+    Parcel parcel = Parcel.obtain();
+    question.writeToParcel(parcel, 0);
+
+    parcel.setDataPosition(0);
+
+    Question createdFromParcel = Question.CREATOR.createFromParcel(parcel);
+
+    assertEquals(question, createdFromParcel);
+  }
+
+  @Test
+  public void testParcelableWithAnswer() {
+    Question question = new Question("Are you okay annie?");
+    question.setAnswer(true);
+
+    Parcel parcel = Parcel.obtain();
+    question.writeToParcel(parcel, 0);
+
+    parcel.setDataPosition(0);
+
+    Question createdFromParcel = Question.CREATOR.createFromParcel(parcel);
+
+    assertEquals(question, createdFromParcel);
   }
 }
