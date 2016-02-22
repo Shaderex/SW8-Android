@@ -26,14 +26,14 @@ public class Questionnaire implements Parcelable {
     this.questions = new ArrayList<>();
   }
 
+  public Questionnaire(List<Question> questions) {
+    this.questions = questions;
+  }
+
   private Questionnaire(Parcel parcel) {
     this(); // Call constructor to initialize fields
     parcel.readList(questions, Question.class.getClassLoader());
     this.currentQuestionIndex = parcel.readInt();
-  }
-
-  public Questionnaire(List<Question> questions) {
-    this.questions = questions;
   }
 
   public List<Question> getQuestions() {
