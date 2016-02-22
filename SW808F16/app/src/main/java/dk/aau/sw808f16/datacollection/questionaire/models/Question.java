@@ -27,7 +27,7 @@ public class Question {
     this.question = question;
   }
 
-  public void answer(boolean answer) {
+  public void setAnswer(boolean answer) {
     this.answer = answer;
   }
 

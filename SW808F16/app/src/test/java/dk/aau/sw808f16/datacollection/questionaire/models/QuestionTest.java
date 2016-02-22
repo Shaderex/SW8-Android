@@ -48,14 +48,14 @@ public class QuestionTest extends TestCase {
   @Test
   public void testAnswerQuestion() {
     Question question = new Question(this.question);
-    question.answer(true);
+    question.setAnswer(true);
   }
 
   @Test
   public void testGetAnswer() {
 
     Question question = new Question(this.question);
-    question.answer(false);
+    question.setAnswer(false);
 
     assertEquals("Answer not as expected", false, question.getAnswer());
   }
