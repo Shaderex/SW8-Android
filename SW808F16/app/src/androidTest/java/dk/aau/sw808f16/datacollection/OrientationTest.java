@@ -1,9 +1,5 @@
 package dk.aau.sw808f16.datacollection;
 
-/**
- * Created by Marhlder on 19-02-2016.
- */
-
 import android.app.Application;
 import android.content.Context;
 import android.hardware.Sensor;

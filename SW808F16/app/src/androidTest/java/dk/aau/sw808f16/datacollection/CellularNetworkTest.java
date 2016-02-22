@@ -9,9 +9,6 @@ import android.util.Log;
 
 import java.util.List;
 
-/**
- * Created by Marhlder on 19-02-2016.
- */
 public class CellularNetworkTest extends ApplicationTestCase<Application> {
 
   public CellularNetworkTest() {

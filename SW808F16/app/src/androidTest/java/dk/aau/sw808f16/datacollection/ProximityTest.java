@@ -13,9 +13,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 
-/**
- * Created by Marhlder on 18-02-2016.
- */
 public class ProximityTest extends ApplicationTestCase<Application> {
 
   public ProximityTest() {

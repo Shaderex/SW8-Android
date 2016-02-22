@@ -9,9 +9,6 @@ import android.util.Log;
 
 import java.util.List;
 
-/**
- * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
- */
 public class WifiTest extends ApplicationTestCase<Application> {
 
   public WifiTest() {
@@ -24,7 +21,7 @@ public class WifiTest extends ApplicationTestCase<Application> {
     final List<ScanResult> results = manager.getScanResults();
 
     for (ScanResult result : results) {
-      Log.i("ScanResult: ", result.toString() + " SignalLevel: " + WifiManager.calculateSignalLevel(result.level, 10));
+      Log.i("ScanResult: ", result + " SignalLevel: " + WifiManager.calculateSignalLevel(result.level, 10));
     }
   }
 }
