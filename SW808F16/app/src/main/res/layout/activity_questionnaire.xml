@@ -10,24 +10,25 @@
         android:layout_height="wrap_content"/>
 
     <LinearLayout
+        style="?android:attr/buttonBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_gravity="center_horizontal"
-        style="?android:attr/buttonBarStyle">
+        android:orientation="horizontal">
+
         <Button
             android:id="@+id/questionnaire_answer_button_yes"
-            android:text="@string/questionnaire_question_yes_answer"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="?android:attr/buttonBarButtonStyle"/>
+            android:text="@string/questionnaire_question_yes_answer"/>
 
         <Button
             android:id="@+id/questionnaire_answer_button_no"
-            android:text="@string/questionnaire_question_no_answer"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="?android:attr/buttonBarButtonStyle"/>
+            android:text="@string/questionnaire_question_no_answer"/>
     </LinearLayout>
 
 </LinearLayout>
