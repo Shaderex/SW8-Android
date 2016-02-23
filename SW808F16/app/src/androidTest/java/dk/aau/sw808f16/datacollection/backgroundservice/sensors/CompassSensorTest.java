@@ -18,14 +18,13 @@ public class CompassSensorTest extends ApplicationTestCase<DataCollectionApplica
 
   public void testRetrieveCompassDataForPeriodContainsValues() throws ExecutionException, InterruptedException {
 
-    final long startTime = System.currentTimeMillis();
-    final long duration = 60000; // In milliseconds
-    final int samplingPeriod = 500000; // In microseconds
+    final long duration = 10000; // In milliseconds
+    final int samplingPeriod = 2000000; // In microseconds
 
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
     final CompassSensorProvider compassSensorProvider = new CompassSensorProvider(sensorThreadPool);
 
-    final Future<List<Float>> futureData = compassSensorProvider.retrieveCompassDataForPeriod(getContext(), startTime, duration, samplingPeriod);
+    final Future<List<Float>> futureData = compassSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
 
     final List<Float> data = futureData.get();
 
@@ -34,14 +33,13 @@ public class CompassSensorTest extends ApplicationTestCase<DataCollectionApplica
 
   public void testRetrieveCompassDataForPeriodValuesInRange() throws ExecutionException, InterruptedException {
 
-    final long startTime = System.currentTimeMillis();
-    final long duration = 60000; // In milliseconds
-    final int samplingPeriod = 500000; // In microseconds
+    final long duration = 10000; // In milliseconds
+    final int samplingPeriod = 2000000; // In microseconds
 
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
     final CompassSensorProvider compassSensorProvider = new CompassSensorProvider(sensorThreadPool);
 
-    final Future<List<Float>> futureData = compassSensorProvider.retrieveCompassDataForPeriod(getContext(), startTime, duration, samplingPeriod);
+    final Future<List<Float>> futureData = compassSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
 
     final List<Float> data = futureData.get();
 
@@ -55,16 +53,14 @@ public class CompassSensorTest extends ApplicationTestCase<DataCollectionApplica
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
     final CompassSensorProvider compassSensorProvider = new CompassSensorProvider(sensorThreadPool);
 
-    final long duration = 30000; // In milliseconds
-    final int samplingPeriod = 500000; // In microseconds
+    final long duration = 10000; // In milliseconds
+    final int samplingPeriod = 2000000; // In microseconds
 
-    final long startTime1 = System.currentTimeMillis();
-    final Future<List<Float>> futureData1 = compassSensorProvider.retrieveCompassDataForPeriod(getContext(), startTime1, duration, samplingPeriod);
+    final Future<List<Float>> futureData1 = compassSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
 
     final List<Float> data1 = futureData1.get();
-    final long startTime2 = System.currentTimeMillis();
 
-    final Future<List<Float>> futureData2 = compassSensorProvider.retrieveCompassDataForPeriod(getContext(), startTime2, duration, samplingPeriod);
+    final Future<List<Float>> futureData2 = compassSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
 
     final List<Float> data2 = futureData2.get();
 
@@ -82,18 +78,17 @@ public class CompassSensorTest extends ApplicationTestCase<DataCollectionApplica
 
   public void testRetrieveCompassDataForPeriodSamplingPeriod() throws ExecutionException, InterruptedException {
 
-    final long startTime = System.currentTimeMillis();
-    final long duration = 30000; // In milliseconds
-    final int samplingPeriod = 5000000; // In microseconds
+    final long duration = 10000; // In milliseconds
+    final int samplingPeriod = 2000000; // In microseconds
 
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
     final CompassSensorProvider compassSensorProvider = new CompassSensorProvider(sensorThreadPool);
 
-    final Future<List<Float>> futureData = compassSensorProvider.retrieveCompassDataForPeriod(getContext(), startTime, duration, samplingPeriod);
+    final Future<List<Float>> futureData = compassSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
 
     final List<Float> data = futureData.get();
 
-    assertTrue(data.size() >= 5 && data.size() <= 7);
+    assertTrue(data.size() >= 4 && data.size() <= 6);
   }
 
 }

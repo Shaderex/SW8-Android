@@ -5,52 +5,39 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.Log;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 public class CompassSensorProvider extends SensorProvider {
 
-  private final ExecutorService sensorThreadPool;
-
   public CompassSensorProvider(final ExecutorService sensorThreadPool) {
-    this.sensorThreadPool = sensorThreadPool;
+    super(sensorThreadPool);
   }
 
-  public class RetrieveCompassDataCallable implements Callable<List<Float>> {
+  public class RetrieveCompassDataCallable extends RetrieveSensorDataCallable {
 
-    private final WeakReference<Context> contextWeakReference;
-    private final long endTime;
-    private long lastUpdateTime;
-    private final int samplingPeriod;
-
-    public RetrieveCompassDataCallable(final Context context, final long startTime, final long duration, final int samplingPeriod) {
-      contextWeakReference = new WeakReference<>(context);
-      endTime = startTime + duration;
-      this.samplingPeriod = samplingPeriod;
+    public RetrieveCompassDataCallable(final Context context, final long duration, final int samplingPeriod) {
+      super(context, duration, samplingPeriod);
     }
 
-    float acceleromterOutput[];
-    float magneticFieldOutput[];
+    private float acceleromterOutput[];
+    private float magneticFieldOutput[];
 
     // Initial listeners for getting the first measurements, we need at least one measurement from each
     // sensor in order to create a rotationMatrix
-    SensorEventListener initialMagneticFieldListener;
-    SensorEventListener initialAccelerometerListener;
+    private SensorEventListener initialMagneticFieldListener;
+    private SensorEventListener initialAccelerometerListener;
 
     // Listeners used when we have one measurement from each sensor
-    SensorEventListener accelerometerListener;
-    SensorEventListener magneticFieldListener;
+    private SensorEventListener accelerometerListener;
+    private SensorEventListener magneticFieldListener;
 
-    final float rotationMatrix[] = new float[16];
-    final float inclinationMatrix[] = new float[16];
-    final float values[] = new float[3];
+    private final float rotationMatrix[] = new float[16];
+    private final float inclinationMatrix[] = new float[16];
+    private final float values[] = new float[3];
 
     @Override
     public List<Float> call() throws Exception {
@@ -209,8 +196,9 @@ public class CompassSensorProvider extends SensorProvider {
     }
   }
 
-  public Future<List<Float>> retrieveCompassDataForPeriod(final Context context, final long startTime, final long duration, final int samplingPeriod) {
-    return sensorThreadPool.submit(new RetrieveCompassDataCallable(context, startTime, duration, samplingPeriod));
+  @Override
+  protected RetrieveSensorDataCallable createCallable(final Context context, final long duration, final int samplingPeriod) {
+    return new RetrieveCompassDataCallable(context, duration, samplingPeriod);
   }
 
   private static float sensorDataToOrientation(final float sensorData[]) {
