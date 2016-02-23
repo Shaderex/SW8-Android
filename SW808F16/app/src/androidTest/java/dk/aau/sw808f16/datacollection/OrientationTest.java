@@ -15,8 +15,8 @@ import java.util.concurrent.CountDownLatch;
 
 public class OrientationTest extends ApplicationTestCase<Application> {
 
-  public float acceleromterOutput[];
-  public float magneticFieldOutput[];
+  private float[] accelerometerOutput;
+  private float[] magneticFieldOutput;
 
   // Initial listeners for getting the first measurements, we need at least one measurement from each
   // sensor in order to create a rotationMatrix
@@ -31,9 +31,9 @@ public class OrientationTest extends ApplicationTestCase<Application> {
   private Sensor accelerometerSensor;
   private Sensor magneticFieldSensor;
 
-  final float rotationMatrix[] = new float[16];
-  final float inclinationMatrix[] = new float[16];
-  final float values[] = new float[3];
+  private final float[] rotationMatrix = new float[16];
+  private final float[] inclinationMatrix = new float[16];
+  private final float[] values = new float[3];
 
   public OrientationTest() {
     super(Application.class);
@@ -55,9 +55,9 @@ public class OrientationTest extends ApplicationTestCase<Application> {
 
         synchronized (values) {
 
-          acceleromterOutput = event.values;
+          accelerometerOutput = event.values;
 
-          if (SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, acceleromterOutput, magneticFieldOutput)) {
+          if (SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, accelerometerOutput, magneticFieldOutput)) {
             SensorManager.getOrientation(rotationMatrix, values);
 
             theBestPrintMethodCreatedEver();
@@ -79,7 +79,7 @@ public class OrientationTest extends ApplicationTestCase<Application> {
 
           magneticFieldOutput = event.values;
 
-          if (SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, acceleromterOutput, magneticFieldOutput)) {
+          if (SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, accelerometerOutput, magneticFieldOutput)) {
             SensorManager.getOrientation(rotationMatrix, values);
 
             theBestPrintMethodCreatedEver();
@@ -99,11 +99,11 @@ public class OrientationTest extends ApplicationTestCase<Application> {
 
         synchronized (OrientationTest.this) {
 
-          acceleromterOutput = event.values;
+          accelerometerOutput = event.values;
 
           if (magneticFieldOutput != null) {
 
-            SensorManager.getRotationMatrix(rotationMatrix, null, acceleromterOutput, magneticFieldOutput);
+            SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerOutput, magneticFieldOutput);
 
             sensorManager.unregisterListener(initialAccelerometerListener);
             sensorManager.unregisterListener(initialMagneticFieldListener);
@@ -127,9 +127,9 @@ public class OrientationTest extends ApplicationTestCase<Application> {
 
           magneticFieldOutput = event.values;
 
-          if (acceleromterOutput != null) {
+          if (accelerometerOutput != null) {
 
-            SensorManager.getRotationMatrix(rotationMatrix, null, acceleromterOutput, magneticFieldOutput);
+            SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerOutput, magneticFieldOutput);
 
             sensorManager.unregisterListener(initialAccelerometerListener);
             sensorManager.unregisterListener(initialMagneticFieldListener);
@@ -181,7 +181,7 @@ public class OrientationTest extends ApplicationTestCase<Application> {
 
   }
 
-  public void theBestPrintMethodCreatedEver() {
+  private void theBestPrintMethodCreatedEver() {
     //Log.i("Rotation -Z degrees", values[0]*180/Math.PI + " ° / " + 360 + " °");
     //Log.i("Rotation -X degrees", values[1]*180/Math.PI + " ° / " + 360 + " °");
     //Log.i("Rotation Y degrees", Math.toDegrees(values[2]) * 180 / Math.PI + " ° / " + 360 + " °");

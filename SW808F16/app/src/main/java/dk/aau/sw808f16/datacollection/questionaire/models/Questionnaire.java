@@ -22,7 +22,7 @@ public class Questionnaire implements Parcelable {
     }
   };
 
-  public Questionnaire() {
+  private Questionnaire() {
     this.questions = new ArrayList<>();
   }
 
@@ -36,7 +36,7 @@ public class Questionnaire implements Parcelable {
     this.currentQuestionIndex = parcel.readInt();
   }
 
-  public List<Question> getQuestions() {
+  private List<Question> getQuestions() {
     return questions;
   }
 
