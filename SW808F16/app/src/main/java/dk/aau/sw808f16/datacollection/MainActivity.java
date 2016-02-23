@@ -23,14 +23,14 @@ public class MainActivity extends ActionBarActivity {
 
     startQuestionnaireButton.setOnClickListener(new View.OnClickListener() {
       @Override
-      public void onClick(View v) {
+      public void onClick(View view) {
         try {
           final Questionnaire questionnaire = FileToQuestionnaireParser.parseFile(MainActivity.this, R.raw.questionnaire);
           final Intent intent = new Intent(MainActivity.this, QuestionnaireActivity.class);
           intent.putExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER, questionnaire);
 
           startActivity(intent);
-        } catch (IOException e) {
+        } catch (IOException exception) {
           Toast.makeText(MainActivity.this, "Could not start questionnaire", Toast.LENGTH_LONG).show();
         }
       }

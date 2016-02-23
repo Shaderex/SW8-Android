@@ -19,10 +19,10 @@ public class QuestionnaireActivity extends Activity {
   private Question currentQuestion = null;
 
   // Views
-  TextView questionText;
+  private TextView questionText;
 
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
+  protected final void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_questionnaire);
 
@@ -43,7 +43,7 @@ public class QuestionnaireActivity extends Activity {
 
     yesAnswerButton.setOnClickListener(new View.OnClickListener() {
       @Override
-      public void onClick(View v) {
+      public void onClick(final View view) {
         currentQuestion.setAnswer(true);
         goToNextQuestion();
       }
@@ -51,7 +51,7 @@ public class QuestionnaireActivity extends Activity {
 
     noAnswerButton.setOnClickListener(new View.OnClickListener() {
       @Override
-      public void onClick(View v) {
+      public void onClick(final View view) {
         currentQuestion.setAnswer(false);
         goToNextQuestion();
       }
@@ -62,7 +62,7 @@ public class QuestionnaireActivity extends Activity {
     try {
       currentQuestion = questionnaire.getNextQuestion();
       questionText.setText(currentQuestion.getQuestion());
-    } catch (IndexOutOfBoundsException e) {
+    } catch (IndexOutOfBoundsException exception) {
       // There are no more questions
 
       final Intent resultIntent = new Intent();
@@ -75,7 +75,7 @@ public class QuestionnaireActivity extends Activity {
   }
 
   @Override
-  public void onBackPressed() {
+  public final void onBackPressed() {
     super.onBackPressed();
 
     final Intent resultIntent = new Intent();

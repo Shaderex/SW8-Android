@@ -90,8 +90,7 @@ public class QuestionnaireActivityTest {
 
     yesButton.performClick();
 
-    final Boolean expected = true;
-    Assert.assertEquals(expected, questionnaire.getQuestions().get(0).getAnswer());
+    Assert.assertEquals(Boolean.TRUE, questionnaire.getQuestions().get(0).getAnswer());
   }
 
   @Test
@@ -100,8 +99,7 @@ public class QuestionnaireActivityTest {
 
     yesButton.performClick();
 
-    final Boolean expected = false;
-    Assert.assertEquals(expected, questionnaire.getQuestions().get(0).getAnswer());
+    Assert.assertEquals(Boolean.FALSE, questionnaire.getQuestions().get(0).getAnswer());
   }
 
   @Test

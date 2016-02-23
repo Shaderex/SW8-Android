@@ -21,11 +21,10 @@ import org.robolectric.util.ActivityController;
 public class MainActivityTest {
 
   private MainActivity mainActivity;
-  private ActivityController activityController;
 
   @Before
   public void setup() {
-    activityController = Robolectric.buildActivity(MainActivity.class).create();
+    final ActivityController activityController = Robolectric.buildActivity(MainActivity.class).create();
     mainActivity = (MainActivity) activityController.get();
 
   }
