@@ -1,16 +1,42 @@
 package dk.aau.sw808f16.datacollection.questionaire.models;
 
-/**
- * Created by rex on 19-02-2016.
- */
-public class Question {
+import android.os.Parcel;
+import android.os.Parcelable;
 
-  private boolean answer;
+public class Question implements Parcelable {
+
+  private Boolean answer;
   private String question;
 
   public Question(String question) {
     this.setQuestion(question);
   }
+
+  protected Question(Parcel in) {
+    byte byteAnswer = in.readByte();
+
+    if (byteAnswer == -1) {
+      answer = null;
+    } else if (byteAnswer == 1) {
+      answer = true;
+    } else {
+      answer = false;
+    }
+
+    question = in.readString();
+  }
+
+  public static final Creator<Question> CREATOR = new Creator<Question>() {
+    @Override
+    public Question createFromParcel(Parcel in) {
+      return new Question(in);
+    }
+
+    @Override
+    public Question[] newArray(int size) {
+      return new Question[size];
+    }
+  };
 
   public String getQuestion() {
     return question;
@@ -27,11 +53,11 @@ public class Question {
     this.question = question;
   }
 
-  public void setAnswer(boolean answer) {
+  public void setAnswer(Boolean answer) {
     this.answer = answer;
   }
 
-  public boolean getAnswer() {
+  public Boolean getAnswer() {
     return this.answer;
   }
 
@@ -48,5 +74,26 @@ public class Question {
 
     return instance.getQuestion().equals(this.getQuestion())
         && instance.getAnswer() == this.getAnswer();
+  }
+
+  @Override
+  public int describeContents() {
+    return 0;
+  }
+
+  @Override
+  public void writeToParcel(Parcel dest, int flags) {
+    byte byteAnswer;
+
+    if (answer == null) {
+      byteAnswer = -1;
+    } else if (answer) {
+      byteAnswer = 1;
+    } else {
+      byteAnswer = 0;
+    }
+
+    dest.writeByte(byteAnswer);
+    dest.writeString(question);
   }
 }
