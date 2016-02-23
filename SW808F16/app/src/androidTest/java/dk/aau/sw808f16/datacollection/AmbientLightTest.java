@@ -13,6 +13,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 
+@SuppressWarnings("unused")
 public class AmbientLightTest extends ApplicationTestCase<Application> {
 
   public AmbientLightTest() {
@@ -57,8 +58,8 @@ public class AmbientLightTest extends ApplicationTestCase<Application> {
 
     try {
       latch.await();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+    } catch (InterruptedException exception) {
+      exception.printStackTrace();
     }
 
     timer.cancel();

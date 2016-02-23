@@ -9,6 +9,7 @@ import android.util.Log;
 
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class CellularNetworkTest extends ApplicationTestCase<Application> {
 
   public CellularNetworkTest() {

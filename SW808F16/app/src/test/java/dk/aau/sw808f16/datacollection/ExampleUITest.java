@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21)
-public class ExampleUITest {
+public class ExampleUiTest {
 
   private MainActivity mainActivity;
 
@@ -23,7 +23,7 @@ public class ExampleUITest {
   }
 
   @Test
-  public void exampleGUITest() {
+  public void exampleGuiTest() {
     TextView textView = (TextView) mainActivity.findViewById(R.id.hello_world);
 
     assertEquals(textView.getText(), "Hello World!");
