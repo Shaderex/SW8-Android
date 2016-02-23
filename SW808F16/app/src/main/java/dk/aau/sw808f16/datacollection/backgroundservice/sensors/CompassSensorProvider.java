@@ -68,9 +68,6 @@ public class CompassSensorProvider extends SensorProvider {
       final Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
       final Sensor magneticFieldSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
-      Log.i("ACCELO MAX FIFO COUNT", "" + accelerometerSensor.getFifoMaxEventCount());
-      Log.i("MAGNETO MAX FIFO COUNT", "" + magneticFieldSensor.getFifoMaxEventCount());
-
       initialAccelerometerListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(final SensorEvent event) {
