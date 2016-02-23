@@ -55,7 +55,7 @@ public class Question implements Parcelable {
     this.answer = answer;
   }
 
-  private Boolean getAnswer() {
+  public Boolean getAnswer() {
     return this.answer;
   }
 
