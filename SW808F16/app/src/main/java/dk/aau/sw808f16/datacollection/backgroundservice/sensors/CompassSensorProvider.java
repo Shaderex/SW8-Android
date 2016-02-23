@@ -5,6 +5,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -25,12 +26,14 @@ public class CompassSensorProvider extends SensorProvider {
   public class RetrieveCompassDataCallable implements Callable<List<Float>> {
 
     private final WeakReference<Context> contextWeakReference;
-    private final CountDownLatch latch = new CountDownLatch(1);
     private final long endTime;
+    private long lastUpdateTime;
+    private final int samplingPeriod;
 
-    public RetrieveCompassDataCallable(final Context context, final long startTime, final long duration) {
+    public RetrieveCompassDataCallable(final Context context, final long startTime, final long duration, final int samplingPeriod) {
       contextWeakReference = new WeakReference<>(context);
       endTime = startTime + duration;
+      this.samplingPeriod = samplingPeriod;
     }
 
     float acceleromterOutput[];
@@ -52,66 +55,21 @@ public class CompassSensorProvider extends SensorProvider {
     @Override
     public List<Float> call() throws Exception {
 
-      final List<Float> sensorValues = new ArrayList<>();
       final Context context = contextWeakReference.get();
+      final CountDownLatch latch = new CountDownLatch(1);
 
       if (context == null) {
         return null;
       }
 
+      final List<Float> sensorValues = new ArrayList<>();
+
       final SensorManager sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
       final Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
       final Sensor magneticFieldSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
-      accelerometerListener = new SensorEventListener() {
-        @Override
-        public void onSensorChanged(final SensorEvent event) {
-
-          synchronized (values) {
-
-            acceleromterOutput = event.values;
-
-            if (SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, acceleromterOutput, magneticFieldOutput)) {
-              SensorManager.getOrientation(rotationMatrix, values);
-              sensorValues.add(sensorDataToOrientation(values));
-            }
-
-            if (endTime <= System.currentTimeMillis()) {
-              latch.countDown();
-            }
-          }
-        }
-
-        @Override
-        public void onAccuracyChanged(final Sensor sensor, int accuracy) {
-
-        }
-      };
-
-      magneticFieldListener = new SensorEventListener() {
-        @Override
-        public void onSensorChanged(final SensorEvent event) {
-
-          synchronized (values) {
-
-            magneticFieldOutput = event.values;
-
-            if (SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, acceleromterOutput, magneticFieldOutput)) {
-              SensorManager.getOrientation(rotationMatrix, values);
-              sensorValues.add(sensorDataToOrientation(values));
-            }
-
-            if (endTime <= System.currentTimeMillis()) {
-              latch.countDown();
-            }
-          }
-        }
-
-        @Override
-        public void onAccuracyChanged(final Sensor sensor, int accuracy) {
-
-        }
-      };
+      Log.i("ACCELO MAX FIFO COUNT", "" + accelerometerSensor.getFifoMaxEventCount());
+      Log.i("MAGNETO MAX FIFO COUNT", "" + magneticFieldSensor.getFifoMaxEventCount());
 
       initialAccelerometerListener = new SensorEventListener() {
         @Override
@@ -123,13 +81,13 @@ public class CompassSensorProvider extends SensorProvider {
 
             if (magneticFieldOutput != null) {
 
-              SensorManager.getRotationMatrix(rotationMatrix, null, acceleromterOutput, magneticFieldOutput);
+              SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, acceleromterOutput, magneticFieldOutput);
 
               sensorManager.unregisterListener(initialAccelerometerListener);
               sensorManager.unregisterListener(initialMagneticFieldListener);
 
-              sensorManager.registerListener(accelerometerListener, accelerometerSensor, SensorManager.SENSOR_DELAY_UI);
-              sensorManager.registerListener(magneticFieldListener, magneticFieldSensor, SensorManager.SENSOR_DELAY_UI);
+              sensorManager.registerListener(accelerometerListener, accelerometerSensor, samplingPeriod, samplingPeriod);
+              sensorManager.registerListener(magneticFieldListener, magneticFieldSensor, samplingPeriod, samplingPeriod);
             }
           }
         }
@@ -149,13 +107,13 @@ public class CompassSensorProvider extends SensorProvider {
 
             if (acceleromterOutput != null) {
 
-              SensorManager.getRotationMatrix(rotationMatrix, null, acceleromterOutput, magneticFieldOutput);
+              SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, acceleromterOutput, magneticFieldOutput);
 
               sensorManager.unregisterListener(initialAccelerometerListener);
               sensorManager.unregisterListener(initialMagneticFieldListener);
 
-              sensorManager.registerListener(accelerometerListener, accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
-              sensorManager.registerListener(magneticFieldListener, magneticFieldSensor, SensorManager.SENSOR_DELAY_NORMAL);
+              sensorManager.registerListener(accelerometerListener, accelerometerSensor, samplingPeriod, samplingPeriod);
+              sensorManager.registerListener(magneticFieldListener, magneticFieldSensor, samplingPeriod, samplingPeriod);
             }
           }
         }
@@ -165,8 +123,79 @@ public class CompassSensorProvider extends SensorProvider {
         }
       };
 
-      sensorManager.registerListener(initialAccelerometerListener, accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
-      sensorManager.registerListener(initialMagneticFieldListener, magneticFieldSensor, SensorManager.SENSOR_DELAY_NORMAL);
+      accelerometerListener = new SensorEventListener() {
+        @Override
+        public void onSensorChanged(final SensorEvent event) {
+
+          synchronized (CompassSensorProvider.this) {
+
+            acceleromterOutput = event.values;
+            final long currentTime = System.currentTimeMillis();
+
+            if (SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, acceleromterOutput, magneticFieldOutput)) {
+              SensorManager.getOrientation(rotationMatrix, values);
+
+              if (lastUpdateTime + samplingPeriod / 1000 >= currentTime) {
+                return;
+              }
+
+              sensorValues.add(sensorDataToOrientation(values));
+
+              lastUpdateTime = currentTime;
+            }
+
+            if (endTime <= currentTime) {
+              latch.countDown();
+            }
+          }
+        }
+
+        @Override
+        public void onAccuracyChanged(final Sensor sensor, final int accuracy) {
+        }
+      };
+
+      magneticFieldListener = new SensorEventListener() {
+        @Override
+        public void onSensorChanged(final SensorEvent event) {
+
+          synchronized (CompassSensorProvider.this) {
+
+            magneticFieldOutput = event.values;
+            final long currentTime = System.currentTimeMillis();
+
+            if (SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, acceleromterOutput, magneticFieldOutput)) {
+              SensorManager.getOrientation(rotationMatrix, values);
+
+              if (lastUpdateTime + samplingPeriod / 1000 >= currentTime) {
+                return;
+              }
+
+              sensorValues.add(sensorDataToOrientation(values));
+
+              lastUpdateTime = currentTime;
+            }
+
+            if (endTime <= currentTime) {
+              latch.countDown();
+            }
+          }
+        }
+
+        @Override
+        public void onAccuracyChanged(final Sensor sensor, final int accuracy) {
+        }
+      };
+
+      if (!(sensorManager.registerListener(initialAccelerometerListener, accelerometerSensor, SensorManager.SENSOR_DELAY_FASTEST) && sensorManager.registerListener(initialMagneticFieldListener, magneticFieldSensor, SensorManager.SENSOR_DELAY_FASTEST))) {
+
+        sensorManager.unregisterListener(initialAccelerometerListener);
+        sensorManager.unregisterListener(initialMagneticFieldListener);
+        sensorManager.unregisterListener(accelerometerListener);
+        sensorManager.unregisterListener(magneticFieldListener);
+
+        return null;
+      }
 
       try {
         latch.await();
@@ -174,6 +203,8 @@ public class CompassSensorProvider extends SensorProvider {
         e.printStackTrace();
       }
 
+      sensorManager.unregisterListener(initialAccelerometerListener);
+      sensorManager.unregisterListener(initialMagneticFieldListener);
       sensorManager.unregisterListener(accelerometerListener);
       sensorManager.unregisterListener(magneticFieldListener);
 
@@ -181,11 +212,11 @@ public class CompassSensorProvider extends SensorProvider {
     }
   }
 
-  public Future<List<Float>> retrieveCompassDataForPeriod(final Context context, final long startTime, final long duration) {
-    return sensorThreadPool.submit(new RetrieveCompassDataCallable(context, startTime, duration));
+  public Future<List<Float>> retrieveCompassDataForPeriod(final Context context, final long startTime, final long duration, final int samplingPeriod) {
+    return sensorThreadPool.submit(new RetrieveCompassDataCallable(context, startTime, duration, samplingPeriod));
   }
 
-  private static float sensorDataToOrientation(float sensorData[]) {
+  private static float sensorDataToOrientation(final float sensorData[]) {
     return (float) (Math.toDegrees(sensorData[0]) + 360) % 360;
   }
 }
