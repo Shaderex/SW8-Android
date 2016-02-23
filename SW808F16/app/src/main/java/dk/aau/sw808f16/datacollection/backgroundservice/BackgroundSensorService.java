@@ -44,12 +44,12 @@ public final class BackgroundSensorService extends Service {
   }
 
   private final class ServiceHandler extends Handler {
-    public ServiceHandler(Looper looper) {
+    public ServiceHandler(final Looper looper) {
       super(looper);
     }
 
     @Override
-    public void handleMessage(Message msg) {
+    public void handleMessage(final Message msg) {
       // Normally we would do some work here, like download a file.
       // For our sample, we just sleep for 5 seconds.
       try {
@@ -76,7 +76,7 @@ public final class BackgroundSensorService extends Service {
     // separate thread because the service normally runs in the process's
     // main thread, which we don't want to block.  We also make it
     // background priority so CPU-intensive work will not disrupt our UI.
-    HandlerThread thread = new HandlerThread("ServiceStartArguments",
+    final HandlerThread thread = new HandlerThread("ServiceStartArguments",
         android.os.Process.THREAD_PRIORITY_BACKGROUND);
     thread.start();
 
@@ -86,12 +86,12 @@ public final class BackgroundSensorService extends Service {
   }
 
   @Override
-  public int onStartCommand(Intent intent, int flags, int startId) {
+  public int onStartCommand(final Intent intent, final int flags, final int startId) {
     Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
 
     // For each start request, send a message to start a job and deliver the
     // start ID so we know which request we're stopping when we finish the job
-    Message msg = serviceHandler.obtainMessage();
+    final Message msg = serviceHandler.obtainMessage();
     msg.arg1 = startId;
     serviceHandler.sendMessage(msg);
 
@@ -100,7 +100,7 @@ public final class BackgroundSensorService extends Service {
   }
 
   @Override
-  public IBinder onBind(Intent intent) {
+  public IBinder onBind(final Intent intent) {
     // We don't provide binding, so return null
     return null;
   }
