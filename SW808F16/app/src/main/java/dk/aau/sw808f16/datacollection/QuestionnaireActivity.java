@@ -27,7 +27,7 @@ public class QuestionnaireActivity extends Activity {
     setContentView(R.layout.activity_questionnaire);
 
     Intent intent = getIntent();
-     questionnaire = intent.getParcelableExtra(QUESTIONNAIRE_PARCEL_IDENTIFIER);
+    questionnaire = intent.getParcelableExtra(QUESTIONNAIRE_PARCEL_IDENTIFIER);
 
     if (questionnaire == null) {
       throw new IllegalArgumentException("Illegal intent sent to activity. Questionnaire was null");
@@ -62,10 +62,27 @@ public class QuestionnaireActivity extends Activity {
     try {
       currentQuestion = questionnaire.getNextQuestion();
       questionText.setText(currentQuestion.getQuestion());
-    }
-    catch (IndexOutOfBoundsException e) {
+    } catch (IndexOutOfBoundsException e) {
       // There are no more questions
+
+      final Intent resultIntent = new Intent();
+      resultIntent.putExtra(QUESTIONNAIRE_PARCEL_IDENTIFIER, questionnaire);
+
+      setResult(Activity.RESULT_OK, resultIntent);
+
       finish();
     }
+  }
+
+  @Override
+  public void onBackPressed() {
+    super.onBackPressed();
+
+    final Intent resultIntent = new Intent();
+    resultIntent.putExtra(QUESTIONNAIRE_PARCEL_IDENTIFIER, questionnaire);
+
+    setResult(Activity.RESULT_CANCELED, resultIntent);
+
+    finish();
   }
 }

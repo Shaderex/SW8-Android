@@ -1,6 +1,7 @@
 package dk.aau.sw808f16.datacollection;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.widget.Button;
 import android.widget.TextView;
@@ -12,14 +13,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowActivity;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import dk.aau.sw808f16.datacollection.BuildConfig;
-import dk.aau.sw808f16.datacollection.QuestionnaireActivity;
-import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.questionaire.models.Question;
 import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
 
@@ -140,11 +140,68 @@ public class QuestionnaireActivityTest {
   public void testAnsweredLastQuestion() {
     Button yesButton = (Button) questionnaireActivity.findViewById(R.id.questionnaire_answer_button_yes);
 
-    for(int i = 0; i < questionnaire.getQuestions().size(); i++) {
+    for (int i = 0; i < questionnaire.getQuestions().size(); i++) {
       yesButton.performClick();
     }
 
     Assert.assertTrue(questionnaireActivity.isFinishing());
+  }
+
+  @Test
+  public void testActivityFinishedWithCorrectResultCompleted() {
+    Button yesButton = (Button) questionnaireActivity.findViewById(R.id.questionnaire_answer_button_yes);
+
+    for (int i = 0; i < questionnaire.getQuestions().size(); i++) {
+      yesButton.performClick();
+      questionnaire.getQuestions().get(i).setAnswer(true);
+    }
+
+    final ShadowActivity shadowActivity = Shadows.shadowOf(questionnaireActivity);
+
+    final Intent resultIntent = shadowActivity.getResultIntent();
+    final Questionnaire resultQuestionnaire = resultIntent.getParcelableExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER);
+
+    Assert.assertNotNull(shadowActivity.getResultCode());
+    Assert.assertEquals(Activity.RESULT_OK, shadowActivity.getResultCode());
+    Assert.assertNotNull(resultQuestionnaire);
+    Assert.assertEquals(questionnaire, resultQuestionnaire);
+  }
+
+  @Test
+  public void testActivityFinishedWithCorrectResultCancelled() {
+    questionnaireActivity.onBackPressed();
+
+    final ShadowActivity shadowActivity = Shadows.shadowOf(questionnaireActivity);
+
+    final Intent resultIntent = shadowActivity.getResultIntent();
+    final Questionnaire resultQuestionnaire = resultIntent.getParcelableExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER);
+
+    Assert.assertNotNull(shadowActivity.getResultCode());
+    Assert.assertEquals(Activity.RESULT_CANCELED, shadowActivity.getResultCode());
+    Assert.assertNotNull(resultQuestionnaire);
+    Assert.assertEquals(questionnaire, resultQuestionnaire);
+  }
+
+  @Test
+  public void testActivityFinishedWithCorrectResultNotFullyCompleted() {
+    Button yesButton = (Button) questionnaireActivity.findViewById(R.id.questionnaire_answer_button_yes);
+
+    for (int i = 0; i < questionnaire.getQuestions().size() - 1; i++) {
+      yesButton.performClick();
+      questionnaire.getQuestions().get(i).setAnswer(true);
+    }
+
+    questionnaireActivity.onBackPressed();
+
+    final ShadowActivity shadowActivity = Shadows.shadowOf(questionnaireActivity);
+
+    final Intent resultIntent = shadowActivity.getResultIntent();
+    final Questionnaire resultQuestionnaire = resultIntent.getParcelableExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER);
+
+    Assert.assertNotNull(shadowActivity.getResultCode());
+    Assert.assertEquals(Activity.RESULT_CANCELED, shadowActivity.getResultCode());
+    Assert.assertNotNull(resultQuestionnaire);
+    Assert.assertEquals(questionnaire, resultQuestionnaire);
   }
 
 }
