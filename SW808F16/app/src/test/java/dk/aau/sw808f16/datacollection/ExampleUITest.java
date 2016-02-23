@@ -15,19 +15,18 @@ import static org.junit.Assert.assertEquals;
 @Config(constants = BuildConfig.class, sdk = 21)
 public class ExampleUITest {
 
-    private MainActivity mainActivity;
+  private MainActivity mainActivity;
 
-    @Before
-    public void setup() {
-        mainActivity = Robolectric.buildActivity(MainActivity.class).create().get();
-    }
+  @Before
+  public void setup() {
+    mainActivity = Robolectric.buildActivity(MainActivity.class).create().get();
+  }
 
-    @Test
-    public void exampleGUITest() throws Exception {
-        TextView textView = (TextView) mainActivity.findViewById(R.id.hello_world);
+  @Test
+  public void exampleGUITest() {
+    TextView textView = (TextView) mainActivity.findViewById(R.id.hello_world);
 
-        assertEquals(textView.getText(), "Hello World!");
-    }
-
+    assertEquals(textView.getText(), "Hello World!");
+  }
 
 }
