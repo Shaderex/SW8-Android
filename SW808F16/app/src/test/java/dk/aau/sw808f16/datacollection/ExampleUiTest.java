@@ -13,21 +13,20 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21)
-public class ExampleUITest {
+public class ExampleUiTest {
 
-    private MainActivity mainActivity;
+  private MainActivity mainActivity;
 
-    @Before
-    public void setup() {
-        mainActivity = Robolectric.buildActivity(MainActivity.class).create().get();
-    }
+  @Before
+  public void setup() {
+    mainActivity = Robolectric.buildActivity(MainActivity.class).create().get();
+  }
 
-    @Test
-    public void exampleGUITest() throws Exception {
-        TextView textView = (TextView) mainActivity.findViewById(R.id.hello_world);
+  @Test
+  public void exampleGuiTest() {
+    TextView textView = (TextView) mainActivity.findViewById(R.id.hello_world);
 
-        assertEquals(textView.getText(), "Hello World!");
-    }
-
+    assertEquals(textView.getText(), "Hello World!");
+  }
 
 }

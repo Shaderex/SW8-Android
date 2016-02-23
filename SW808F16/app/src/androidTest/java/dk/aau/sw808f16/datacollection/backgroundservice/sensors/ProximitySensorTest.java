@@ -53,7 +53,7 @@ public class ProximitySensorTest extends ApplicationTestCase<DataCollectionAppli
     final List<Float> data = futureData.get();
 
     for (final Float proximityValue : data) {
-      assertTrue("Values should be within " + maxValue + " and " + minValue, proximityValue <= maxValue && proximityValue >= minValue);
+      assertTrue("Value must be within " + maxValue + " and " + minValue, proximityValue <= maxValue && proximityValue >= minValue);
     }
   }
 
@@ -81,11 +81,11 @@ public class ProximitySensorTest extends ApplicationTestCase<DataCollectionAppli
     assertTrue(data2 != null && !data2.isEmpty());
 
     for (final Float proximityValue : data1) {
-      assertTrue("Data 1 values should be within " + maxValue + " and " + minValue, proximityValue <= maxValue && proximityValue >= minValue);
+      assertTrue("Data 1 value must be within " + maxValue + " and " + minValue, proximityValue <= maxValue && proximityValue >= minValue);
     }
 
     for (final Float proximityValue : data2) {
-      assertTrue("Data 2 values should be within " + maxValue + " and " + minValue, proximityValue <= maxValue && proximityValue >= minValue);
+      assertTrue("Data 2 value must be within " + maxValue + " and " + minValue, proximityValue <= maxValue && proximityValue >= minValue);
     }
   }
 

@@ -8,6 +8,7 @@ import android.test.ApplicationTestCase;
 
 import junit.framework.Assert;
 
+@SuppressWarnings("unused")
 public class LocationTest extends ApplicationTestCase<Application> {
 
   public LocationTest() {

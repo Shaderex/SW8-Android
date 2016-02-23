@@ -7,6 +7,9 @@ import android.content.Intent;
 public class BootReceiver extends BroadcastReceiver {
   @Override
   public void onReceive(final Context context, final Intent intent) {
-    context.startService(new Intent(context, BackgroundSensorService.class));
+
+    if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
+      context.startService(new Intent(context, BackgroundSensorService.class));
+    }
   }
 }

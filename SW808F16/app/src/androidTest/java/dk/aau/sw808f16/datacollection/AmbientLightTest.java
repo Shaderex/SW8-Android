@@ -13,9 +13,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 
-public class AmbeintLightTest extends ApplicationTestCase<Application> {
+@SuppressWarnings("unused")
+public class AmbientLightTest extends ApplicationTestCase<Application> {
 
-  public AmbeintLightTest() {
+  public AmbientLightTest() {
     super(Application.class);
   }
 
@@ -36,7 +37,7 @@ public class AmbeintLightTest extends ApplicationTestCase<Application> {
 
         final float lux = event.values[0];
 
-        Log.i("LIGHT Illuminance", lux + " lx / " + lightSensor.getMaximumRange() + " lx");
+        Log.i("LIGHT illuminance", lux + " lx / " + lightSensor.getMaximumRange() + " lx");
       }
 
       @Override
@@ -57,8 +58,8 @@ public class AmbeintLightTest extends ApplicationTestCase<Application> {
 
     try {
       latch.await();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+    } catch (InterruptedException exception) {
+      exception.printStackTrace();
     }
 
     timer.cancel();

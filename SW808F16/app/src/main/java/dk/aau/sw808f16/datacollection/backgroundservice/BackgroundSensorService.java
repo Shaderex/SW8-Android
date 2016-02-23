@@ -15,14 +15,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import dk.aau.sw808f16.datacollection.backgroundservice.sensors.CompassSensorProvider;
+import dk.aau.sw808f16.datacollection.backgroundservice.sensors.ProximitySensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensors.SensorProvider;
 
 public final class BackgroundSensorService extends Service {
 
-  private Looper serviceLooper;
   private ServiceHandler serviceHandler;
-  protected final ExecutorService sensorThreadPool;
+  @SuppressWarnings("FieldCanBeLocal")
+  private final ExecutorService sensorThreadPool;
+  @SuppressWarnings("FieldCanBeLocal")
   private final CompassSensorProvider compassSensor;
+  @SuppressWarnings("FieldCanBeLocal")
+  private final ProximitySensorProvider proximitySensor;
 
   public BackgroundSensorService() {
 
@@ -36,6 +40,7 @@ public final class BackgroundSensorService extends Service {
 
     // Initialize SensorProvider instances with the shared threadpool
     compassSensor = new CompassSensorProvider(sensorThreadPool);
+    proximitySensor = new ProximitySensorProvider(sensorThreadPool);
   }
 
   private final class ServiceHandler extends Handler {
@@ -49,7 +54,7 @@ public final class BackgroundSensorService extends Service {
       // For our sample, we just sleep for 5 seconds.
       try {
         Thread.sleep(5000);
-      } catch (InterruptedException e) {
+      } catch (InterruptedException exception) {
         // Restore interrupt status.
         Thread.currentThread().interrupt();
       }
@@ -76,7 +81,7 @@ public final class BackgroundSensorService extends Service {
     thread.start();
 
     // Get the HandlerThread's Looper and use it for our Handler
-    serviceLooper = thread.getLooper();
+    final Looper serviceLooper = thread.getLooper();
     serviceHandler = new ServiceHandler(serviceLooper);
   }
 

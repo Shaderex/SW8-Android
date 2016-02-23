@@ -9,6 +9,7 @@ import android.util.Log;
 
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class CellularNetworkTest extends ApplicationTestCase<Application> {
 
   public CellularNetworkTest() {
@@ -18,9 +19,9 @@ public class CellularNetworkTest extends ApplicationTestCase<Application> {
   public void testCellularNetwork() {
 
     final TelephonyManager manager = (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
-    final List<CellInfo> cellInfos = manager.getAllCellInfo();
+    final List<CellInfo> cellInfoList = manager.getAllCellInfo();
 
-    for (final CellInfo info : cellInfos) {
+    for (final CellInfo info : cellInfoList) {
       Log.i("CellInfo", info.toString());
     }
   }

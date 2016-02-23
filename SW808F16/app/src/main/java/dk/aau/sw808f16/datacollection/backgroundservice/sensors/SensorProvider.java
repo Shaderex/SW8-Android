@@ -10,18 +10,18 @@ import java.util.concurrent.Future;
 
 public abstract class SensorProvider {
 
-  protected final ExecutorService sensorThreadPool;
+  private final ExecutorService sensorThreadPool;
 
   public SensorProvider(final ExecutorService sensorThreadPool) {
     this.sensorThreadPool = sensorThreadPool;
   }
 
-  protected abstract class RetrieveSensorDataCallable implements Callable<List<Float>>
-  {
-    protected final WeakReference<Context> contextWeakReference;
-    protected final long endTime;
-    protected final int samplingPeriod;
-    protected long lastUpdateTime;
+  protected abstract class RetrieveSensorDataCallable implements Callable<List<Float>> {
+
+    final WeakReference<Context> contextWeakReference;
+    final long endTime;
+    final int samplingPeriod;
+    long lastUpdateTime;
 
     public RetrieveSensorDataCallable(final Context context, final long duration, final int samplingPeriod) {
       contextWeakReference = new WeakReference<>(context);

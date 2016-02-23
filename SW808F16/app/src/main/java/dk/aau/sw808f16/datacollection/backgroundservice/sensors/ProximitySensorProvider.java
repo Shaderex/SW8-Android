@@ -20,7 +20,7 @@ public class ProximitySensorProvider extends SensorProvider {
   public ProximitySensorProvider(final ExecutorService sensorThreadPool) {
     super(sensorThreadPool);
 
-    proximitySamplingTimer = new Timer();
+    proximitySamplingTimer = new Timer(true);
   }
 
   public class RetrieveProximityDataCallable extends RetrieveSensorDataCallable {
@@ -29,7 +29,7 @@ public class ProximitySensorProvider extends SensorProvider {
       super(context, duration, samplingPeriod);
     }
 
-    private float proximitySensorOutput[];
+    private float[] proximitySensorOutput;
     private SensorEventListener proximityListener;
     private TimerTask proximitySamplingTask;
 
@@ -88,8 +88,8 @@ public class ProximitySensorProvider extends SensorProvider {
 
       try {
         latch.await();
-      } catch (InterruptedException e) {
-        e.printStackTrace();
+      } catch (InterruptedException exception) {
+        exception.printStackTrace();
       }
 
       sensorManager.unregisterListener(proximityListener);
@@ -101,11 +101,5 @@ public class ProximitySensorProvider extends SensorProvider {
   @Override
   protected RetrieveSensorDataCallable createCallable(final Context context, final long duration, final int samplingPeriod) {
     return new RetrieveProximityDataCallable(context, duration, samplingPeriod);
-  }
-
-  @Override
-  protected void finalize() throws Throwable {
-    super.finalize();
-    proximitySamplingTimer.cancel();
   }
 }

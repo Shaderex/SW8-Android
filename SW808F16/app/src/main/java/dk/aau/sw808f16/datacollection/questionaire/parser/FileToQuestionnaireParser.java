@@ -3,15 +3,14 @@ package dk.aau.sw808f16.datacollection.questionaire.parser;
 
 import android.content.Context;
 
-import dk.aau.sw808f16.datacollection.questionaire.models.Question;
-import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import dk.aau.sw808f16.datacollection.questionaire.models.Question;
+import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
 
 public class FileToQuestionnaireParser {
 
