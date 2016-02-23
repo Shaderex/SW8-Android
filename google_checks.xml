@@ -161,7 +161,7 @@
         <module name="CustomImportOrder">
             <property name="specialImportsRegExp" value="android"/>
             <property name="sortImportsInGroupAlphabetically" value="true"/>
-            <property name="customImportOrderRules" value="STATIC###SPECIAL_IMPORTS###STANDARD_JAVA_PACKAGE###THIRD_PARTY_PACKAGE"/>
+            <property name="customImportOrderRules" value="STATIC###SPECIAL_IMPORTS###STANDARD_JAVA_PACKAGE###THIRD_PARTY_PACKAGE###SAME_PACKAGE(3)"/>
         </module>
         <module name="MethodParamPad"/>
         <module name="OperatorWrap">
