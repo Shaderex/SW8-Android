@@ -13,9 +13,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 
-public class AmbeintLightTest extends ApplicationTestCase<Application> {
+public class AmbientLightTest extends ApplicationTestCase<Application> {
 
-  public AmbeintLightTest() {
+  public AmbientLightTest() {
     super(Application.class);
   }
 
