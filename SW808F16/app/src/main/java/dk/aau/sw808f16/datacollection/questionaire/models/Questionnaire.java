@@ -8,7 +8,7 @@ import java.util.List;
 
 public class Questionnaire implements Parcelable {
 
-  private List<Question> questions;
+  private final List<Question> questions;
   private int currentQuestionIndex = -1;
   public static final Parcelable.Creator<Questionnaire> CREATOR = new Creator<Questionnaire>() {
     @Override

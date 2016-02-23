@@ -12,15 +12,13 @@ public class Question implements Parcelable {
     this.setQuestion(question);
   }
 
-  protected Question(Parcel in) {
+  Question(Parcel in) {
     byte byteAnswer = in.readByte();
 
     if (byteAnswer == -1) {
       answer = null;
-    } else if (byteAnswer == 1) {
-      answer = true;
     } else {
-      answer = false;
+      answer = byteAnswer == 1;
     }
 
     question = in.readString();
@@ -66,7 +64,7 @@ public class Question implements Parcelable {
     if (this == object) {
       return true;
     }
-    if (!(object instanceof Question) || object == null) {
+    if (!(object instanceof Question)) {
       return false;
     }
 

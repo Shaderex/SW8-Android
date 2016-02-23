@@ -15,21 +15,20 @@ import java.util.List;
 
 import dk.aau.sw808f16.datacollection.BuildConfig;
 
+@SuppressWarnings("unused")
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21)
 public class QuestionnaireTest extends TestCase {
 
-  Question question1;
-  Question question2;
-  List<Question> questions;
-  List<Question> questionsSame;
-  List<Question> questionsSameDifferentOrder;
-  List<Question> questionsDifferent;
+  private List<Question> questions;
+  private List<Question> questionsSame;
+  private List<Question> questionsSameDifferentOrder;
+  private List<Question> questionsDifferent;
 
   @Before
   public void setUp() {
-    question1 = new Question("How are you?");
-    question2 = new Question("Are you okay?");
+    Question question1 = new Question("How are you?");
+    Question question2 = new Question("Are you okay?");
 
     questions = new ArrayList<>();
     questions.add(question1);

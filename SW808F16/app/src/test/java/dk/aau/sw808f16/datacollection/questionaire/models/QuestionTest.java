@@ -12,6 +12,7 @@ import org.robolectric.annotation.Config;
 
 import dk.aau.sw808f16.datacollection.BuildConfig;
 
+@SuppressWarnings("unused")
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21)
 public class QuestionTest extends TestCase {
@@ -33,7 +34,7 @@ public class QuestionTest extends TestCase {
     String questionString = "";
 
     try {
-      Question question = new Question(questionString);
+      new Question(questionString);
       fail("The constructor did not throw an exception");
     } catch (Exception exception) {
       assertTrue(exception instanceof IllegalArgumentException);
@@ -46,7 +47,8 @@ public class QuestionTest extends TestCase {
     String questionString = null;
 
     try {
-      Question question = new Question(questionString);
+      //noinspection ConstantConditions
+      new Question(questionString);
       fail("The constructor did not throw an exception");
     } catch (Exception exception) {
       assertTrue(exception instanceof NullPointerException);
@@ -66,6 +68,7 @@ public class QuestionTest extends TestCase {
     question.setAnswer(false);
 
     final Boolean expected = false;
+    //noinspection ConstantConditions
     assertEquals("Answer not as expected", expected, question.getAnswer());
   }
 
