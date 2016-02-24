@@ -21,8 +21,8 @@ public class GyroscopeSensorProvider extends SensorProvider<List<float[]>> {
 
   private class RetrieveGyroscopeDataCallable extends RetrieveSensorDataCallable {
 
-    public RetrieveGyroscopeDataCallable(final long duration, final int samplingPeriod) {
-      super(duration, samplingPeriod);
+    public RetrieveGyroscopeDataCallable(final long sampleDuration, final int measurementFrequency) {
+      super(sampleDuration, measurementFrequency);
     }
 
     // Listeners used when we have one measurement from each sensor
@@ -85,7 +85,7 @@ public class GyroscopeSensorProvider extends SensorProvider<List<float[]>> {
   }
 
   @Override
-  protected RetrieveSensorDataCallable createCallable(long duration, int samplingPeriod) {
-    return new RetrieveGyroscopeDataCallable(duration, samplingPeriod);
+  protected RetrieveSensorDataCallable createCallable(long sampleDuration, int measurementFrequency) {
+    return new RetrieveGyroscopeDataCallable(sampleDuration, measurementFrequency);
   }
 }
