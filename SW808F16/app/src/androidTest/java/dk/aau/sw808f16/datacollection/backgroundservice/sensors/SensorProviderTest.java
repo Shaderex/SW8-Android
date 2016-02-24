@@ -20,7 +20,7 @@ public class SensorProviderTest extends ApplicationTestCase<DataCollectionApplic
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
 
-    final ProximitySensorProvider proximitySensorProvider = new ProximitySensorProvider(sensorThreadPool, sensorManager);
+    final ProximitySensorProvider proximitySensorProvider = new ProximitySensorProvider(getContext(), sensorThreadPool, sensorManager);
 
     try {
       proximitySensorProvider.retrieveSamplesForDuration(100, 1000, 10000, 100000);
@@ -35,7 +35,7 @@ public class SensorProviderTest extends ApplicationTestCase<DataCollectionApplic
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
 
-    final ProximitySensorProvider proximitySensorProvider = new ProximitySensorProvider(sensorThreadPool, sensorManager);
+    final ProximitySensorProvider proximitySensorProvider = new ProximitySensorProvider(getContext(), sensorThreadPool, sensorManager);
 
     proximitySensorProvider.retrieveSamplesForDuration(10000, 1000, 100, 10);
   }

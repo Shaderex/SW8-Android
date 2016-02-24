@@ -1,5 +1,6 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensors;
 
+import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -12,12 +13,14 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
+import dk.aau.sw808f16.datacollection.R;
+
 public class ProximitySensorProvider extends SensorProvider<List<Float>> {
 
   private final Timer proximitySamplingTimer;
 
-  public ProximitySensorProvider(final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
-    super(sensorThreadPool, sensorManager);
+  public ProximitySensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
+    super(context, sensorThreadPool, sensorManager);
     proximitySamplingTimer = new Timer(true);
   }
 
@@ -32,7 +35,7 @@ public class ProximitySensorProvider extends SensorProvider<List<Float>> {
     private TimerTask proximitySamplingTask;
 
     @Override
-    public List<Float> call() throws Exception {
+    public List<Float> call() throws InterruptedException {
 
       final CountDownLatch latch = new CountDownLatch(1);
 
@@ -61,7 +64,8 @@ public class ProximitySensorProvider extends SensorProvider<List<Float>> {
               }
             };
 
-            proximitySamplingTimer.scheduleAtFixedRate(proximitySamplingTask, 0, measurementFrequency / 1000);
+            final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
+            proximitySamplingTimer.scheduleAtFixedRate(proximitySamplingTask, 0, measurementFrequency / micro_per_milli);
           } else {
             proximitySensorOutput = event.values;
           }
@@ -78,11 +82,7 @@ public class ProximitySensorProvider extends SensorProvider<List<Float>> {
         return null;
       }
 
-      try {
-        latch.await();
-      } catch (InterruptedException exception) {
-        exception.printStackTrace();
-      }
+      latch.await();
 
       sensorManager.unregisterListener(proximityListener);
 

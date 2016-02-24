@@ -1,5 +1,6 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensors;
 
+import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -10,10 +11,12 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
+import dk.aau.sw808f16.datacollection.R;
+
 public class AccelerometerSensorProvider extends SensorProvider<List<float[]>> {
 
-  public AccelerometerSensorProvider(final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
-    super(sensorThreadPool, sensorManager);
+  public AccelerometerSensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
+    super(context, sensorThreadPool, sensorManager);
   }
 
   private class RetrieveAccelerometerDataCallable extends RetrieveSensorDataCallable {
@@ -26,7 +29,7 @@ public class AccelerometerSensorProvider extends SensorProvider<List<float[]>> {
     private SensorEventListener accelerometerListener;
 
     @Override
-    public List<float[]> call() throws Exception {
+    public List<float[]> call() throws InterruptedException {
 
       final CountDownLatch latch = new CountDownLatch(1);
 
@@ -42,7 +45,8 @@ public class AccelerometerSensorProvider extends SensorProvider<List<float[]>> {
 
             final long currentTime = System.currentTimeMillis();
 
-            if (lastUpdateTime + measurementFrequency / 1000 >= currentTime) {
+            final int micro_per_milli =  context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
+            if (lastUpdateTime + measurementFrequency / micro_per_milli >= currentTime) {
               return;
             }
 
@@ -67,11 +71,7 @@ public class AccelerometerSensorProvider extends SensorProvider<List<float[]>> {
         return null;
       }
 
-      try {
-        latch.await();
-      } catch (InterruptedException exception) {
-        exception.printStackTrace();
-      }
+      latch.await();
 
       sensorManager.unregisterListener(accelerometerListener);
 

@@ -2,7 +2,6 @@ package dk.aau.sw808f16.datacollection.backgroundservice;
 
 import android.app.Service;
 import android.content.Intent;
-import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Binder;
 import android.os.Handler;
@@ -75,10 +74,10 @@ public final class BackgroundSensorService extends Service {
 
     final SensorManager sensorManager = (SensorManager) getApplicationContext().getSystemService(SENSOR_SERVICE);
 
-    // Initialize SensorProvider instances with the shared threadpool
-    compassSensor = new CompassSensorProvider(sensorThreadPool, sensorManager);
-    proximitySensor = new ProximitySensorProvider(sensorThreadPool, sensorManager);
-    accelerometerSensor = new AccelerometerSensorProvider(sensorThreadPool, sensorManager);
+    // Initialize SensorProvider instances with the shared thread pool
+    compassSensor = new CompassSensorProvider(this, sensorThreadPool, sensorManager);
+    proximitySensor = new ProximitySensorProvider(this, sensorThreadPool, sensorManager);
+    accelerometerSensor = new AccelerometerSensorProvider(this, sensorThreadPool, sensorManager);
 
     // Start up the thread running the service.  Note that we create a
     // separate thread because the service normally runs in the process's

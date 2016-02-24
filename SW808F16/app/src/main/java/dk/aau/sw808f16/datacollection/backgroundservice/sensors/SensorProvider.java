@@ -1,11 +1,14 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensors;
 
+import android.content.Context;
 import android.hardware.SensorManager;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import java.lang.ref.WeakReference;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -13,10 +16,12 @@ import java.util.concurrent.Future;
 
 public abstract class SensorProvider<T> {
 
+  final WeakReference<Context> context;
   private final ExecutorService sensorThreadPool;
   protected final SensorManager sensorManager;
 
-  public SensorProvider(final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
+  public SensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
+    this.context = new WeakReference<>(context);
     this.sensorThreadPool = sensorThreadPool;
     this.sensorManager = sensorManager;
   }
@@ -50,7 +55,7 @@ public abstract class SensorProvider<T> {
     final Future<List<T>> futureListOfSamples = sensorThreadPool.submit(new Callable<List<T>>() {
 
       @Override
-      public List<T> call() throws Exception {
+      public List<T> call() throws InterruptedException  {
 
         final List<T> samples = new ArrayList<>();
 
