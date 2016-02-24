@@ -32,6 +32,7 @@ public class CompassSensorRoboTest {
 
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
     @SuppressWarnings("unused")
-    final CompassSensorProvider compassSensorProvider = new CompassSensorProvider(RuntimeEnvironment.application.getApplicationContext(), sensorThreadPool, sensorManager);
+    final CompassSensorProvider compassSensorProvider =
+        new CompassSensorProvider(RuntimeEnvironment.application.getApplicationContext(), sensorThreadPool, sensorManager);
   }
 }

@@ -37,7 +37,8 @@ public class AccelerometerSensorProviderTest extends ApplicationTestCase<DataCol
   public void testAccelerometerSensorProviderData() throws ExecutionException, InterruptedException, Exception {
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
-    final AccelerometerSensorProvider accelerometerSensorProvider = new AccelerometerSensorProvider(getContext(), sensorThreadPool, sensorManager);
+    final AccelerometerSensorProvider accelerometerSensorProvider =
+        new AccelerometerSensorProvider(getContext(), sensorThreadPool, sensorManager);
 
     final List<float[]> data1 = accelerometerSensorProvider.retrieveSampleForDuration(duration, samplingPeriod);
 

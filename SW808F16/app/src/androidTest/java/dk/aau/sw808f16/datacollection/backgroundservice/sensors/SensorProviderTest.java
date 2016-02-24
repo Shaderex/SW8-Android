@@ -26,7 +26,7 @@ public class SensorProviderTest extends ApplicationTestCase<DataCollectionApplic
       proximitySensorProvider.retrieveSamplesForDuration(100, 1000, 10000, 100000);
       fail("retrieveSamplesForDuration accepted illegal parameters");
     } catch (IllegalArgumentException exception) {
-
+      // Test passed if this happens
     }
   }
 
