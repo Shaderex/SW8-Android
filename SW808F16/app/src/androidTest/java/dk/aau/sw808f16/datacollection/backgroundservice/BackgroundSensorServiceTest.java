@@ -2,10 +2,10 @@ package dk.aau.sw808f16.datacollection.backgroundservice;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
 import android.test.ApplicationTestCase;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
-import dk.aau.sw808f16.datacollection.backgroundservice.BackgroundSensorService;
 
 public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollectionApplication> {
   public BackgroundSensorServiceTest() {
@@ -13,16 +13,25 @@ public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollect
   }
 
   public void testServiceRunning() {
-    assertTrue("The service should be running", isMyServiceRunning(BackgroundSensorService.class, getContext()));
-  }
+    Intent backgroundServiceIntent = new Intent(getContext(), BackgroundSensorService.class);
 
-  private static boolean isMyServiceRunning(final Class<?> serviceClass, final Context context) {
-    ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+    // Start the BackgroundSensorService
+    getContext().startService(backgroundServiceIntent);
+
+    boolean isRunning = false;
+
+    // Get the activity manager
+    ActivityManager manager = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
+
+    // Run through all running services and check if one of them is the BackgroundSensorService
     for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-      if (serviceClass.getName().equals(service.service.getClassName())) {
-        return true;
+      if (BackgroundSensorService.class.getName().equals(service.service.getClassName())) {
+        isRunning = true;
+        break;
       }
     }
-    return false;
+
+    getContext().stopService(backgroundServiceIntent);
+    assertTrue("The service should be running", isRunning);
   }
 }
