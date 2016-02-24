@@ -1,4 +1,4 @@
-package dk.aau.sw808f16.datacollection;
+package dk.aau.sw808f16.datacollection.backgroundservice.sensors;
 
 import android.app.Application;
 import android.content.Context;
@@ -14,7 +14,9 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 
 @SuppressWarnings("unused")
-public class OrientationTest extends ApplicationTestCase<Application> {
+public class OrientationSensorTest extends ApplicationTestCase<Application> {
+  // Increase this to increase the amount of time logging
+  private static final int logTime = 0;
 
   private float[] accelerometerOutput;
   private float[] magneticFieldOutput;
@@ -36,7 +38,7 @@ public class OrientationTest extends ApplicationTestCase<Application> {
   private final float[] inclinationMatrix = new float[16];
   private final float[] values = new float[3];
 
-  public OrientationTest() {
+  public OrientationSensorTest() {
     super(Application.class);
   }
 
@@ -98,7 +100,7 @@ public class OrientationTest extends ApplicationTestCase<Application> {
       @Override
       public void onSensorChanged(final SensorEvent event) {
 
-        synchronized (OrientationTest.this) {
+        synchronized (OrientationSensorTest.this) {
 
           accelerometerOutput = event.values;
 
@@ -124,7 +126,7 @@ public class OrientationTest extends ApplicationTestCase<Application> {
       @Override
       public void onSensorChanged(final SensorEvent event) {
 
-        synchronized (OrientationTest.this) {
+        synchronized (OrientationSensorTest.this) {
 
           magneticFieldOutput = event.values;
 
@@ -150,7 +152,7 @@ public class OrientationTest extends ApplicationTestCase<Application> {
   public void testCompass() {
 
     final long now = System.currentTimeMillis();
-    final long whenToStop = now + 30000;
+    final long whenToStop = now + logTime;
     final CountDownLatch latch = new CountDownLatch(1);
 
     final Timer timer = new Timer();
