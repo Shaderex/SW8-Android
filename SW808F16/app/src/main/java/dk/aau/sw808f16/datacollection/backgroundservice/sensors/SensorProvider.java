@@ -4,7 +4,6 @@ import android.content.Context;
 import android.hardware.SensorManager;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
