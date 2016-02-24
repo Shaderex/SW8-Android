@@ -13,9 +13,9 @@ import java.util.concurrent.Future;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 
-public class ProximitySensorTest extends ApplicationTestCase<DataCollectionApplication> {
+public class ProximitySensorProviderTest extends ApplicationTestCase<DataCollectionApplication> {
 
-  public ProximitySensorTest() {
+  public ProximitySensorProviderTest() {
     super(DataCollectionApplication.class);
   }
 

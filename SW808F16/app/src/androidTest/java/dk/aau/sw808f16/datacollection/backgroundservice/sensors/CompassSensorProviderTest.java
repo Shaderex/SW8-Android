@@ -12,9 +12,9 @@ import java.util.concurrent.Future;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 
-public class CompassSensorTest extends ApplicationTestCase<DataCollectionApplication> {
+public class CompassSensorProviderTest extends ApplicationTestCase<DataCollectionApplication> {
 
-  public CompassSensorTest() {
+  public CompassSensorProviderTest() {
     super(DataCollectionApplication.class);
   }
 

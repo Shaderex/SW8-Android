@@ -13,9 +13,9 @@ import java.util.concurrent.Future;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 
-public class AccelerometerSensorTest extends ApplicationTestCase<DataCollectionApplication> {
+public class AccelerometerSensorProviderTest extends ApplicationTestCase<DataCollectionApplication> {
 
-  public AccelerometerSensorTest() {
+  public AccelerometerSensorProviderTest() {
     super(DataCollectionApplication.class);
   }
 
