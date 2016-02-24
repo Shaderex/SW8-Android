@@ -15,30 +15,23 @@ import dk.aau.sw808f16.datacollection.R;
 
 public class AccelerometerSensorProvider extends SensorProvider<List<float[]>> {
 
-  public AccelerometerSensorProvider(final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
-    super(sensorThreadPool, sensorManager);
+  public AccelerometerSensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
+    super(context, sensorThreadPool, sensorManager);
   }
 
   private class RetrieveAccelerometerDataCallable extends RetrieveSensorDataCallable {
 
-    public RetrieveAccelerometerDataCallable(final Context context, final long duration, final int samplingPeriod) {
-      super(context, duration, samplingPeriod);
+    public RetrieveAccelerometerDataCallable(final long duration, final int samplingPeriod) {
+      super(duration, samplingPeriod);
     }
 
     // Listeners used when we have one measurement from each sensor
     private SensorEventListener accelerometerListener;
 
-    private final float[] values = new float[3];
-
     @Override
-    public List<float[]> call() throws Exception {
+    public List<float[]> call() throws InterruptedException {
 
-      final Context context = contextWeakReference.get();
       final CountDownLatch latch = new CountDownLatch(1);
-
-      if (context == null) {
-        return null;
-      }
 
       final List<float[]> sensorValues = new ArrayList<>();
 
@@ -51,8 +44,9 @@ public class AccelerometerSensorProvider extends SensorProvider<List<float[]>> {
           synchronized (AccelerometerSensorProvider.this) {
 
             final long currentTime = System.currentTimeMillis();
-            final int micro_per_milli = context.getResources().getInteger(R.integer.micro_seconds_per_milli_second);
-            if (lastUpdateTime + samplingPeriod / micro_per_milli  >= currentTime) {
+
+            final int micro_per_milli =  context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
+            if (lastUpdateTime + measurementFrequency / micro_per_milli >= currentTime) {
               return;
             }
 
@@ -77,11 +71,7 @@ public class AccelerometerSensorProvider extends SensorProvider<List<float[]>> {
         return null;
       }
 
-      try {
-        latch.await();
-      } catch (InterruptedException exception) {
-        exception.printStackTrace();
-      }
+      latch.await();
 
       sensorManager.unregisterListener(accelerometerListener);
 
@@ -90,7 +80,7 @@ public class AccelerometerSensorProvider extends SensorProvider<List<float[]>> {
   }
 
   @Override
-  protected RetrieveSensorDataCallable createCallable(final Context context, final long duration, final int samplingPeriod) {
-    return new RetrieveAccelerometerDataCallable(context, duration, samplingPeriod);
+  protected RetrieveSensorDataCallable createCallable(final long sampleDuration, final int measurementFrequency) {
+    return new RetrieveAccelerometerDataCallable(sampleDuration, measurementFrequency);
   }
 }

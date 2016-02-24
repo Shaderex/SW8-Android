@@ -33,16 +33,14 @@ public class CompassSensorProviderTest extends ApplicationTestCase<DataCollectio
     maxSize = expectedSize + 1;
   }
 
-  public void testCompassSensorProviderData() throws ExecutionException, InterruptedException {
+  public void testCompassSensorProviderData() throws ExecutionException, InterruptedException, Exception {
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
-    final CompassSensorProvider compassSensorProvider = new CompassSensorProvider(sensorThreadPool, sensorManager);
+    final CompassSensorProvider compassSensorProvider = new CompassSensorProvider(getContext(), sensorThreadPool, sensorManager);
 
-    final Future<List<Float>> futureData = compassSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
-    final List<Float> data = futureData.get();
+    final List<Float> data = compassSensorProvider.retrieveSampleForDuration(duration, samplingPeriod);
 
-    final Future<List<Float>> futureData2 = compassSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
-    final List<Float> data2 = futureData2.get();
+    final List<Float> data2 = compassSensorProvider.retrieveSampleForDuration(duration, samplingPeriod);
 
     assertNotNull("Sensor data is null", data);
     assertFalse("Sensor data is empty", data.isEmpty());
@@ -51,7 +49,7 @@ public class CompassSensorProviderTest extends ApplicationTestCase<DataCollectio
     assertFalse("Sensor data is empty (second measure)", data2.isEmpty());
 
     final int maxDegrees = 360;
-    final int minDegrees = 360;
+    final int minDegrees = 0;
 
     for (final Float orientationValue : data) {
       assertTrue("Values are too large (not smaller than 360 degrees)", orientationValue < maxDegrees);

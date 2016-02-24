@@ -34,19 +34,17 @@ public class AccelerometerSensorProviderTest extends ApplicationTestCase<DataCol
     maxSize = expectedSize + 1;
   }
 
-  public void testAccelerometerSensorProviderData() throws ExecutionException, InterruptedException {
+  public void testAccelerometerSensorProviderData() throws ExecutionException, InterruptedException, Exception {
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
-    final AccelerometerSensorProvider accelerometerSensorProvider = new AccelerometerSensorProvider(sensorThreadPool, sensorManager);
+    final AccelerometerSensorProvider accelerometerSensorProvider = new AccelerometerSensorProvider(getContext(), sensorThreadPool, sensorManager);
 
-    final Future<List<float[]>> futureData = accelerometerSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
-    final List<float[]> data = futureData.get();
+    final List<float[]> data1 = accelerometerSensorProvider.retrieveSampleForDuration(duration, samplingPeriod);
 
-    final Future<List<float[]>> futureData2 = accelerometerSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
-    final List<float[]> data2 = futureData2.get();
+    final List<float[]> data2 = accelerometerSensorProvider.retrieveSampleForDuration(duration, samplingPeriod);
 
-    assertNotNull("Sensor data is null", data);
-    assertFalse("Sensor data is empty", data.isEmpty());
+    assertNotNull("Sensor data is null", data1);
+    assertFalse("Sensor data is empty", data1.isEmpty());
 
     assertNotNull("Sensor data (second measure) is null", data2);
     assertFalse("Sensor data (second measure) is empty", data2.isEmpty());
@@ -55,7 +53,7 @@ public class AccelerometerSensorProviderTest extends ApplicationTestCase<DataCol
     final float maxValue = accelerometerSensor.getMaximumRange();
     final float minValue = -accelerometerSensor.getMaximumRange();
 
-    for (final float[] accelerometerValues : data) {
+    for (final float[] accelerometerValues : data1) {
       assertTrue("Data for index 0 value must be between " + minValue + " and " + maxValue,
           accelerometerValues[0] <= maxValue && accelerometerValues[0] >= minValue);
       assertTrue("Data for index 1 value must be between " + minValue + " and " + maxValue,
@@ -73,8 +71,8 @@ public class AccelerometerSensorProviderTest extends ApplicationTestCase<DataCol
           accelerometerValues[2] <= maxValue && accelerometerValues[2] >= minValue);
     }
 
-    assertTrue("The amount of data and sampling period do not match, not enough data", data.size() >= minSize);
-    assertTrue("The amount of data and sampling period do not match, too much data", data.size() <= maxSize);
+    assertTrue("The amount of data and sampling period do not match, not enough data", data1.size() >= minSize);
+    assertTrue("The amount of data and sampling period do not match, too much data", data1.size() <= maxSize);
     assertTrue("The amount of data and sampling period do not match, not enough data (second measure)", data2.size() >= minSize);
     assertTrue("The amount of data and sampling period do not match, too much data (second measure)", data2.size() <= maxSize);
   }

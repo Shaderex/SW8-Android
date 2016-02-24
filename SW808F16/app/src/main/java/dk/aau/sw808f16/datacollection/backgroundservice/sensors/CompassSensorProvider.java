@@ -17,14 +17,14 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
 
   private static final int maxArcDegrees = 360;
 
-  public CompassSensorProvider(final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
-    super(sensorThreadPool, sensorManager);
+  public CompassSensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
+    super(context, sensorThreadPool, sensorManager);
   }
 
   private class RetrieveCompassDataCallable extends RetrieveSensorDataCallable {
 
-    public RetrieveCompassDataCallable(final Context context, final long duration, final int samplingPeriod) {
-      super(context, duration, samplingPeriod);
+    public RetrieveCompassDataCallable(final long duration, final int samplingPeriod) {
+      super(duration, samplingPeriod);
     }
 
     private float[] accelerometerOutput;
@@ -44,14 +44,9 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
     private final float[] values = new float[3];
 
     @Override
-    public List<Float> call() throws Exception {
+    public List<Float> call() throws InterruptedException {
 
-      final Context context = contextWeakReference.get();
       final CountDownLatch latch = new CountDownLatch(1);
-
-      if (context == null) {
-        return null;
-      }
 
       final List<Float> sensorValues = new ArrayList<>();
 
@@ -73,8 +68,8 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
               sensorManager.unregisterListener(initialAccelerometerListener);
               sensorManager.unregisterListener(initialMagneticFieldListener);
 
-              sensorManager.registerListener(accelerometerListener, accelerometerSensor, samplingPeriod, samplingPeriod);
-              sensorManager.registerListener(magneticFieldListener, magneticFieldSensor, samplingPeriod, samplingPeriod);
+              sensorManager.registerListener(accelerometerListener, accelerometerSensor, measurementFrequency, measurementFrequency);
+              sensorManager.registerListener(magneticFieldListener, magneticFieldSensor, measurementFrequency, measurementFrequency);
             }
           }
         }
@@ -99,8 +94,8 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
               sensorManager.unregisterListener(initialAccelerometerListener);
               sensorManager.unregisterListener(initialMagneticFieldListener);
 
-              sensorManager.registerListener(accelerometerListener, accelerometerSensor, samplingPeriod, samplingPeriod);
-              sensorManager.registerListener(magneticFieldListener, magneticFieldSensor, samplingPeriod, samplingPeriod);
+              sensorManager.registerListener(accelerometerListener, accelerometerSensor, measurementFrequency, measurementFrequency);
+              sensorManager.registerListener(magneticFieldListener, magneticFieldSensor, measurementFrequency, measurementFrequency);
             }
           }
         }
@@ -122,8 +117,8 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
             if (SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, accelerometerOutput, magneticFieldOutput)) {
               SensorManager.getOrientation(rotationMatrix, values);
 
-              final int micro_per_milli = context.getResources().getInteger(R.integer.micro_seconds_per_milli_second);
-              if (lastUpdateTime + samplingPeriod / micro_per_milli  >= currentTime) {
+              final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
+              if (lastUpdateTime + measurementFrequency / micro_per_milli >= currentTime) {
                 return;
               }
 
@@ -155,7 +150,8 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
             if (SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, accelerometerOutput, magneticFieldOutput)) {
               SensorManager.getOrientation(rotationMatrix, values);
 
-              if (lastUpdateTime + samplingPeriod / 1000 >= currentTime) {
+              final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
+              if (lastUpdateTime + measurementFrequency / micro_per_milli >= currentTime) {
                 return;
               }
 
@@ -186,11 +182,7 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
         return null;
       }
 
-      try {
-        latch.await();
-      } catch (InterruptedException exception) {
-        exception.printStackTrace();
-      }
+      latch.await();
 
       sensorManager.unregisterListener(initialAccelerometerListener);
       sensorManager.unregisterListener(initialMagneticFieldListener);
@@ -202,8 +194,8 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
   }
 
   @Override
-  protected RetrieveSensorDataCallable createCallable(final Context context, final long duration, final int samplingPeriod) {
-    return new RetrieveCompassDataCallable(context, duration, samplingPeriod);
+  protected RetrieveSensorDataCallable createCallable(final long sampleDuration, final int measurementFrequency) {
+    return new RetrieveCompassDataCallable(sampleDuration, measurementFrequency);
   }
 
   private static float sensorDataToOrientation(final float[] sensorData) {

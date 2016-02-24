@@ -19,15 +19,15 @@ public class ProximitySensorProvider extends SensorProvider<List<Float>> {
 
   private final Timer proximitySamplingTimer;
 
-  public ProximitySensorProvider(final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
-    super(sensorThreadPool, sensorManager);
+  public ProximitySensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
+    super(context, sensorThreadPool, sensorManager);
     proximitySamplingTimer = new Timer(true);
   }
 
   private class RetrieveProximityDataCallable extends RetrieveSensorDataCallable {
 
-    public RetrieveProximityDataCallable(final Context context, final long duration, final int samplingPeriod) {
-      super(context, duration, samplingPeriod);
+    public RetrieveProximityDataCallable(final long sampleDuration, final int measurementFrequency) {
+      super(sampleDuration, measurementFrequency);
     }
 
     private float[] proximitySensorOutput;
@@ -35,14 +35,9 @@ public class ProximitySensorProvider extends SensorProvider<List<Float>> {
     private TimerTask proximitySamplingTask;
 
     @Override
-    public List<Float> call() throws Exception {
+    public List<Float> call() throws InterruptedException {
 
-      final Context context = contextWeakReference.get();
       final CountDownLatch latch = new CountDownLatch(1);
-
-      if (context == null) {
-        return null;
-      }
 
       final List<Float> sensorValues = new ArrayList<>();
 
@@ -69,8 +64,8 @@ public class ProximitySensorProvider extends SensorProvider<List<Float>> {
               }
             };
 
-            final int micro_per_milli = context.getResources().getInteger(R.integer.micro_seconds_per_milli_second);
-            proximitySamplingTimer.scheduleAtFixedRate(proximitySamplingTask, 0, samplingPeriod / micro_per_milli);
+            final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
+            proximitySamplingTimer.scheduleAtFixedRate(proximitySamplingTask, 0, measurementFrequency / micro_per_milli);
           } else {
             proximitySensorOutput = event.values;
           }
@@ -81,17 +76,13 @@ public class ProximitySensorProvider extends SensorProvider<List<Float>> {
         }
       };
 
-      if (!sensorManager.registerListener(proximityListener, proximitySensor, samplingPeriod)) {
+      if (!sensorManager.registerListener(proximityListener, proximitySensor, measurementFrequency)) {
 
         sensorManager.unregisterListener(proximityListener);
         return null;
       }
 
-      try {
-        latch.await();
-      } catch (InterruptedException exception) {
-        exception.printStackTrace();
-      }
+      latch.await();
 
       sensorManager.unregisterListener(proximityListener);
 
@@ -100,7 +91,7 @@ public class ProximitySensorProvider extends SensorProvider<List<Float>> {
   }
 
   @Override
-  protected RetrieveSensorDataCallable createCallable(final Context context, final long duration, final int samplingPeriod) {
-    return new RetrieveProximityDataCallable(context, duration, samplingPeriod);
+  protected RetrieveSensorDataCallable createCallable(final long sampleDuration, final int measurementFrequency) {
+    return new RetrieveProximityDataCallable(sampleDuration, measurementFrequency);
   }
 }
