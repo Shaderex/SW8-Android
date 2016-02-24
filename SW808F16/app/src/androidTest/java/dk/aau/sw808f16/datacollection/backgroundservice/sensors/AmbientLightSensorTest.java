@@ -1,4 +1,4 @@
-package dk.aau.sw808f16.datacollection;
+package dk.aau.sw808f16.datacollection.backgroundservice.sensors;
 
 import android.app.Application;
 import android.content.Context;
@@ -14,16 +14,18 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 
 @SuppressWarnings("unused")
-public class AmbientLightTest extends ApplicationTestCase<Application> {
+public class AmbientLightSensorTest extends ApplicationTestCase<Application> {
+  // Increase this to increase the amount of time logging
+  private static final int logTime = 0;
 
-  public AmbientLightTest() {
+  public AmbientLightSensorTest() {
     super(Application.class);
   }
 
   public void testAmbientLight() {
 
     final long now = System.currentTimeMillis();
-    final long whenToStop = now + 30000;
+    final long whenToStop = now + logTime;
     final CountDownLatch latch = new CountDownLatch(1);
 
     final Timer timer = new Timer();
