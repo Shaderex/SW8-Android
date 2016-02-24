@@ -13,7 +13,7 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-public class ProximitySensorProvider extends SensorProvider {
+public class ProximitySensorProvider extends SensorProvider<List<Float>> {
 
   private final Timer proximitySamplingTimer;
 
@@ -22,7 +22,7 @@ public class ProximitySensorProvider extends SensorProvider {
     proximitySamplingTimer = new Timer(true);
   }
 
-  public class RetrieveProximityDataCallable extends RetrieveSensorDataCallable {
+  private class RetrieveProximityDataCallable extends RetrieveSensorDataCallable {
 
     public RetrieveProximityDataCallable(final Context context, final long duration, final int samplingPeriod) {
       super(context, duration, samplingPeriod);

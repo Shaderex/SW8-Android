@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-public class CompassSensorProvider extends SensorProvider {
+public class CompassSensorProvider extends SensorProvider<List<Float>> {
 
   public CompassSensorProvider(final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(sensorThreadPool, sensorManager);
   }
 
-  public class RetrieveCompassDataCallable extends RetrieveSensorDataCallable {
+  private class RetrieveCompassDataCallable extends RetrieveSensorDataCallable {
 
     public RetrieveCompassDataCallable(final Context context, final long duration, final int samplingPeriod) {
       super(context, duration, samplingPeriod);
