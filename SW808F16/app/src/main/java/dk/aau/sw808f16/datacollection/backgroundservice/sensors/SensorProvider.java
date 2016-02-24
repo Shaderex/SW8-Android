@@ -48,11 +48,14 @@ public abstract class SensorProvider<T> {
                                                     final long sampleDuration,
                                                     final int measurementFrequency) {
 
-    if (!(totalDuration >= sampleFrequency
-        && sampleFrequency >= sampleDuration
-        && sampleDuration >= measurementFrequency)) {
-      throw new IllegalArgumentException("The following must hold for the given arguments: "
-          + "totalDuration >= sampleFrequency >= sampleDuration >= measurementFrequency");
+    if (!(totalDuration >= sampleFrequency)) {
+      throw new IllegalArgumentException("Total duration must be greater than or equal to sample frequency");
+    }
+    if (!(sampleFrequency >= sampleDuration)) {
+      throw new IllegalArgumentException("Sample frequency must be greater than or equal to sample duration");
+    }
+    if (!(sampleDuration >= measurementFrequency)) {
+      throw new IllegalArgumentException("Sample duration must be greater than or equal to measurement frequency");
     }
 
     final Timer timer = new Timer(true);
