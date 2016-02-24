@@ -9,14 +9,14 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 import dk.aau.sw808f16.datacollection.R;
 
 public class AccelerometerSensorProviderTest extends ApplicationTestCase<DataCollectionApplication> {
-  private static final long duration = 10000; // In milliseconds
-  private static final int samplingPeriod = 2000000; // In microseconds
+
+  private static final long sampleDuration = 10000; // In milliseconds
+  private static final int measurementFrequency = 2000000; // In microseconds
 
   // Because of real time issues the size may differ +/- 1
   private int minSize;
@@ -29,7 +29,7 @@ public class AccelerometerSensorProviderTest extends ApplicationTestCase<DataCol
   @Override
   protected void setUp() throws Exception {
     final int microPerMilli = this.getContext().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
-    final int expectedSize = (int) (microPerMilli * duration / samplingPeriod);
+    final int expectedSize = (int) (microPerMilli * sampleDuration / measurementFrequency);
     minSize = expectedSize - 1;
     maxSize = expectedSize + 1;
   }
@@ -40,9 +40,9 @@ public class AccelerometerSensorProviderTest extends ApplicationTestCase<DataCol
     final AccelerometerSensorProvider accelerometerSensorProvider =
         new AccelerometerSensorProvider(getContext(), sensorThreadPool, sensorManager);
 
-    final List<float[]> data1 = accelerometerSensorProvider.retrieveSampleForDuration(duration, samplingPeriod);
+    final List<float[]> data1 = accelerometerSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
 
-    final List<float[]> data2 = accelerometerSensorProvider.retrieveSampleForDuration(duration, samplingPeriod);
+    final List<float[]> data2 = accelerometerSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
 
     assertNotNull("Sensor data is null", data1);
     assertFalse("Sensor data is empty", data1.isEmpty());
