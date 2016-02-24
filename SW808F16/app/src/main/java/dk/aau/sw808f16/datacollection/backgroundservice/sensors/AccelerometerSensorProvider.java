@@ -21,8 +21,8 @@ public class AccelerometerSensorProvider extends SensorProvider<List<float[]>> {
 
   private class RetrieveAccelerometerDataCallable extends RetrieveSensorDataCallable {
 
-    public RetrieveAccelerometerDataCallable(final long duration, final int samplingPeriod) {
-      super(duration, samplingPeriod);
+    public RetrieveAccelerometerDataCallable(final long sampleDuration, final int measurementFrequency) {
+      super(sampleDuration, measurementFrequency);
     }
 
     // Listeners used when we have one measurement from each sensor

@@ -12,8 +12,9 @@ import java.util.concurrent.Executors;
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 
 public class LocationSensorProviderTest extends ApplicationTestCase<DataCollectionApplication> {
-  private static final long duration = 0; // In milliseconds
-  private static final int samplingPeriod = 0; // In microseconds
+
+  private static final long sampleDuration = 0; // In milliseconds
+  private static final int measurementFrequency = 0; // In microseconds
 
   // GPS will always return exactly one GPS
   private static final int expectedSize = 1;
@@ -27,9 +28,9 @@ public class LocationSensorProviderTest extends ApplicationTestCase<DataCollecti
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
     final LocationSensorProvider locationSensorProvider = new LocationSensorProvider(getContext(), sensorThreadPool, sensorManager);
 
-    final List<Location> data1 = locationSensorProvider.retrieveSampleForDuration(duration, samplingPeriod);
+    final List<Location> data1 = locationSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
 
-    final List<Location> data2 = locationSensorProvider.retrieveSampleForDuration(duration, samplingPeriod);
+    final List<Location> data2 = locationSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
 
     assertNotNull("Sensor data is null", data1);
     assertFalse("Sensor data is empty", data1.isEmpty());

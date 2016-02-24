@@ -23,8 +23,8 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
 
   private class RetrieveCompassDataCallable extends RetrieveSensorDataCallable {
 
-    public RetrieveCompassDataCallable(final long duration, final int samplingPeriod) {
-      super(duration, samplingPeriod);
+    public RetrieveCompassDataCallable(final long sampleDuration, final int measurementFrequency) {
+      super(sampleDuration, measurementFrequency);
     }
 
     private float[] accelerometerOutput;
