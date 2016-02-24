@@ -27,7 +27,7 @@ public class CompassSensorTest extends ApplicationTestCase<DataCollectionApplica
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
     final CompassSensorProvider compassSensorProvider = new CompassSensorProvider(sensorThreadPool, sensorManager);
 
-    final Future<List<Float>> futureData = compassSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
+    final Future<List<Float>> futureData = compassSensorProvider.retrieveSampleForDuration(getContext(), duration, samplingPeriod);
 
     final List<Float> data = futureData.get();
 
@@ -43,7 +43,7 @@ public class CompassSensorTest extends ApplicationTestCase<DataCollectionApplica
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
     final CompassSensorProvider compassSensorProvider = new CompassSensorProvider(sensorThreadPool, sensorManager);
 
-    final Future<List<Float>> futureData = compassSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
+    final Future<List<Float>> futureData = compassSensorProvider.retrieveSampleForDuration(getContext(), duration, samplingPeriod);
 
     final List<Float> data = futureData.get();
 
@@ -61,11 +61,11 @@ public class CompassSensorTest extends ApplicationTestCase<DataCollectionApplica
     final long duration = 10000; // In milliseconds
     final int samplingPeriod = 2000000; // In microseconds
 
-    final Future<List<Float>> futureData1 = compassSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
+    final Future<List<Float>> futureData1 = compassSensorProvider.retrieveSampleForDuration(getContext(), duration, samplingPeriod);
 
     final List<Float> data1 = futureData1.get();
 
-    final Future<List<Float>> futureData2 = compassSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
+    final Future<List<Float>> futureData2 = compassSensorProvider.retrieveSampleForDuration(getContext(), duration, samplingPeriod);
 
     final List<Float> data2 = futureData2.get();
 
@@ -90,7 +90,7 @@ public class CompassSensorTest extends ApplicationTestCase<DataCollectionApplica
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
     final CompassSensorProvider compassSensorProvider = new CompassSensorProvider(sensorThreadPool, sensorManager);
 
-    final Future<List<Float>> futureData = compassSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
+    final Future<List<Float>> futureData = compassSensorProvider.retrieveSampleForDuration(getContext(), duration, samplingPeriod);
 
     final List<Float> data = futureData.get();
 

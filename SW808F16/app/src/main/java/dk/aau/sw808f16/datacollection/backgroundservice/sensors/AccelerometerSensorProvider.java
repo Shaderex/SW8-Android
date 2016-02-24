@@ -1,6 +1,5 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensors;
 
-import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -19,24 +18,17 @@ public class AccelerometerSensorProvider extends SensorProvider<List<float[]>> {
 
   private class RetrieveAccelerometerDataCallable extends RetrieveSensorDataCallable {
 
-    public RetrieveAccelerometerDataCallable(final Context context, final long duration, final int samplingPeriod) {
-      super(context, duration, samplingPeriod);
+    public RetrieveAccelerometerDataCallable(final long duration, final int samplingPeriod) {
+      super(duration, samplingPeriod);
     }
 
     // Listeners used when we have one measurement from each sensor
     private SensorEventListener accelerometerListener;
 
-    private final float[] values = new float[3];
-
     @Override
     public List<float[]> call() throws Exception {
 
-      final Context context = contextWeakReference.get();
       final CountDownLatch latch = new CountDownLatch(1);
-
-      if (context == null) {
-        return null;
-      }
 
       final List<float[]> sensorValues = new ArrayList<>();
 
@@ -50,7 +42,7 @@ public class AccelerometerSensorProvider extends SensorProvider<List<float[]>> {
 
             final long currentTime = System.currentTimeMillis();
 
-            if (lastUpdateTime + samplingPeriod / 1000 >= currentTime) {
+            if (lastUpdateTime + measurementFrequency / 1000 >= currentTime) {
               return;
             }
 
@@ -88,7 +80,7 @@ public class AccelerometerSensorProvider extends SensorProvider<List<float[]>> {
   }
 
   @Override
-  protected RetrieveSensorDataCallable createCallable(final Context context, final long duration, final int samplingPeriod) {
-    return new RetrieveAccelerometerDataCallable(context, duration, samplingPeriod);
+  protected RetrieveSensorDataCallable createCallable(final long sampleDuration, final int measurementFrequency) {
+    return new RetrieveAccelerometerDataCallable(sampleDuration, measurementFrequency);
   }
 }

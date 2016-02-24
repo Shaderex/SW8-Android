@@ -28,7 +28,7 @@ public class ProximitySensorTest extends ApplicationTestCase<DataCollectionAppli
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
     final ProximitySensorProvider proximitySensorProvider = new ProximitySensorProvider(sensorThreadPool, sensorManager);
 
-    final Future<List<Float>> futureData = proximitySensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
+    final Future<List<Float>> futureData = proximitySensorProvider.retrieveSampleForDuration(getContext(), duration, samplingPeriod);
 
     final List<Float> data = futureData.get();
 
@@ -49,7 +49,7 @@ public class ProximitySensorTest extends ApplicationTestCase<DataCollectionAppli
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
     final ProximitySensorProvider proximitySensorProvider = new ProximitySensorProvider(sensorThreadPool, sensorManager);
 
-    final Future<List<Float>> futureData = proximitySensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
+    final Future<List<Float>> futureData = proximitySensorProvider.retrieveSampleForDuration(getContext(), duration, samplingPeriod);
 
     final List<Float> data = futureData.get();
 
@@ -72,10 +72,10 @@ public class ProximitySensorTest extends ApplicationTestCase<DataCollectionAppli
     final long duration = 10000; // In milliseconds
     final int samplingPeriod = 2000000; // In microseconds
 
-    final Future<List<Float>> futureData1 = proximitySensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
+    final Future<List<Float>> futureData1 = proximitySensorProvider.retrieveSampleForDuration(getContext(), duration, samplingPeriod);
     final List<Float> data1 = futureData1.get();
 
-    final Future<List<Float>> futureData2 = proximitySensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
+    final Future<List<Float>> futureData2 = proximitySensorProvider.retrieveSampleForDuration(getContext(), duration, samplingPeriod);
     final List<Float> data2 = futureData2.get();
 
     assertTrue(data1 != null && !data1.isEmpty());
@@ -99,7 +99,7 @@ public class ProximitySensorTest extends ApplicationTestCase<DataCollectionAppli
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
     final ProximitySensorProvider proximitySensorProvider = new ProximitySensorProvider(sensorThreadPool, sensorManager);
 
-    final Future<List<Float>> futureData = proximitySensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
+    final Future<List<Float>> futureData = proximitySensorProvider.retrieveSampleForDuration(getContext(), duration, samplingPeriod);
 
     final List<Float> data = futureData.get();
 

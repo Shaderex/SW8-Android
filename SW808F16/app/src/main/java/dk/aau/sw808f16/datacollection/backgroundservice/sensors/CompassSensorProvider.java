@@ -1,6 +1,5 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensors;
 
-import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -19,8 +18,8 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
 
   private class RetrieveCompassDataCallable extends RetrieveSensorDataCallable {
 
-    public RetrieveCompassDataCallable(final Context context, final long duration, final int samplingPeriod) {
-      super(context, duration, samplingPeriod);
+    public RetrieveCompassDataCallable(final long duration, final int samplingPeriod) {
+      super(duration, samplingPeriod);
     }
 
     private float[] accelerometerOutput;
@@ -42,12 +41,7 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
     @Override
     public List<Float> call() throws Exception {
 
-      final Context context = contextWeakReference.get();
       final CountDownLatch latch = new CountDownLatch(1);
-
-      if (context == null) {
-        return null;
-      }
 
       final List<Float> sensorValues = new ArrayList<>();
 
@@ -69,8 +63,8 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
               sensorManager.unregisterListener(initialAccelerometerListener);
               sensorManager.unregisterListener(initialMagneticFieldListener);
 
-              sensorManager.registerListener(accelerometerListener, accelerometerSensor, samplingPeriod, samplingPeriod);
-              sensorManager.registerListener(magneticFieldListener, magneticFieldSensor, samplingPeriod, samplingPeriod);
+              sensorManager.registerListener(accelerometerListener, accelerometerSensor, measurementFrequency, measurementFrequency);
+              sensorManager.registerListener(magneticFieldListener, magneticFieldSensor, measurementFrequency, measurementFrequency);
             }
           }
         }
@@ -95,8 +89,8 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
               sensorManager.unregisterListener(initialAccelerometerListener);
               sensorManager.unregisterListener(initialMagneticFieldListener);
 
-              sensorManager.registerListener(accelerometerListener, accelerometerSensor, samplingPeriod, samplingPeriod);
-              sensorManager.registerListener(magneticFieldListener, magneticFieldSensor, samplingPeriod, samplingPeriod);
+              sensorManager.registerListener(accelerometerListener, accelerometerSensor, measurementFrequency, measurementFrequency);
+              sensorManager.registerListener(magneticFieldListener, magneticFieldSensor, measurementFrequency, measurementFrequency);
             }
           }
         }
@@ -118,7 +112,7 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
             if (SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, accelerometerOutput, magneticFieldOutput)) {
               SensorManager.getOrientation(rotationMatrix, values);
 
-              if (lastUpdateTime + samplingPeriod / 1000 >= currentTime) {
+              if (lastUpdateTime + measurementFrequency / 1000 >= currentTime) {
                 return;
               }
 
@@ -150,7 +144,7 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
             if (SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, accelerometerOutput, magneticFieldOutput)) {
               SensorManager.getOrientation(rotationMatrix, values);
 
-              if (lastUpdateTime + samplingPeriod / 1000 >= currentTime) {
+              if (lastUpdateTime + measurementFrequency / 1000 >= currentTime) {
                 return;
               }
 
@@ -197,8 +191,8 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
   }
 
   @Override
-  protected RetrieveSensorDataCallable createCallable(final Context context, final long duration, final int samplingPeriod) {
-    return new RetrieveCompassDataCallable(context, duration, samplingPeriod);
+  protected RetrieveSensorDataCallable createCallable(final long sampleDuration, final int measurementFrequency) {
+    return new RetrieveCompassDataCallable(sampleDuration, measurementFrequency);
   }
 
   private static float sensorDataToOrientation(final float[] sensorData) {

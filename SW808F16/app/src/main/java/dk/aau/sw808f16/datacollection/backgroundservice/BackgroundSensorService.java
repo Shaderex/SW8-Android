@@ -16,6 +16,7 @@ import java.lang.reflect.Field;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import dk.aau.sw808f16.datacollection.backgroundservice.sensors.AccelerometerSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensors.CompassSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensors.ProximitySensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensors.SensorProvider;
@@ -29,6 +30,8 @@ public final class BackgroundSensorService extends Service {
   private CompassSensorProvider compassSensor;
   @SuppressWarnings("FieldCanBeLocal")
   private ProximitySensorProvider proximitySensor;
+  @SuppressWarnings("FieldCanBeLocal")
+  private AccelerometerSensorProvider accelerometerSensor;
 
   public BackgroundSensorService() {
     // The number of threads in the pool should correspond to the number of SensorProvider instances
@@ -75,6 +78,7 @@ public final class BackgroundSensorService extends Service {
     // Initialize SensorProvider instances with the shared threadpool
     compassSensor = new CompassSensorProvider(sensorThreadPool, sensorManager);
     proximitySensor = new ProximitySensorProvider(sensorThreadPool, sensorManager);
+    accelerometerSensor = new AccelerometerSensorProvider(sensorThreadPool, sensorManager);
 
     // Start up the thread running the service.  Note that we create a
     // separate thread because the service normally runs in the process's

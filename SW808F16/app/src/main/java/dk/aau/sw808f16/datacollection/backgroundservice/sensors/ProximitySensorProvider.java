@@ -1,6 +1,5 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensors;
 
-import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -24,8 +23,8 @@ public class ProximitySensorProvider extends SensorProvider<List<Float>> {
 
   private class RetrieveProximityDataCallable extends RetrieveSensorDataCallable {
 
-    public RetrieveProximityDataCallable(final Context context, final long duration, final int samplingPeriod) {
-      super(context, duration, samplingPeriod);
+    public RetrieveProximityDataCallable(final long sampleDuration, final int measurementFrequency) {
+      super(sampleDuration, measurementFrequency);
     }
 
     private float[] proximitySensorOutput;
@@ -35,12 +34,7 @@ public class ProximitySensorProvider extends SensorProvider<List<Float>> {
     @Override
     public List<Float> call() throws Exception {
 
-      final Context context = contextWeakReference.get();
       final CountDownLatch latch = new CountDownLatch(1);
-
-      if (context == null) {
-        return null;
-      }
 
       final List<Float> sensorValues = new ArrayList<>();
 
@@ -67,7 +61,7 @@ public class ProximitySensorProvider extends SensorProvider<List<Float>> {
               }
             };
 
-            proximitySamplingTimer.scheduleAtFixedRate(proximitySamplingTask, 0, samplingPeriod / 1000);
+            proximitySamplingTimer.scheduleAtFixedRate(proximitySamplingTask, 0, measurementFrequency / 1000);
           } else {
             proximitySensorOutput = event.values;
           }
@@ -78,7 +72,7 @@ public class ProximitySensorProvider extends SensorProvider<List<Float>> {
         }
       };
 
-      if (!sensorManager.registerListener(proximityListener, proximitySensor, samplingPeriod)) {
+      if (!sensorManager.registerListener(proximityListener, proximitySensor, measurementFrequency)) {
 
         sensorManager.unregisterListener(proximityListener);
         return null;
@@ -97,7 +91,7 @@ public class ProximitySensorProvider extends SensorProvider<List<Float>> {
   }
 
   @Override
-  protected RetrieveSensorDataCallable createCallable(final Context context, final long duration, final int samplingPeriod) {
-    return new RetrieveProximityDataCallable(context, duration, samplingPeriod);
+  protected RetrieveSensorDataCallable createCallable(final long sampleDuration, final int measurementFrequency) {
+    return new RetrieveProximityDataCallable(sampleDuration, measurementFrequency);
   }
 }

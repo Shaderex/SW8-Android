@@ -28,7 +28,7 @@ public class AccelerometerSensorTest extends ApplicationTestCase<DataCollectionA
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
     final AccelerometerSensorProvider compassSensorProvider = new AccelerometerSensorProvider(sensorThreadPool, sensorManager);
 
-    final Future<List<float[]>> futureData = compassSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
+    final Future<List<float[]>> futureData = compassSensorProvider.retrieveSampleForDuration(getContext(), duration, samplingPeriod);
 
     final List<float[]> data = futureData.get();
 
@@ -49,7 +49,7 @@ public class AccelerometerSensorTest extends ApplicationTestCase<DataCollectionA
 
     final AccelerometerSensorProvider compassSensorProvider = new AccelerometerSensorProvider(sensorThreadPool, sensorManager);
 
-    final Future<List<float[]>> futureData = compassSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
+    final Future<List<float[]>> futureData = compassSensorProvider.retrieveSampleForDuration(getContext(), duration, samplingPeriod);
 
     final List<float[]> data = futureData.get();
 
@@ -74,11 +74,11 @@ public class AccelerometerSensorTest extends ApplicationTestCase<DataCollectionA
     final float maxValue = accelerometerSensor.getMaximumRange();
     final float minValue = -accelerometerSensor.getMaximumRange();
 
-    final Future<List<float[]>> futureData1 = compassSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
+    final Future<List<float[]>> futureData1 = compassSensorProvider.retrieveSampleForDuration(getContext(), duration, samplingPeriod);
 
     final List<float[]> data1 = futureData1.get();
 
-    final Future<List<float[]>> futureData2 = compassSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
+    final Future<List<float[]>> futureData2 = compassSensorProvider.retrieveSampleForDuration(getContext(), duration, samplingPeriod);
 
     final List<float[]> data2 = futureData2.get();
 
@@ -107,7 +107,7 @@ public class AccelerometerSensorTest extends ApplicationTestCase<DataCollectionA
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
     final AccelerometerSensorProvider accelerometerSensorProvider = new AccelerometerSensorProvider(sensorThreadPool, sensorManager);
 
-    final Future<List<float[]>> futureData = accelerometerSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
+    final Future<List<float[]>> futureData = accelerometerSensorProvider.retrieveSampleForDuration(getContext(), duration, samplingPeriod);
 
     final List<float[]> data = futureData.get();
 
