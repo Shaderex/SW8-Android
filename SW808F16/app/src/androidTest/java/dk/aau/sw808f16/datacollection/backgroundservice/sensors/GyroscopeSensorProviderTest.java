@@ -35,19 +35,17 @@ public class GyroscopeSensorProviderTest extends ApplicationTestCase<DataCollect
     maxSize = expectedSize + 1;
   }
 
-  public void testAccelerometerSensorProviderData() throws ExecutionException, InterruptedException {
+  public void testAccelerometerSensorProviderData() throws ExecutionException, InterruptedException, Exception {
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
-    final GyroscopeSensorProvider gyroscopeSensorProvider = new GyroscopeSensorProvider(sensorThreadPool, sensorManager);
+    final GyroscopeSensorProvider gyroscopeSensorProvider = new GyroscopeSensorProvider(getContext(), sensorThreadPool, sensorManager);
 
-    final Future<List<float[]>> futureData = gyroscopeSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
-    final List<float[]> data = futureData.get();
+    final List<float[]> data1 = gyroscopeSensorProvider.retrieveSampleForDuration(duration, samplingPeriod);
 
-    final Future<List<float[]>> futureData2 = gyroscopeSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
-    final List<float[]> data2 = futureData2.get();
+    final List<float[]> data2 = gyroscopeSensorProvider.retrieveSampleForDuration(duration, samplingPeriod);
 
-    assertNotNull("Sensor data is null", data);
-    assertFalse("Sensor data is empty", data.isEmpty());
+    assertNotNull("Sensor data is null", data1);
+    assertFalse("Sensor data is empty", data1.isEmpty());
 
     assertNotNull("Sensor data (second measure) is null", data2);
     assertFalse("Sensor data (second measure) is empty", data2.isEmpty());
@@ -56,7 +54,7 @@ public class GyroscopeSensorProviderTest extends ApplicationTestCase<DataCollect
     final float maxValue = gyroscopeSensor.getMaximumRange();
     final float minValue = -gyroscopeSensor.getMaximumRange();
 
-    for (final float[] values : data) {
+    for (final float[] values : data1) {
       assertTrue("Data for index 0 value must be between " + minValue + " and " + maxValue,
           values[0] <= maxValue && values[0] >= minValue);
       assertTrue("Data for index 1 value must be between " + minValue + " and " + maxValue,
@@ -74,8 +72,8 @@ public class GyroscopeSensorProviderTest extends ApplicationTestCase<DataCollect
           values[2] <= maxValue && values[2] >= minValue);
     }
 
-    assertTrue("The amount of data and sampling period do not match, not enough data", data.size() >= minSize);
-    assertTrue("The amount of data and sampling period do not match, too much data", data.size() <= maxSize);
+    assertTrue("The amount of data and sampling period do not match, not enough data", data1.size() >= minSize);
+    assertTrue("The amount of data and sampling period do not match, too much data", data1.size() <= maxSize);
     assertTrue("The amount of data and sampling period do not match, not enough data (second measure)", data2.size() >= minSize);
     assertTrue("The amount of data and sampling period do not match, too much data (second measure)", data2.size() <= maxSize);
   }

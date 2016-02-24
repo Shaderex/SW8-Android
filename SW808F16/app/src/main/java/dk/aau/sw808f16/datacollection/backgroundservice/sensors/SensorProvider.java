@@ -3,12 +3,11 @@ package dk.aau.sw808f16.datacollection.backgroundservice.sensors;
 import android.content.Context;
 import android.hardware.SensorManager;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import java.lang.ref.WeakReference;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -18,7 +17,7 @@ public abstract class SensorProvider<T> {
 
   final WeakReference<Context> context;
   private final ExecutorService sensorThreadPool;
-  protected final SensorManager sensorManager;
+  final SensorManager sensorManager;
 
   public SensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     this.context = new WeakReference<>(context);
@@ -44,18 +43,24 @@ public abstract class SensorProvider<T> {
     return createCallable(sampleDuration, measurementFrequency).call();  //sensorThreadPool.submit();
   }
 
-  public Future<List<T>> retrieveSamplesForDuration(final long totalDuration, final long sampleFrequency, final long sampleDuration, final int measurementFrequency) {
+  public Future<List<T>> retrieveSamplesForDuration(final long totalDuration,
+                                                    final long sampleFrequency,
+                                                    final long sampleDuration,
+                                                    final int measurementFrequency) {
 
-    if (!(totalDuration >= sampleFrequency && sampleFrequency >= sampleDuration && sampleDuration >= measurementFrequency)) {
-      throw new IllegalArgumentException("The following must hold for the given arguments: totalDuration >= sampleFrequency >= sampleDuration >= measurementFrequency");
+    if (!(totalDuration >= sampleFrequency
+        && sampleFrequency >= sampleDuration
+        && sampleDuration >= measurementFrequency)) {
+      throw new IllegalArgumentException("The following must hold for the given arguments: "
+          + "totalDuration >= sampleFrequency >= sampleDuration >= measurementFrequency");
     }
 
     final Timer timer = new Timer(true);
 
-    final Future<List<T>> futureListOfSamples = sensorThreadPool.submit(new Callable<List<T>>() {
+    return sensorThreadPool.submit(new Callable<List<T>>() {
 
       @Override
-      public List<T> call() throws InterruptedException  {
+      public List<T> call() throws InterruptedException {
 
         final List<T> samples = new ArrayList<>();
 
@@ -66,24 +71,20 @@ public abstract class SensorProvider<T> {
 
         timer.scheduleAtFixedRate(new TimerTask() {
           @Override
-          public void run()  {
+          public void run() {
 
-            try
-            {
+            try {
               final long currentTime = System.currentTimeMillis();
 
-              if(currentTime > endTime)
-              {
+              if (currentTime > endTime) {
                 cancel();
                 latch.countDown();
               }
 
               final T sample = retrieveSampleForDuration(sampleDuration, measurementFrequency);
               samples.add(sample);
-            }
-            catch (Exception exception)
-            {
-
+            } catch (Exception exception) {
+              // Do absolutely nothing, yet
             }
           }
         }, 0, sampleFrequency);
@@ -93,7 +94,5 @@ public abstract class SensorProvider<T> {
         return samples;
       }
     });
-
-    return futureListOfSamples;
   }
 }

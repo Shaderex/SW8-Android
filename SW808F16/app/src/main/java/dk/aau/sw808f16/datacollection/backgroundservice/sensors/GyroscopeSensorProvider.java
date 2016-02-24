@@ -15,14 +15,14 @@ import dk.aau.sw808f16.datacollection.R;
 
 public class GyroscopeSensorProvider extends SensorProvider<List<float[]>> {
 
-  public GyroscopeSensorProvider(ExecutorService sensorThreadPool, SensorManager sensorManager) {
-    super(sensorThreadPool, sensorManager);
+  public GyroscopeSensorProvider(final Context context, ExecutorService sensorThreadPool, SensorManager sensorManager) {
+    super(context, sensorThreadPool, sensorManager);
   }
 
   private class RetrieveGyroscopeDataCallable extends RetrieveSensorDataCallable {
 
-    public RetrieveGyroscopeDataCallable(final Context context, final long duration, final int samplingPeriod) {
-      super(context, duration, samplingPeriod);
+    public RetrieveGyroscopeDataCallable(final long duration, final int samplingPeriod) {
+      super(duration, samplingPeriod);
     }
 
     // Listeners used when we have one measurement from each sensor
@@ -33,12 +33,7 @@ public class GyroscopeSensorProvider extends SensorProvider<List<float[]>> {
     @Override
     public List<float[]> call() throws Exception {
 
-      final Context context = contextWeakReference.get();
       final CountDownLatch latch = new CountDownLatch(1);
-
-      if (context == null) {
-        return null;
-      }
 
       final List<float[]> sensorValues = new ArrayList<>();
 
@@ -51,8 +46,8 @@ public class GyroscopeSensorProvider extends SensorProvider<List<float[]>> {
           synchronized (GyroscopeSensorProvider.this) {
 
             final long currentTime = System.currentTimeMillis();
-            final int micro_per_milli = context.getResources().getInteger(R.integer.micro_seconds_per_milli_second);
-            if (lastUpdateTime + samplingPeriod / micro_per_milli  >= currentTime) {
+            final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
+            if (lastUpdateTime + measurementFrequency / micro_per_milli  >= currentTime) {
               return;
             }
 
@@ -90,7 +85,7 @@ public class GyroscopeSensorProvider extends SensorProvider<List<float[]>> {
   }
 
   @Override
-  protected RetrieveSensorDataCallable createCallable(Context context, long duration, int samplingPeriod) {
-    return new RetrieveGyroscopeDataCallable(context, duration, samplingPeriod);
+  protected RetrieveSensorDataCallable createCallable(long duration, int samplingPeriod) {
+    return new RetrieveGyroscopeDataCallable(duration, samplingPeriod);
   }
 }
