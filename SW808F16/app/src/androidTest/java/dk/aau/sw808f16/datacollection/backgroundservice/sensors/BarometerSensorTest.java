@@ -1,4 +1,4 @@
-package dk.aau.sw808f16.datacollection;
+package dk.aau.sw808f16.datacollection.backgroundservice.sensors;
 
 import android.app.Application;
 import android.content.Context;
@@ -14,16 +14,18 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 
 @SuppressWarnings("unused")
-public class BarometerTest extends ApplicationTestCase<Application> {
+public class BarometerSensorTest extends ApplicationTestCase<Application> {
+  // Increase this to increase the amount of time logging
+  private static final int logTime = 0;
 
-  public BarometerTest() {
+  public BarometerSensorTest() {
     super(Application.class);
   }
 
   public void testBarometer() {
 
     final long now = System.currentTimeMillis();
-    final long whenToStop = now + 30000;
+    final long whenToStop = now + logTime;
     final CountDownLatch latch = new CountDownLatch(1);
 
     final Timer timer = new Timer();
