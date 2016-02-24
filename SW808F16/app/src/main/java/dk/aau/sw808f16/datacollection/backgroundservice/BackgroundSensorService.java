@@ -26,25 +26,17 @@ public final class BackgroundSensorService extends Service {
   @SuppressWarnings("FieldCanBeLocal")
   private final ExecutorService sensorThreadPool;
   @SuppressWarnings("FieldCanBeLocal")
-  private final CompassSensorProvider compassSensor;
+  private CompassSensorProvider compassSensor;
   @SuppressWarnings("FieldCanBeLocal")
-  private final ProximitySensorProvider proximitySensor;
+  private ProximitySensorProvider proximitySensor;
 
   public BackgroundSensorService() {
-
     // The number of threads in the pool should correspond to the number of SensorProvider instances
     // this service maintains
     // Dynamically (Reflection) counts the number of SensorProvider instances this service maintains
     final int numberOfSensorProviders = getNumberOfSensorProviders();
-
     // Create a thread pool to be shared by all sensor providers
     sensorThreadPool = Executors.newFixedThreadPool(numberOfSensorProviders);
-
-    final SensorManager sensorManager = (SensorManager) this.getSystemService(SENSOR_SERVICE);
-
-    // Initialize SensorProvider instances with the shared threadpool
-    compassSensor = new CompassSensorProvider(sensorThreadPool, sensorManager);
-    proximitySensor = new ProximitySensorProvider(sensorThreadPool, sensorManager);
   }
 
   private final class ServiceHandler extends Handler {
@@ -76,6 +68,13 @@ public final class BackgroundSensorService extends Service {
 
   @Override
   public void onCreate() {
+
+    final SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
+    // Initialize SensorProvider instances with the shared threadpool
+    compassSensor = new CompassSensorProvider(sensorThreadPool, sensorManager);
+    proximitySensor = new ProximitySensorProvider(sensorThreadPool, sensorManager);
+
     // Start up the thread running the service.  Note that we create a
     // separate thread because the service normally runs in the process's
     // main thread, which we don't want to block.  We also make it

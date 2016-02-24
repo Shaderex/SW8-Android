@@ -35,7 +35,7 @@ public abstract class SensorProvider {
 
   protected abstract RetrieveSensorDataCallable createCallable(final Context context, final long duration, final int samplingPeriod);
 
-  public Future<List<Float>> retrieveDataForPeriod(final Context context, final long duration, final int samplingPeriod) {
+  public final Future<List<Float>> retrieveDataForPeriod(final Context context, final long duration, final int samplingPeriod) {
     return sensorThreadPool.submit(createCallable(context, duration, samplingPeriod));
   }
 }
