@@ -1,4 +1,4 @@
-package dk.aau.sw808f16.datacollection;
+package dk.aau.sw808f16.datacollection.backgroundservice.sensors;
 
 import android.app.Application;
 import android.content.Context;
@@ -9,9 +9,9 @@ import android.test.ApplicationTestCase;
 import junit.framework.Assert;
 
 @SuppressWarnings("unused")
-public class LocationTest extends ApplicationTestCase<Application> {
+public class LocationSensorTest extends ApplicationTestCase<Application> {
 
-  public LocationTest() {
+  public LocationSensorTest() {
     super(Application.class);
   }
 
