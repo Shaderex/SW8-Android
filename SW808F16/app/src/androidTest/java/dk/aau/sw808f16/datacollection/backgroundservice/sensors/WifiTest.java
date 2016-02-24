@@ -1,4 +1,4 @@
-package dk.aau.sw808f16.datacollection;
+package dk.aau.sw808f16.datacollection.backgroundservice.sensors;
 
 import android.app.Application;
 import android.content.Context;
