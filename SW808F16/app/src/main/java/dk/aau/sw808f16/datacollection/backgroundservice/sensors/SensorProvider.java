@@ -72,6 +72,7 @@ public abstract class SensorProvider<T> {
 
         final CountDownLatch latch = new CountDownLatch(1);
 
+
         timer.scheduleAtFixedRate(new TimerTask() {
           @Override
           public void run() {
@@ -90,7 +91,7 @@ public abstract class SensorProvider<T> {
               // Do absolutely nothing, yet
             }
           }
-        }, 0, sampleFrequency);
+        }, 0, sampleFrequency); // Zero indicates start immediately
 
         latch.await();
 
