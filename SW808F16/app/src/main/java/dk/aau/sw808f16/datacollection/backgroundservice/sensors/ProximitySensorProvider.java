@@ -13,6 +13,8 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
+import dk.aau.sw808f16.datacollection.R;
+
 public class ProximitySensorProvider extends SensorProvider<List<Float>> {
 
   private final Timer proximitySamplingTimer;
@@ -67,7 +69,8 @@ public class ProximitySensorProvider extends SensorProvider<List<Float>> {
               }
             };
 
-            proximitySamplingTimer.scheduleAtFixedRate(proximitySamplingTask, 0, samplingPeriod / 1000);
+            final int micro_per_milli = context.getResources().getInteger(R.integer.micro_seconds_per_milli_second);
+            proximitySamplingTimer.scheduleAtFixedRate(proximitySamplingTask, 0, samplingPeriod / micro_per_milli);
           } else {
             proximitySensorOutput = event.values;
           }

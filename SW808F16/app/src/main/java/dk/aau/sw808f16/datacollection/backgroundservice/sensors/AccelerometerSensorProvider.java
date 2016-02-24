@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
+import dk.aau.sw808f16.datacollection.R;
+
 public class AccelerometerSensorProvider extends SensorProvider<List<float[]>> {
 
   public AccelerometerSensorProvider(final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
@@ -49,8 +51,8 @@ public class AccelerometerSensorProvider extends SensorProvider<List<float[]>> {
           synchronized (AccelerometerSensorProvider.this) {
 
             final long currentTime = System.currentTimeMillis();
-
-            if (lastUpdateTime + samplingPeriod / 1000 >= currentTime) {
+            final int micro_per_milli = context.getResources().getInteger(R.integer.micro_seconds_per_milli_second);
+            if (lastUpdateTime + samplingPeriod / micro_per_milli  >= currentTime) {
               return;
             }
 
