@@ -15,6 +15,8 @@ import dk.aau.sw808f16.datacollection.R;
 
 public class CompassSensorProvider extends SensorProvider<List<Float>> {
 
+  private static final int maxArcDegrees = 360;
+
   public CompassSensorProvider(final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(sensorThreadPool, sensorManager);
   }
@@ -205,6 +207,6 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
   }
 
   private static float sensorDataToOrientation(final float[] sensorData) {
-    return (float) (Math.toDegrees(sensorData[0]) + 360) % 360;
+    return (float) (Math.toDegrees(sensorData[0]) + maxArcDegrees) % maxArcDegrees;
   }
 }
