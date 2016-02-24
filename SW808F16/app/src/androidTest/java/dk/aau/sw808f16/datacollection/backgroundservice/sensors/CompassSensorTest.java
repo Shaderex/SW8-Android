@@ -1,5 +1,7 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensors;
 
+import android.content.Context;
+import android.hardware.SensorManager;
 import android.test.ApplicationTestCase;
 
 import java.util.List;
@@ -22,7 +24,8 @@ public class CompassSensorTest extends ApplicationTestCase<DataCollectionApplica
     final int samplingPeriod = 2000000; // In microseconds
 
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
-    final CompassSensorProvider compassSensorProvider = new CompassSensorProvider(sensorThreadPool);
+    final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
+    final CompassSensorProvider compassSensorProvider = new CompassSensorProvider(sensorThreadPool, sensorManager);
 
     final Future<List<Float>> futureData = compassSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
 
@@ -37,7 +40,8 @@ public class CompassSensorTest extends ApplicationTestCase<DataCollectionApplica
     final int samplingPeriod = 2000000; // In microseconds
 
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
-    final CompassSensorProvider compassSensorProvider = new CompassSensorProvider(sensorThreadPool);
+    final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
+    final CompassSensorProvider compassSensorProvider = new CompassSensorProvider(sensorThreadPool, sensorManager);
 
     final Future<List<Float>> futureData = compassSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
 
@@ -51,7 +55,8 @@ public class CompassSensorTest extends ApplicationTestCase<DataCollectionApplica
   public void testRetrieveCompassDataForPeriodReuseSensorProvider() throws ExecutionException, InterruptedException {
 
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
-    final CompassSensorProvider compassSensorProvider = new CompassSensorProvider(sensorThreadPool);
+    final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
+    final CompassSensorProvider compassSensorProvider = new CompassSensorProvider(sensorThreadPool, sensorManager);
 
     final long duration = 10000; // In milliseconds
     final int samplingPeriod = 2000000; // In microseconds
@@ -82,7 +87,8 @@ public class CompassSensorTest extends ApplicationTestCase<DataCollectionApplica
     final int samplingPeriod = 2000000; // In microseconds
 
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
-    final CompassSensorProvider compassSensorProvider = new CompassSensorProvider(sensorThreadPool);
+    final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
+    final CompassSensorProvider compassSensorProvider = new CompassSensorProvider(sensorThreadPool, sensorManager);
 
     final Future<List<Float>> futureData = compassSensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
 

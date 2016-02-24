@@ -17,9 +17,8 @@ public class ProximitySensorProvider extends SensorProvider {
 
   private final Timer proximitySamplingTimer;
 
-  public ProximitySensorProvider(final ExecutorService sensorThreadPool) {
-    super(sensorThreadPool);
-
+  public ProximitySensorProvider(final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
+    super(sensorThreadPool, sensorManager);
     proximitySamplingTimer = new Timer(true);
   }
 
@@ -45,7 +44,6 @@ public class ProximitySensorProvider extends SensorProvider {
 
       final List<Float> sensorValues = new ArrayList<>();
 
-      final SensorManager sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
       final Sensor proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
       proximityListener = new SensorEventListener() {

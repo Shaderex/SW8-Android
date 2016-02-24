@@ -13,8 +13,8 @@ import java.util.concurrent.ExecutorService;
 
 public class CompassSensorProvider extends SensorProvider {
 
-  public CompassSensorProvider(final ExecutorService sensorThreadPool) {
-    super(sensorThreadPool);
+  public CompassSensorProvider(final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
+    super(sensorThreadPool, sensorManager);
   }
 
   public class RetrieveCompassDataCallable extends RetrieveSensorDataCallable {
@@ -51,7 +51,6 @@ public class CompassSensorProvider extends SensorProvider {
 
       final List<Float> sensorValues = new ArrayList<>();
 
-      final SensorManager sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
       final Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
       final Sensor magneticFieldSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 

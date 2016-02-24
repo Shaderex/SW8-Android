@@ -25,7 +25,8 @@ public class ProximitySensorTest extends ApplicationTestCase<DataCollectionAppli
     final int samplingPeriod = 2000000; // In microseconds
 
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
-    final ProximitySensorProvider proximitySensorProvider = new ProximitySensorProvider(sensorThreadPool);
+    final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
+    final ProximitySensorProvider proximitySensorProvider = new ProximitySensorProvider(sensorThreadPool, sensorManager);
 
     final Future<List<Float>> futureData = proximitySensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
 
@@ -46,7 +47,7 @@ public class ProximitySensorTest extends ApplicationTestCase<DataCollectionAppli
     final int samplingPeriod = 2000000; // In microseconds
 
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
-    final ProximitySensorProvider proximitySensorProvider = new ProximitySensorProvider(sensorThreadPool);
+    final ProximitySensorProvider proximitySensorProvider = new ProximitySensorProvider(sensorThreadPool, sensorManager);
 
     final Future<List<Float>> futureData = proximitySensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
 
@@ -66,7 +67,7 @@ public class ProximitySensorTest extends ApplicationTestCase<DataCollectionAppli
     final float minValue = 0;
 
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
-    final ProximitySensorProvider proximitySensorProvider = new ProximitySensorProvider(sensorThreadPool);
+    final ProximitySensorProvider proximitySensorProvider = new ProximitySensorProvider(sensorThreadPool, sensorManager);
 
     final long duration = 10000; // In milliseconds
     final int samplingPeriod = 2000000; // In microseconds
@@ -95,7 +96,8 @@ public class ProximitySensorTest extends ApplicationTestCase<DataCollectionAppli
     final int samplingPeriod = 2000000; // In microseconds
 
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
-    final ProximitySensorProvider proximitySensorProvider = new ProximitySensorProvider(sensorThreadPool);
+    final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
+    final ProximitySensorProvider proximitySensorProvider = new ProximitySensorProvider(sensorThreadPool, sensorManager);
 
     final Future<List<Float>> futureData = proximitySensorProvider.retrieveDataForPeriod(getContext(), duration, samplingPeriod);
 

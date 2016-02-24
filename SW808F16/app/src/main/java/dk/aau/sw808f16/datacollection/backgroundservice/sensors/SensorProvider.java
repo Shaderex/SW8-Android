@@ -1,6 +1,7 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensors;
 
 import android.content.Context;
+import android.hardware.SensorManager;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -11,9 +12,11 @@ import java.util.concurrent.Future;
 public abstract class SensorProvider {
 
   private final ExecutorService sensorThreadPool;
+  protected final SensorManager sensorManager;
 
-  public SensorProvider(final ExecutorService sensorThreadPool) {
+  public SensorProvider(final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     this.sensorThreadPool = sensorThreadPool;
+    this.sensorManager = sensorManager;
   }
 
   protected abstract class RetrieveSensorDataCallable implements Callable<List<Float>> {
