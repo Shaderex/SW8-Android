@@ -68,8 +68,9 @@ public final class BackgroundSensorService extends Service {
 
   @Override
   public void onCreate() {
+    super.onCreate();
 
-    final SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+    final SensorManager sensorManager = (SensorManager) getApplicationContext().getSystemService(SENSOR_SERVICE);
 
     // Initialize SensorProvider instances with the shared threadpool
     compassSensor = new CompassSensorProvider(sensorThreadPool, sensorManager);
