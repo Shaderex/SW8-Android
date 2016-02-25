@@ -16,7 +16,7 @@ import java.util.concurrent.CountDownLatch;
 @SuppressWarnings("unused")
 public class OrientationSensorTest extends ApplicationTestCase<Application> {
   // Increase this to increase the amount of time logging
-  private static final int logTime = 0;
+  private static final int logTime = 100;
 
   private float[] accelerometerOutput;
   private float[] magneticFieldOutput;
@@ -30,7 +30,6 @@ public class OrientationSensorTest extends ApplicationTestCase<Application> {
   private SensorEventListener accelerometerListener;
   private SensorEventListener magneticFieldListener;
 
-  private SensorManager sensorManager;
   private Sensor accelerometerSensor;
   private Sensor magneticFieldSensor;
 
@@ -47,10 +46,8 @@ public class OrientationSensorTest extends ApplicationTestCase<Application> {
 
     super.setUp();
 
-    sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
-
-    accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-    magneticFieldSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+    accelerometerSensor = getSensorManager().getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+    magneticFieldSensor = getSensorManager().getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
     accelerometerListener = new SensorEventListener() {
       @Override
@@ -106,13 +103,15 @@ public class OrientationSensorTest extends ApplicationTestCase<Application> {
 
           if (magneticFieldOutput != null) {
 
+
             SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerOutput, magneticFieldOutput);
 
-            sensorManager.unregisterListener(initialAccelerometerListener);
-            sensorManager.unregisterListener(initialMagneticFieldListener);
+            printAidsNullValues("magneticFieldOutput != null");
+            getSensorManager().unregisterListener(initialAccelerometerListener);
+            getSensorManager().unregisterListener(initialMagneticFieldListener);
 
-            sensorManager.registerListener(accelerometerListener, accelerometerSensor, SensorManager.SENSOR_DELAY_UI);
-            sensorManager.registerListener(magneticFieldListener, magneticFieldSensor, SensorManager.SENSOR_DELAY_UI);
+            getSensorManager().registerListener(accelerometerListener, accelerometerSensor, SensorManager.SENSOR_DELAY_UI);
+            getSensorManager().registerListener(magneticFieldListener, magneticFieldSensor, SensorManager.SENSOR_DELAY_UI);
           }
         }
       }
@@ -131,14 +130,14 @@ public class OrientationSensorTest extends ApplicationTestCase<Application> {
           magneticFieldOutput = event.values;
 
           if (accelerometerOutput != null) {
-
             SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerOutput, magneticFieldOutput);
 
-            sensorManager.unregisterListener(initialAccelerometerListener);
-            sensorManager.unregisterListener(initialMagneticFieldListener);
+            printAidsNullValues("accelerometerOutput != null");
+            getSensorManager().unregisterListener(initialAccelerometerListener);
+            getSensorManager().unregisterListener(initialMagneticFieldListener);
 
-            sensorManager.registerListener(accelerometerListener, accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
-            sensorManager.registerListener(magneticFieldListener, magneticFieldSensor, SensorManager.SENSOR_DELAY_NORMAL);
+            getSensorManager().registerListener(accelerometerListener, accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
+            getSensorManager().registerListener(magneticFieldListener, magneticFieldSensor, SensorManager.SENSOR_DELAY_NORMAL);
           }
         }
       }
@@ -159,8 +158,8 @@ public class OrientationSensorTest extends ApplicationTestCase<Application> {
 
     SensorManager.getOrientation(rotationMatrix, values);
 
-    sensorManager.registerListener(initialAccelerometerListener, accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
-    sensorManager.registerListener(initialMagneticFieldListener, magneticFieldSensor, SensorManager.SENSOR_DELAY_NORMAL);
+    getSensorManager().registerListener(initialAccelerometerListener, accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
+    getSensorManager().registerListener(initialMagneticFieldListener, magneticFieldSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
     final TimerTask stopTask = new TimerTask() {
       @Override
@@ -179,8 +178,8 @@ public class OrientationSensorTest extends ApplicationTestCase<Application> {
 
     timer.cancel();
 
-    sensorManager.unregisterListener(accelerometerListener);
-    sensorManager.unregisterListener(magneticFieldListener);
+    getSensorManager().unregisterListener(accelerometerListener);
+    getSensorManager().unregisterListener(magneticFieldListener);
 
   }
 
@@ -190,5 +189,19 @@ public class OrientationSensorTest extends ApplicationTestCase<Application> {
     //Log.i("Rotation Y degrees", Math.toDegrees(values[2]) * 180 / Math.PI + " ° / " + 360 + " °");
 
     Log.i("Rotation", (Math.toDegrees(values[0]) + 360) % 360 + " ° / " + 360 + " °");
+  }
+
+  private synchronized void printAidsNullValues(String id) {
+    Log.i("NULLSAGER", "Location: " + id);
+    Log.i("NULLSAGER", "getSensorManager()" + (getSensorManager() == null));
+    Log.i("NULLSAGER", "initialMagneticFieldListener" + (initialMagneticFieldListener == null));
+    Log.i("NULLSAGER", "initialAccelerometerListener" + (initialAccelerometerListener == null));
+    Log.i("NULLSAGER", "magneticFieldListener" + (magneticFieldListener == null));
+    Log.i("NULLSAGER", "accelerometerListener" + (accelerometerListener == null));
+
+  }
+
+  private SensorManager getSensorManager() {
+    return (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
   }
 }
