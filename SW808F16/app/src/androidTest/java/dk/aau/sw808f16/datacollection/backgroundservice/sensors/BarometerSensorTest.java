@@ -1,4 +1,4 @@
-package dk.aau.sw808f16.datacollection;
+package dk.aau.sw808f16.datacollection.backgroundservice.sensors;
 
 import android.app.Application;
 import android.content.Context;
@@ -14,38 +14,40 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 
 @SuppressWarnings("unused")
-public class AmbientLightTest extends ApplicationTestCase<Application> {
+public class BarometerSensorTest extends ApplicationTestCase<Application> {
+  // Increase this to increase the amount of time logging
+  private static final int logTime = 0;
 
-  public AmbientLightTest() {
+  public BarometerSensorTest() {
     super(Application.class);
   }
 
-  public void testAmbientLight() {
+  public void testBarometer() {
 
     final long now = System.currentTimeMillis();
-    final long whenToStop = now + 30000;
+    final long whenToStop = now + logTime;
     final CountDownLatch latch = new CountDownLatch(1);
 
     final Timer timer = new Timer();
 
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
-    final Sensor lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+    final Sensor pressureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
 
     final SensorEventListener listener = new SensorEventListener() {
       @Override
-      public void onSensorChanged(final SensorEvent event) {
+      public void onSensorChanged(SensorEvent event) {
 
-        final float lux = event.values[0];
-
-        Log.i("LIGHT illuminance", lux + " lx / " + lightSensor.getMaximumRange() + " lx");
+        final float distance = event.values[0];
+        Log.i("PRESSURE", distance + " hPa / " + pressureSensor.getMaximumRange() + " hPa");
       }
 
       @Override
-      public void onAccuracyChanged(final Sensor sensor, final int accuracy) {
+      public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
       }
     };
 
-    sensorManager.registerListener(listener, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
+    sensorManager.registerListener(listener, pressureSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
     final TimerTask stopTask = new TimerTask() {
       @Override
@@ -65,7 +67,5 @@ public class AmbientLightTest extends ApplicationTestCase<Application> {
     timer.cancel();
 
     sensorManager.unregisterListener(listener);
-
   }
 }
-

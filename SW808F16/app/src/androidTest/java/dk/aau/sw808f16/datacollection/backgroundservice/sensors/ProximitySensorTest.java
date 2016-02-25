@@ -1,4 +1,4 @@
-package dk.aau.sw808f16.datacollection;
+package dk.aau.sw808f16.datacollection.backgroundservice.sensors;
 
 import android.app.Application;
 import android.content.Context;
@@ -14,38 +14,40 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 
 @SuppressWarnings("unused")
-public class BarometerTest extends ApplicationTestCase<Application> {
+public class ProximitySensorTest extends ApplicationTestCase<Application> {
+  // Increase this to increase the amount of time logging
+  private static final int logTime = 0;
 
-  public BarometerTest() {
+  public ProximitySensorTest() {
     super(Application.class);
   }
 
-  public void testBarometer() {
+  public void testProximity() {
 
     final long now = System.currentTimeMillis();
-    final long whenToStop = now + 30000;
+    final long whenToStop = now + logTime;
     final CountDownLatch latch = new CountDownLatch(1);
 
     final Timer timer = new Timer();
 
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
-    final Sensor pressureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+    final Sensor proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
     final SensorEventListener listener = new SensorEventListener() {
       @Override
-      public void onSensorChanged(SensorEvent event) {
+      public void onSensorChanged(final SensorEvent event) {
 
         final float distance = event.values[0];
-        Log.i("PRESSURE", distance + " hPa / " + pressureSensor.getMaximumRange() + " hPa");
+        Log.i("PROXIMITY DISTANCE", distance + " cm / " + proximitySensor.getMaximumRange() + " cm");
       }
 
       @Override
-      public void onAccuracyChanged(Sensor sensor, int accuracy) {
+      public void onAccuracyChanged(final Sensor sensor, final int accuracy) {
 
       }
     };
 
-    sensorManager.registerListener(listener, pressureSensor, SensorManager.SENSOR_DELAY_NORMAL);
+    sensorManager.registerListener(listener, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
 
     final TimerTask stopTask = new TimerTask() {
       @Override
