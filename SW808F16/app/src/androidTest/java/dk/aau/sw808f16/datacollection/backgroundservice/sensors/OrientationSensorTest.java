@@ -106,7 +106,6 @@ public class OrientationSensorTest extends ApplicationTestCase<Application> {
 
             SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerOutput, magneticFieldOutput);
 
-            printAidsNullValues("magneticFieldOutput != null");
             getSensorManager().unregisterListener(initialAccelerometerListener);
             getSensorManager().unregisterListener(initialMagneticFieldListener);
 
@@ -131,8 +130,7 @@ public class OrientationSensorTest extends ApplicationTestCase<Application> {
 
           if (accelerometerOutput != null) {
             SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerOutput, magneticFieldOutput);
-
-            printAidsNullValues("accelerometerOutput != null");
+            
             getSensorManager().unregisterListener(initialAccelerometerListener);
             getSensorManager().unregisterListener(initialMagneticFieldListener);
 
@@ -189,16 +187,6 @@ public class OrientationSensorTest extends ApplicationTestCase<Application> {
     //Log.i("Rotation Y degrees", Math.toDegrees(values[2]) * 180 / Math.PI + " ° / " + 360 + " °");
 
     Log.i("Rotation", (Math.toDegrees(values[0]) + 360) % 360 + " ° / " + 360 + " °");
-  }
-
-  private synchronized void printAidsNullValues(String id) {
-    Log.i("NULLSAGER", "Location: " + id);
-    Log.i("NULLSAGER", "getSensorManager()" + (getSensorManager() == null));
-    Log.i("NULLSAGER", "initialMagneticFieldListener" + (initialMagneticFieldListener == null));
-    Log.i("NULLSAGER", "initialAccelerometerListener" + (initialAccelerometerListener == null));
-    Log.i("NULLSAGER", "magneticFieldListener" + (magneticFieldListener == null));
-    Log.i("NULLSAGER", "accelerometerListener" + (accelerometerListener == null));
-
   }
 
   private SensorManager getSensorManager() {
