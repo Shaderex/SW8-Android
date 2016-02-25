@@ -63,7 +63,7 @@ public class OrientationSensorTest extends ApplicationTestCase<Application> {
           if (SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, accelerometerOutput, magneticFieldOutput)) {
             SensorManager.getOrientation(rotationMatrix, values);
 
-            theBestPrintMethodCreatedEver();
+            printOrientationOutput();
           }
         }
       }
@@ -85,7 +85,7 @@ public class OrientationSensorTest extends ApplicationTestCase<Application> {
           if (SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, accelerometerOutput, magneticFieldOutput)) {
             SensorManager.getOrientation(rotationMatrix, values);
 
-            theBestPrintMethodCreatedEver();
+            printOrientationOutput();
           }
         }
       }
@@ -184,7 +184,7 @@ public class OrientationSensorTest extends ApplicationTestCase<Application> {
 
   }
 
-  private void theBestPrintMethodCreatedEver() {
+  private void printOrientationOutput() {
     //Log.i("Rotation -Z degrees", values[0]*180/Math.PI + " ° / " + 360 + " °");
     //Log.i("Rotation -X degrees", values[1]*180/Math.PI + " ° / " + 360 + " °");
     //Log.i("Rotation Y degrees", Math.toDegrees(values[2]) * 180 / Math.PI + " ° / " + 360 + " °");
