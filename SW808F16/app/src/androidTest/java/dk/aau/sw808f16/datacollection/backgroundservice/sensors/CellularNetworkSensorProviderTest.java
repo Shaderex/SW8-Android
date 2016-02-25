@@ -2,7 +2,6 @@ package dk.aau.sw808f16.datacollection.backgroundservice.sensors;
 
 import android.content.Context;
 import android.hardware.SensorManager;
-import android.location.Location;
 import android.telephony.CellInfo;
 import android.test.ApplicationTestCase;
 
