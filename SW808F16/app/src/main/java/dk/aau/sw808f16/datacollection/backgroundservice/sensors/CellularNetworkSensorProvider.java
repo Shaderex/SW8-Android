@@ -2,7 +2,6 @@ package dk.aau.sw808f16.datacollection.backgroundservice.sensors;
 
 import android.content.Context;
 import android.hardware.SensorManager;
-import android.location.Location;
 import android.telephony.CellInfo;
 import android.telephony.TelephonyManager;
 
@@ -19,12 +18,12 @@ public class CellularNetworkSensorProvider extends SensorProvider<List<List<Cell
     this.context = context;
   }
 
-  private class RetrieveGpsDataCallable extends RetrieveSensorDataCallable {
+  private class RetrieveCellularDataCallable extends RetrieveSensorDataCallable {
 
     final TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
     final List<CellInfo> cellInfoList = telephonyManager.getAllCellInfo();
 
-    public RetrieveGpsDataCallable(final long sampleDuration, final int measurementFrequency) {
+    public RetrieveCellularDataCallable(final long sampleDuration, final int measurementFrequency) {
       super(sampleDuration, measurementFrequency);
     }
 
@@ -40,7 +39,7 @@ public class CellularNetworkSensorProvider extends SensorProvider<List<List<Cell
 
   @Override
   protected RetrieveSensorDataCallable createCallable(long sampleDuration, int measurementFrequency) {
-    return new RetrieveGpsDataCallable(sampleDuration, measurementFrequency);
+    return new RetrieveCellularDataCallable(sampleDuration, measurementFrequency);
   }
 
 
