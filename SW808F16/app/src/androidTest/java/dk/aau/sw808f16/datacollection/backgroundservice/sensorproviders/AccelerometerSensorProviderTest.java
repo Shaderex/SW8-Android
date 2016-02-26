@@ -34,7 +34,8 @@ public class AccelerometerSensorProviderTest extends ApplicationTestCase<DataCol
     maxSize = expectedSize + 1;
   }
 
-  public void testAccelerometerSensorProviderData() throws ExecutionException, InterruptedException, Exception {
+  public void testAccelerometerSensorProviderData() throws ExecutionException, InterruptedException {
+
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
     final AccelerometerSensorProvider accelerometerSensorProvider =

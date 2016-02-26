@@ -16,7 +16,8 @@ public class LocationSensorProvider extends SensorProvider<List<Location>> {
   }
 
   @Override
-  protected List<Location> retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
+  protected List<Location> retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency)
+      throws InterruptedException {
 
     final LocationManager locationManager = (LocationManager) context.get().getSystemService(Context.LOCATION_SERVICE);
     final Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);

@@ -34,7 +34,8 @@ public class GyroscopeSensorProviderTest extends ApplicationTestCase<DataCollect
     maxSize = expectedSize + 1;
   }
 
-  public void testAccelerometerSensorProviderData() throws ExecutionException, InterruptedException, Exception {
+  public void testAccelerometerSensorProviderData() throws ExecutionException, InterruptedException {
+
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
     final GyroscopeSensorProvider gyroscopeSensorProvider = new GyroscopeSensorProvider(getContext(), sensorThreadPool, sensorManager);

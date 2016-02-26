@@ -33,7 +33,7 @@ public class CompassSensorProviderTest extends ApplicationTestCase<DataCollectio
     maxSize = expectedSize + 1;
   }
 
-  public void testCompassSensorProviderData() throws ExecutionException, InterruptedException, Exception {
+  public void testCompassSensorProviderData() throws ExecutionException, InterruptedException {
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
     final CompassSensorProvider compassSensorProvider = new CompassSensorProvider(getContext(), sensorThreadPool, sensorManager);

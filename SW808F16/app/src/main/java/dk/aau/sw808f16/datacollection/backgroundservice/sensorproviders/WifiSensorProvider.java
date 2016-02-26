@@ -19,7 +19,8 @@ public class WifiSensorProvider extends SensorProvider<List<List<ScanResult>>> {
   }
 
   @Override
-  protected List<List<ScanResult>> retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
+  protected List<List<ScanResult>> retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency)
+      throws InterruptedException {
 
     final WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
     final List<ScanResult> scanResults = wifiManager.getScanResults();

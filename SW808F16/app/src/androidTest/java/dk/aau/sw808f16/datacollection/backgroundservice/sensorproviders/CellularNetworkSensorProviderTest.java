@@ -26,7 +26,8 @@ public class CellularNetworkSensorProviderTest extends ApplicationTestCase<DataC
   public void testGpsSensorProviderData() throws Exception {
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
-    final CellularNetworkSensorProvider cellularNetworkSensorProvider = new CellularNetworkSensorProvider(getContext(), sensorThreadPool, sensorManager);
+    final CellularNetworkSensorProvider cellularNetworkSensorProvider =
+        new CellularNetworkSensorProvider(getContext(), sensorThreadPool, sensorManager);
 
     final List<List<CellInfo>> data1 = cellularNetworkSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
 

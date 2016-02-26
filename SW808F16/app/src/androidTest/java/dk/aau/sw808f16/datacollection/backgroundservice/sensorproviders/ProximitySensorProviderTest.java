@@ -34,7 +34,8 @@ public class ProximitySensorProviderTest extends ApplicationTestCase<DataCollect
     maxSize = expectedSize + 1;
   }
 
-  public void testProximitySensorProviderData() throws ExecutionException, InterruptedException, Exception {
+  public void testProximitySensorProviderData() throws ExecutionException, InterruptedException {
+
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
     final ProximitySensorProvider proximitySensorProvider = new ProximitySensorProvider(getContext(), sensorThreadPool, sensorManager);

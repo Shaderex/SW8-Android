@@ -25,7 +25,7 @@ public class GyroscopeSensorTest extends ApplicationTestCase<Application> {
     super(Application.class);
   }
 
-  List<float[]> data = new LinkedList<>();
+  final List<float[]> data = new LinkedList<>();
 
   public void testGyroscope() {
 

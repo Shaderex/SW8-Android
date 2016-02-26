@@ -31,7 +31,6 @@ public class GyroscopeSensorProvider extends SensorProvider<List<float[]>> {
     // Listeners used when we have one measurement from each sensor
     final SensorEventListener gyroscopeListener = new SensorEventListener() {
 
-      private final float[] values = new float[3];
       private long lastUpdateTime;
 
       @Override
@@ -41,6 +40,7 @@ public class GyroscopeSensorProvider extends SensorProvider<List<float[]>> {
 
           final long currentTime = System.currentTimeMillis();
           final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
+
           if (lastUpdateTime + measurementFrequency / micro_per_milli >= currentTime) {
             return;
           }

@@ -33,9 +33,11 @@ public class AmbientLightSensorProviderTest extends ApplicationTestCase<DataColl
   }
 
   public void testCompassSensorProviderData() throws Exception {
+
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
-    final AmbientLightSensorProvider ambientLightSensorProvider = new AmbientLightSensorProvider(getContext(), sensorThreadPool, sensorManager);
+    final AmbientLightSensorProvider ambientLightSensorProvider =
+        new AmbientLightSensorProvider(getContext(), sensorThreadPool, sensorManager);
 
     final List<Float> data1 = ambientLightSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
 

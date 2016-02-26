@@ -185,8 +185,8 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
 
         try {
           latch.await();
-        } catch (InterruptedException e) {
-          e.printStackTrace();
+        } catch (InterruptedException exception) {
+          exception.printStackTrace();
         }
 
         sensorManager.unregisterListener(initialAccelerometerListener);

@@ -32,8 +32,6 @@ public class CompassSensorRoboTest {
   public void testCompassSensorProviderInstantiable() throws ExecutionException, InterruptedException {
 
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
-    @SuppressWarnings("unused")
-    final CompassSensorProvider compassSensorProvider =
-        new CompassSensorProvider(RuntimeEnvironment.application.getApplicationContext(), sensorThreadPool, sensorManager);
+    new CompassSensorProvider(RuntimeEnvironment.application.getApplicationContext(), sensorThreadPool, sensorManager);
   }
 }

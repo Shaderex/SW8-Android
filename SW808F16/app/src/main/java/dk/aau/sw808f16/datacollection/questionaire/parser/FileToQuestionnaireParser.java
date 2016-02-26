@@ -22,17 +22,16 @@ public class FileToQuestionnaireParser {
    * Parses a file from the resources folder with the given resource identifier into a
    * Questionnaire.
    */
-  public static Questionnaire parseFile(Context context, int resourceId) throws IOException {
-    InputStreamReader streamReader =
-        new InputStreamReader(context.getResources().openRawResource(resourceId));
+  public static Questionnaire parseFile(final Context context, final int resourceId) throws IOException {
 
-    BufferedReader reader = new BufferedReader(streamReader);
+    final InputStreamReader streamReader = new InputStreamReader(context.getResources().openRawResource(resourceId));
+    final BufferedReader reader = new BufferedReader(streamReader);
 
-    List<Question> questions = new ArrayList<>();
+    final List<Question> questions = new ArrayList<>();
     String line;
 
     while ((line = reader.readLine()) != null) {
-      Question question = new Question(line);
+      final Question question = new Question(line);
       questions.add(question);
     }
 

@@ -19,7 +19,8 @@ public class CellularNetworkSensorProvider extends SensorProvider<List<List<Cell
   }
 
   @Override
-  protected List<List<CellInfo>> retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
+  protected List<List<CellInfo>> retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency)
+      throws InterruptedException {
 
     final TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
     final List<CellInfo> cellInfoList = telephonyManager.getAllCellInfo();
