@@ -1,4 +1,4 @@
-package dk.aau.sw808f16.datacollection.backgroundservice.sensors;
+package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -6,13 +6,15 @@ import android.hardware.SensorManager;
 import android.test.ApplicationTestCase;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 import dk.aau.sw808f16.datacollection.R;
 
-public class BarometerSensorProviderTest extends ApplicationTestCase<DataCollectionApplication> {
+public class ProximitySensorProviderTest extends ApplicationTestCase<DataCollectionApplication> {
+
   private static final long sampleDuration = 10000; // In milliseconds
   private static final int measurementFrequency = 2000000; // In microseconds
 
@@ -20,7 +22,7 @@ public class BarometerSensorProviderTest extends ApplicationTestCase<DataCollect
   private int minSize;
   private int maxSize;
 
-  public BarometerSensorProviderTest() {
+  public ProximitySensorProviderTest() {
     super(DataCollectionApplication.class);
   }
 
@@ -32,14 +34,13 @@ public class BarometerSensorProviderTest extends ApplicationTestCase<DataCollect
     maxSize = expectedSize + 1;
   }
 
-  public void testBarometerSensorProviderData() throws Exception {
+  public void testProximitySensorProviderData() throws ExecutionException, InterruptedException, Exception {
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
-    final BarometerSensorProvider barometerSensorProvider = new BarometerSensorProvider(getContext(), sensorThreadPool, sensorManager);
+    final ProximitySensorProvider proximitySensorProvider = new ProximitySensorProvider(getContext(), sensorThreadPool, sensorManager);
 
-    final List<Float> data1 = barometerSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
-
-    final List<Float> data2 = barometerSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
+    final List<Float> data1 = proximitySensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
+    final List<Float> data2 = proximitySensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
 
     assertNotNull("Sensor data is null", data1);
     assertFalse("Sensor data is empty", data1.isEmpty());
@@ -47,18 +48,18 @@ public class BarometerSensorProviderTest extends ApplicationTestCase<DataCollect
     assertNotNull("Sensor data is null (second measure)", data2);
     assertFalse("Sensor data is empty (second measure)", data2.isEmpty());
 
-    final Sensor barometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
-    final float maxValue = barometerSensor.getMaximumRange();
-    final float minValue = -barometerSensor.getMaximumRange();
+    final Sensor proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+    final float maxValue = proximitySensor.getMaximumRange();
+    final float minValue = 0;
 
-    for (final Float pressure : data1) {
-      assertTrue("The value is below " + minValue, pressure > minValue);
-      assertTrue("The value is above " + minValue, pressure < maxValue);
+    for (final Float proximityValue : data1) {
+      assertTrue("Value must be below or equal to " + maxValue, proximityValue <= maxValue);
+      assertTrue("Value must be larger or equal to " + maxValue, proximityValue >= minValue);
     }
 
-    for (final Float pressure : data2) {
-      assertTrue("The value is below " + minValue, pressure > minValue);
-      assertTrue("The value is above " + minValue, pressure < maxValue);
+    for (final Float proximityValue : data2) {
+      assertTrue("Value must be below or equal to " + maxValue, proximityValue <= maxValue);
+      assertTrue("Value must be larger or equal to " + maxValue, proximityValue >= minValue);
     }
 
     assertTrue("The amount of data and sampling period do not match, not enough data", data1.size() >= minSize);

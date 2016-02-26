@@ -1,4 +1,4 @@
-package dk.aau.sw808f16.datacollection.backgroundservice.sensors;
+package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
 import android.content.Context;
 import android.hardware.SensorManager;
@@ -18,29 +18,16 @@ public class CellularNetworkSensorProvider extends SensorProvider<List<List<Cell
     this.context = context;
   }
 
-  private class RetrieveCellularDataCallable extends RetrieveSensorDataCallable {
+  @Override
+  protected List<List<CellInfo>> retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
 
     final TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
     final List<CellInfo> cellInfoList = telephonyManager.getAllCellInfo();
 
-    public RetrieveCellularDataCallable(final long sampleDuration, final int measurementFrequency) {
-      super(sampleDuration, measurementFrequency);
-    }
-
-    @Override
-    public List<List<CellInfo>> call() throws Exception {
-      return new ArrayList<List<CellInfo>>() {
-        {
-          add(cellInfoList);
-        }
-      };
-    }
+    return new ArrayList<List<CellInfo>>() {
+      {
+        add(cellInfoList);
+      }
+    };
   }
-
-  @Override
-  protected RetrieveSensorDataCallable createCallable(long sampleDuration, int measurementFrequency) {
-    return new RetrieveCellularDataCallable(sampleDuration, measurementFrequency);
-  }
-
-
 }

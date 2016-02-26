@@ -1,4 +1,4 @@
-package dk.aau.sw808f16.datacollection.backgroundservice.sensors;
+package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
 import android.content.Context;
 import android.hardware.SensorManager;
@@ -25,23 +25,7 @@ public abstract class SensorProvider<T> {
     this.sensorManager = sensorManager;
   }
 
-  protected abstract class RetrieveSensorDataCallable implements Callable<T> {
-
-    final long endTime;
-    final int measurementFrequency;
-    long lastUpdateTime;
-
-    public RetrieveSensorDataCallable(final long sampleDuration, final int measurementFrequency) {
-      endTime = System.currentTimeMillis() + sampleDuration;
-      this.measurementFrequency = measurementFrequency;
-    }
-  }
-
-  protected abstract RetrieveSensorDataCallable createCallable(final long sampleDuration, final int measurementFrequency);
-
-  public final T retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws Exception {
-    return createCallable(sampleDuration, measurementFrequency).call();  //sensorThreadPool.submit();
-  }
+  protected abstract T retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException;
 
   public Future<List<T>> retrieveSamplesForDuration(final long totalDuration,
                                                     final long sampleFrequency,
@@ -71,7 +55,6 @@ public abstract class SensorProvider<T> {
         final long endTime = startTime + totalDuration;
 
         final CountDownLatch latch = new CountDownLatch(1);
-
 
         timer.scheduleAtFixedRate(new TimerTask() {
           @Override

@@ -1,4 +1,4 @@
-package dk.aau.sw808f16.datacollection.backgroundservice.sensors;
+package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
 import android.content.Context;
 import android.hardware.SensorManager;
@@ -39,7 +39,6 @@ public class CompassSensorProviderTest extends ApplicationTestCase<DataCollectio
     final CompassSensorProvider compassSensorProvider = new CompassSensorProvider(getContext(), sensorThreadPool, sensorManager);
 
     final List<Float> data = compassSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
-
     final List<Float> data2 = compassSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
 
     assertNotNull("Sensor data is null", data);
