@@ -15,10 +15,10 @@ import java.lang.reflect.Field;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import dk.aau.sw808f16.datacollection.backgroundservice.sensors.AccelerometerSensorProvider;
-import dk.aau.sw808f16.datacollection.backgroundservice.sensors.CompassSensorProvider;
-import dk.aau.sw808f16.datacollection.backgroundservice.sensors.ProximitySensorProvider;
-import dk.aau.sw808f16.datacollection.backgroundservice.sensors.SensorProvider;
+import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AccelerometerSensorProvider;
+import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.CompassSensorProvider;
+import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.ProximitySensorProvider;
+import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.SensorProvider;
 
 public final class BackgroundSensorService extends Service {
 
