@@ -2,10 +2,10 @@ package dk.aau.sw808f16.datacollection.snapshot;
 
 import dk.aau.sw808f16.datacollection.label.Label;
 
-public class Snapshot<DataType> {
+public class Snapshot<D> {
 
   private Label label;
-  private DataType data;
+  private D data;
 
   public Label getLabel() {
     return label;
@@ -15,11 +15,11 @@ public class Snapshot<DataType> {
     this.label = label;
   }
 
-  public DataType getData() {
+  public D getData() {
     return data;
   }
 
-  public void setData(DataType data) {
+  public void setData(D data) {
     this.data = data;
   }
 }
