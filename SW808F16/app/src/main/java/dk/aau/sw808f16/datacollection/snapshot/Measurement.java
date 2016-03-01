@@ -19,4 +19,8 @@ public class Measurement<T> {
   public void setData(T data) {
     this.data = data;
   }
+
+  public Class<?> getDataType() {
+    return data.getClass();
+  }
 }

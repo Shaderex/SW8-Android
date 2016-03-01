@@ -52,4 +52,12 @@ public class MeasurementTest {
     Assert.assertEquals(expectedData, measurement.getData());
   }
 
+  @Test
+  public void testCorrectDataType() {
+    final Class<?> expectedDataType = Integer.class;
+    final Measurement<Integer> measurement = new Measurement<>(2);
+
+    Assert.assertEquals(expectedDataType, measurement.getDataType());
+  }
+
 }
