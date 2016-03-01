@@ -10,12 +10,12 @@ public class Sample {
     this.measurements = new ArrayList<>();
   }
 
-  public void setMeasurements(final List<Measurement> measurements) {
-    this.measurements = measurements;
-  }
-
   public List<Measurement> getMeasurements() {
     return measurements;
+  }
+
+  public void setMeasurements(final List<Measurement> measurements) {
+    this.measurements = measurements;
   }
 
   public void addMeasurements(final List<Measurement> measurements) {
