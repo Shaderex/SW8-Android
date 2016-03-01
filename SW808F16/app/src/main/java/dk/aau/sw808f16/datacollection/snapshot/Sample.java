@@ -25,12 +25,8 @@ public class Sample {
   }
 
   public void addMeasurement(Measurement measurement) {
-
-
-    if (this.measurements.size() > 0) {
-      if (!this.measurements.get(0).getDataType().equals(measurement.getDataType())) {
-        throw new IllegalArgumentException("Type of new measurement is incompatible with current measures");
-      }
+    if (this.measurements.size() > 0 && !this.measurements.get(0).getDataType().equals(measurement.getDataType())) {
+      throw new IllegalArgumentException("Type of new measurement is incompatible with current measures");
     }
 
     this.measurements.add(measurement);
