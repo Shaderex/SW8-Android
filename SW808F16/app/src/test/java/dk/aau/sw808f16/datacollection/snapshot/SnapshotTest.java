@@ -10,13 +10,13 @@ public class SnapshotTest {
 
   @Test
   public void testConstructor() {
-    new Snapshot<Object>();
+    new Snapshot<>();
   }
 
   @Test
   public void testGetSetLabel() {
     final Label expectedLabel = new Label();
-    final Snapshot<Object> snapshot = new Snapshot<Object>();
+    final Snapshot<Object> snapshot = new Snapshot<>();
 
     snapshot.setLabel(expectedLabel);
 
