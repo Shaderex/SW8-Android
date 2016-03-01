@@ -8,13 +8,22 @@ public class MeasurementTest {
 
   @Test
   public void testConstructor() {
-    new Measurement<Object>();
+    final Integer expectedData = 42;
+    final Measurement<Integer> measurement = new Measurement<>(expectedData);
+
+    Assert.assertEquals(expectedData, measurement.getData());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testConstructorWithNullInput() {
+    new Measurement<>(null);
   }
 
   @Test
   public void testSetDataCase1() {
-    final Measurement<Integer> measurement = new Measurement<>();
     final Integer expectedData = 42;
+    final Integer unexpectedData = expectedData + 1;
+    final Measurement<Integer> measurement = new Measurement<>(unexpectedData);
 
     measurement.setData(expectedData);
 
@@ -23,8 +32,9 @@ public class MeasurementTest {
 
   @Test
   public void testSetDataCase2() {
-    final Measurement<String> measurement = new Measurement<>();
     final String expectedData = "hej";
+    final String unexpectedData = expectedData + "1";
+    final Measurement<String> measurement = new Measurement<>(unexpectedData);
 
     measurement.setData(expectedData);
 
@@ -33,8 +43,9 @@ public class MeasurementTest {
 
   @Test
   public void testSetDataCase3() {
-    final Measurement<Float[]> measurement = new Measurement<>();
-    final Float[] expectedData = new Float[]{ -1f, 0f, 1f, 2f, 3f, 3.14f, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY };
+    final Float[] expectedData = new Float[] {-1f, 0f, 1f, 2f, 3f, 3.14f, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY};
+    final Float[] unexpectedData = new Float[] {-1f};
+    final Measurement<Float[]> measurement = new Measurement<>(unexpectedData);
 
     measurement.setData(expectedData);
 

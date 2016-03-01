@@ -4,6 +4,14 @@ public class Measurement<T> {
 
   private T data;
 
+  public Measurement(final T data) {
+    if (data == null) {
+      throw new IllegalArgumentException("Data cannot be null");
+    }
+
+    setData(data);
+  }
+
   public T getData() {
     return data;
   }
