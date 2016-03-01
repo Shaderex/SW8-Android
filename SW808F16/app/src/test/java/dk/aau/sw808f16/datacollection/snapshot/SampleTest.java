@@ -8,4 +8,5 @@ public class SampleTest {
   public void testConstructor() {
     new Sample();
   }
+  
 }
