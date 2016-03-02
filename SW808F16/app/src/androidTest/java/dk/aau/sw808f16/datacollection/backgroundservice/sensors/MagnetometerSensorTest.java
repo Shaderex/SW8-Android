@@ -19,7 +19,7 @@ import java.util.concurrent.CountDownLatch;
 public class MagnetometerSensorTest extends ApplicationTestCase<Application> {
 
   // Increase this to increase the amount of time logging
-  private static final int logTime = 300000 * 4;
+  private static final int logTime = 0;
 
   public MagnetometerSensorTest() {
     super(Application.class);
