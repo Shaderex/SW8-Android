@@ -46,4 +46,28 @@ public class FloatTripleTest {
     Assert.assertEquals("Third value is not set properly", expected3, floatTriple.getThirdValue());
   }
 
+  @Test
+  public void testGetValueArrayThreeArgumentConstructor() {
+    final float expected1 = 3f;
+    final float expected2 = 4f;
+    final float expected3 = 5f;
+    final FloatTriple floatTriple = new FloatTriple(expected1, expected2, expected3);
+
+    Assert.assertEquals(expected1, floatTriple.getValues()[0]);
+    Assert.assertEquals(expected2, floatTriple.getValues()[1]);
+    Assert.assertEquals(expected3, floatTriple.getValues()[2]);
+  }
+
+  @Test
+  public void testGetValueArrayArrayConstructor() {
+    final float expected1 = 3f;
+    final float expected2 = 4f;
+    final float expected3 = 5f;
+    final FloatTriple floatTriple = new FloatTriple(new float[] {expected1, expected2, expected3});
+
+    Assert.assertEquals(expected1, floatTriple.getValues()[0]);
+    Assert.assertEquals(expected2, floatTriple.getValues()[1]);
+    Assert.assertEquals(expected3, floatTriple.getValues()[2]);
+  }
+
 }

@@ -33,4 +33,8 @@ public class FloatTriple {
   public float getThirdValue() {
     return thirdValue;
   }
+
+  public float[] getValues() {
+    return new float[] {firstValue, secondValue, thirdValue};
+  }
 }
