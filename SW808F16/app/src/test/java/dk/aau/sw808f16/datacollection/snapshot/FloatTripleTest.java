@@ -70,4 +70,17 @@ public class FloatTripleTest {
     Assert.assertEquals(expected3, floatTriple.getValues()[2]);
   }
 
+  @Test
+  public void testGetCompressedValues() {
+    final float expected1 = -08.7845f; // 10010101011100100101
+    final float expected2 =  11.1234f; // 00011011001010000010
+    final float expected3 =  09.7864f; // 00010111111001001000
+    final FloatTriple floatTriple = new FloatTriple(expected1, expected2, expected3);
+
+    final long expected = 0b0010100101010111001001010001101100101000001000010111111001001000L;
+
+    // Assert.assertEquals(expected, floatTriple.getCompressedValues());
+    Assert.assertEquals(Long.toBinaryString(expected), Long.toBinaryString(floatTriple.getCompressedValues()));
+  }
+
 }
