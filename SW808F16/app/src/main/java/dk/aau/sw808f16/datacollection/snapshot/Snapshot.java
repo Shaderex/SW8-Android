@@ -1,17 +1,19 @@
 package dk.aau.sw808f16.datacollection.snapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import dk.aau.sw808f16.datacollection.label.Label;
 
 public class Snapshot {
 
   private Label label;
-  private List<Sample> samples;
+  private final Map<Integer, List<Sample>> samplesMap;
 
   public Snapshot() {
-    this.samples = new ArrayList<>();
+    samplesMap = new HashMap<>();
   }
 
   public Label getLabel() {
@@ -22,21 +24,25 @@ public class Snapshot {
     this.label = label;
   }
 
-  public List<Sample> getSamples() {
-    return samples;
-  }
-
-  public void setSamples(final List<Sample> samples) {
-    this.samples = samples;
-  }
-
-  public void addSamples(final List<Sample> samples) {
-    for (final Sample sample : samples) {
-      addSample(sample);
+  public void addSample(int sensorType, Sample sample) {
+    if (!samplesMap.containsKey(sensorType)) {
+      samplesMap.put(sensorType, new ArrayList<Sample>());
     }
+    samplesMap.get(sensorType).add(sample);
   }
 
-  public void addSample(Sample samples) {
-    this.samples.add(samples);
+  public List<Sample> getSamples(int sensorType) {
+    if (!samplesMap.containsKey(sensorType)) {
+      // Return an empty list to indicate that no samples are available for the requested sensor
+      return new ArrayList<>();
+    }
+
+    return samplesMap.get(sensorType);
+  }
+
+  public void addSamples(int sensorType, List<Sample> samples) {
+    for (final Sample sample : samples) {
+      addSample(sensorType, sample);
+    }
   }
 }

@@ -1,5 +1,7 @@
 package dk.aau.sw808f16.datacollection.snapshot;
 
+import android.hardware.Sensor;
+
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -27,45 +29,41 @@ public class SnapshotTest {
   }
 
   @Test
-  public void testGetSetSample() {
-    final Snapshot snapshot = new Snapshot();
-    final Sample sample1 = new Sample();
-    final Sample sample2 = new Sample();
-
-    final List<Sample> samples = new ArrayList<>();
-    samples.add(sample1);
-    samples.add(sample2);
-
-    snapshot.setSamples(samples);
-
-    Assert.assertEquals(snapshot.getSamples(), samples);
-  }
-
-  @Test
-  public void testAddSample() {
+  public void testAddSampleGetSamples() {
     final Snapshot snapshot = new Snapshot();
     final Sample sample = new Sample();
+    final int sensorType = Sensor.TYPE_ACCELEROMETER;
 
-    snapshot.addSample(sample);
+    snapshot.addSample(sensorType, sample);
 
-    Assert.assertTrue(snapshot.getSamples().contains(sample));
+    Assert.assertTrue(snapshot.getSamples(sensorType).contains(sample));
   }
 
   @Test
-  public void testAddSamples() {
+  public void testEmptyGetSamples() {
     final Snapshot snapshot = new Snapshot();
-    final Sample sample1 = new Sample();
-    final Sample sample2 = new Sample();
 
-    final List<Sample> samples = new ArrayList<>();
-    samples.add(sample1);
-    samples.add(sample2);
+    final List<Sample> actual = snapshot.getSamples(Sensor.TYPE_ACCELEROMETER);
 
-    snapshot.addSamples(samples);
+    Assert.assertTrue(actual.isEmpty());
+  }
 
-    for (final Sample sample : samples) {
-      Assert.assertTrue(snapshot.getSamples().contains(sample));
-    }
+  @Test
+  public void testAddSamplesGetSamples() {
+    final Snapshot snapshot = new Snapshot();
+    final int sensorType = Sensor.TYPE_ACCELEROMETER;
+    final List<Sample> expected = new ArrayList<Sample>() {
+      {
+        add(new Sample());
+        add(new Sample());
+        add(new Sample());
+      }
+    };
+
+    snapshot.addSamples(sensorType, expected);
+
+    Assert.assertEquals(expected, snapshot.getSamples(sensorType));
+
   }
 
 }
