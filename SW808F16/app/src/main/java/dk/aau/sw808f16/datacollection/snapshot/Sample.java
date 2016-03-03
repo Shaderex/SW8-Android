@@ -4,31 +4,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Sample {
-  private List<Measurement> measurements;
+  private List<Object> measurements;
 
   public Sample() {
     this.measurements = new ArrayList<>();
   }
 
-  public List<Measurement> getMeasurements() {
+  public List<?> getMeasurements() {
     return measurements;
   }
 
-  public void setMeasurements(final List<Measurement> measurements) {
-    this.measurements = measurements;
+  public void setMeasurements(final List<?> measurements) {
+    this.measurements = new ArrayList<>();
+    addMeasurements(measurements);
   }
 
-  public void addMeasurements(final List<Measurement> measurements) {
-    for (final Measurement measurement : measurements) {
+  public void addMeasurements(final List<?> measurements) {
+    for (final Object measurement : measurements) {
       addMeasurement(measurement);
     }
   }
 
-  public void addMeasurement(Measurement measurement) {
-    if (this.measurements.size() > 0 && !this.measurements.get(0).getDataType().equals(measurement.getDataType())) {
-      throw new IllegalArgumentException("Type of new measurement is incompatible with current measures");
-    }
-
+  public void addMeasurement(Object measurement) {
     this.measurements.add(measurement);
   }
 }
