@@ -12,18 +12,20 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.R;
+import dk.aau.sw808f16.datacollection.snapshot.FloatTriple;
+import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
-public class AccelerometerSensorProvider extends SensorProvider<List<float[]>> {
+public class AccelerometerSensorProvider extends SensorProvider<Sample> {
 
   public AccelerometerSensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
   }
 
   @Override
-  protected List<float[]> retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
+  protected Sample retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
 
     final CountDownLatch latch = new CountDownLatch(1);
-    final List<float[]> sensorValues = new ArrayList<>();
+    final Sample sensorValues = new Sample();
     final long endTime = System.currentTimeMillis() + sampleDuration;
 
     final Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -44,7 +46,8 @@ public class AccelerometerSensorProvider extends SensorProvider<List<float[]>> {
             return;
           }
 
-          sensorValues.add(event.values);
+          FloatTriple measurement = new FloatTriple(event.values[0],event.values[1],event.values[2]);
+          sensorValues.addMeasurement(measurement);
 
           lastUpdateTime = currentTime;
 
