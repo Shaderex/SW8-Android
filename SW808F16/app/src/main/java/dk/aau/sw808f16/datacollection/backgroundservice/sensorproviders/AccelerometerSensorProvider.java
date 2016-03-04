@@ -34,24 +34,20 @@ public class AccelerometerSensorProvider extends SensorProvider<Sample> {
 
       @Override
       public void onSensorChanged(final SensorEvent event) {
+        final long currentTime = System.currentTimeMillis();
 
-        synchronized (AccelerometerSensorProvider.this) {
+        final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
+        if (lastUpdateTime + measurementFrequency / micro_per_milli >= currentTime) {
+          return;
+        }
 
-          final long currentTime = System.currentTimeMillis();
+        FloatTriple measurement = new FloatTriple(event.values[0], event.values[1], event.values[2]);
+        sensorValues.addMeasurement(measurement);
 
-          final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
-          if (lastUpdateTime + measurementFrequency / micro_per_milli >= currentTime) {
-            return;
-          }
+        lastUpdateTime = currentTime;
 
-          FloatTriple measurement = new FloatTriple(event.values[0], event.values[1], event.values[2]);
-          sensorValues.addMeasurement(measurement);
-
-          lastUpdateTime = currentTime;
-
-          if (endTime <= currentTime) {
-            latch.countDown();
-          }
+        if (endTime <= currentTime) {
+          latch.countDown();
         }
       }
 
