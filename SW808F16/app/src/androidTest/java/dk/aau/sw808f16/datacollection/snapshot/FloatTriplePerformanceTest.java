@@ -13,7 +13,7 @@ public class FloatTriplePerformanceTest extends ApplicationTestCase<Application>
     super(Application.class);
   }
 
-  public void testData() {
+  public void testFloatTripleMeasurementPerformance() {
     // Increase this number if you want to perform this test (Approximate 500.000)
     // Values too large will make the device run out of memory (Approximate 4.000.000, Nexus 5)
     final int floatIterations = 100;
