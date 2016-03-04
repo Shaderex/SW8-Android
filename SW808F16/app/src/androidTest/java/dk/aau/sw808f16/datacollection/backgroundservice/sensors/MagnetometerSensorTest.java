@@ -46,9 +46,9 @@ public class MagnetometerSensorTest extends ApplicationTestCase<Application> {
         final float yFieldStrength = event.values[1];
         final float zFieldStrength = event.values[2];
 
-        Log.i("Gemagnetic field str ", xFieldStrength + " μT / " + accelerometerSensor.getMaximumRange() + " μT");
-        Log.i("Gemagnetic field str ", yFieldStrength + " μT / " + accelerometerSensor.getMaximumRange() + " μT");
-        Log.i("Gemagnetic field str ", zFieldStrength + " μT / " + accelerometerSensor.getMaximumRange() + " μT");
+        Log.i("Geomagnetic field str ", xFieldStrength + " μT / " + accelerometerSensor.getMaximumRange() + " μT");
+        Log.i("Geomagnetic field str ", yFieldStrength + " μT / " + accelerometerSensor.getMaximumRange() + " μT");
+        Log.i("Geomagnetic field str ", zFieldStrength + " μT / " + accelerometerSensor.getMaximumRange() + " μT");
 
         data.add(event.values);
       }
