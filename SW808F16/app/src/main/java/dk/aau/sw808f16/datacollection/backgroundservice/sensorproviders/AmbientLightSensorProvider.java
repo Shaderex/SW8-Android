@@ -12,14 +12,15 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.R;
+import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
-public class AmbientLightSensorProvider extends SensorProvider<List<Float>> {
+public class AmbientLightSensorProvider extends SensorProvider<Sample> {
   public AmbientLightSensorProvider(Context context, ExecutorService sensorThreadPool, SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
   }
 
   @Override
-  protected List<Float> retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
+  protected Sample retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
 
     final CountDownLatch latch = new CountDownLatch(1);
     final List<Float> sensorValues = new ArrayList<>();
@@ -68,6 +69,6 @@ public class AmbientLightSensorProvider extends SensorProvider<List<Float>> {
 
     sensorManager.unregisterListener(accelerometerListener);
 
-    return sensorValues;
+    return new Sample(sensorValues);
   }
 }
