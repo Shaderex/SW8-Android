@@ -4,6 +4,9 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Random;
+
 public class FloatTripleTest {
 
   @Test
@@ -73,11 +76,35 @@ public class FloatTripleTest {
   @Test
   public void testGetCompressedValues() {
     final float expected1 = -08.7845f; // 10010101011100100101
-    final float expected2 =  11.1234f; // 00011011001010000010
-    final float expected3 =  09.7864f; // 00010111111001001000
+    final float expected2 = 11.1234f; // 00011011001010000010
+    final float expected3 = 09.7864f; // 00010111111001001000
     final FloatTriple floatTriple = new FloatTriple(expected1, expected2, expected3);
 
     final long expected = 0b0010100101010111001001010001101100101000001000010111111001001000L;
+
+    Assert.assertEquals(expected, floatTriple.getCompressedValues());
+  }
+
+  @Test
+  public void testGetCompressedValuesMoreDigits() {
+    final float expected1 = -08.784545f; // 10010101011100100101
+    final float expected2 = 11.123436f; // 00011011001010000010
+    final float expected3 = 09.786427f; // 00010111111001001000
+    final FloatTriple floatTriple = new FloatTriple(expected1, expected2, expected3);
+
+    final long expected = 0b0010100101010111001001010001101100101000001000010111111001001000L;
+
+    Assert.assertEquals(expected, floatTriple.getCompressedValues());
+  }
+
+  @Test
+  public void testGetCompressedValuesFewerDigits() {
+    final float expected1 = -08.784f; // 10010101011100100000
+    final float expected2 = 11.123f; // 00011011001001111110
+    final float expected3 = 09.786f; // 00010111111001000100
+    final FloatTriple floatTriple = new FloatTriple(expected1, expected2, expected3);
+
+    final long expected = 0b0010100101010111001000000001101100100111111000010111111001000100L;
 
     Assert.assertEquals(expected, floatTriple.getCompressedValues());
   }
