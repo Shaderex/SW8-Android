@@ -6,8 +6,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
@@ -46,7 +44,7 @@ public class AccelerometerSensorProvider extends SensorProvider<Sample> {
             return;
           }
 
-          FloatTriple measurement = new FloatTriple(event.values[0],event.values[1],event.values[2]);
+          FloatTriple measurement = new FloatTriple(event.values[0], event.values[1], event.values[2]);
           sensorValues.addMeasurement(measurement);
 
           lastUpdateTime = currentTime;
