@@ -4,9 +4,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Random;
-
 public class FloatTripleTest {
 
   @Test
