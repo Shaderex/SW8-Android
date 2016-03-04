@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
+import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class CellularNetworkSensorProviderTest extends ApplicationTestCase<DataCollectionApplication> {
 
@@ -29,17 +30,40 @@ public class CellularNetworkSensorProviderTest extends ApplicationTestCase<DataC
     final CellularNetworkSensorProvider cellularNetworkSensorProvider =
         new CellularNetworkSensorProvider(getContext(), sensorThreadPool, sensorManager);
 
-    final List<List<CellInfo>> data1 = cellularNetworkSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
+    final Sample sample1 = cellularNetworkSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
+    final Sample sample2 = cellularNetworkSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
 
-    final List<List<CellInfo>> data2 = cellularNetworkSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
+    assertNotNull("Sensor data is null", sample1);
+    assertFalse("Sensor data is empty", sample1.getMeasurements().isEmpty());
 
-    assertNotNull("Sensor data is null", data1);
-    assertFalse("Sensor data is empty", data1.isEmpty());
+    assertNotNull("Sensor data (second measure) is null", sample2);
+    assertFalse("Sensor data (second measure) is empty", sample2.getMeasurements().isEmpty());
 
-    assertNotNull("Sensor data (second measure) is null", data2);
-    assertFalse("Sensor data (second measure) is empty", data2.isEmpty());
+    assertTrue("The amount of data and sampling period do not match, they are not exactly one",
+        sample1.getMeasurements().size() == expectedSize);
+    assertTrue("The amount of data and sampling period do not match, they are not exactly one",
+        sample2.getMeasurements().size() == expectedSize);
 
-    assertTrue("The amount of data and sampling period do not match, they are not exactly one", data1.size() == expectedSize);
-    assertTrue("The amount of data and sampling period do not match, they are not exactly one", data2.size() == expectedSize);
+    for (final Object measurement : sample1.getMeasurements()) {
+
+      assertTrue("sample1 is not of type List", measurement instanceof List);
+
+      List<?> aids = (List<?>) measurement;
+
+      for (Object o : aids) {
+        assertTrue("Item in sample1 is not of type CellInfo", o instanceof CellInfo);
+      }
+    }
+
+    for (final Object measurement : sample2.getMeasurements()) {
+
+      assertTrue("sample2 is not of type List", measurement instanceof List);
+
+      List<?> aids = (List<?>) measurement;
+
+      for (Object o : aids) {
+        assertTrue("Item in sample2 is not of type CellInfo", o instanceof CellInfo);
+      }
+    }
   }
 }
