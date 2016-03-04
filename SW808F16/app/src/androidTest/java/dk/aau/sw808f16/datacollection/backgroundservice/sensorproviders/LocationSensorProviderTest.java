@@ -28,26 +28,26 @@ public class LocationSensorProviderTest extends ApplicationTestCase<DataCollecti
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
     final LocationSensorProvider locationSensorProvider = new LocationSensorProvider(getContext(), sensorThreadPool, sensorManager);
 
-    final Sample data1 = locationSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
-    final Sample data2 = locationSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
+    final Sample sample1 = locationSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
+    final Sample sample2 = locationSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
 
-    assertNotNull("Sensor data is null", data1);
-    assertFalse("Sensor data is empty", data1.getMeasurements().isEmpty());
+    assertNotNull("Sensor data is null", sample1);
+    assertFalse("Sensor data is empty", sample1.getMeasurements().isEmpty());
 
-    assertNotNull("Sensor data (second measure) is null", data2);
-    assertFalse("Sensor data (second measure) is empty", data2.getMeasurements().isEmpty());
+    assertNotNull("Sensor data (second measure) is null", sample2);
+    assertFalse("Sensor data (second measure) is empty", sample2.getMeasurements().isEmpty());
 
     assertTrue("The amount of data and sampling period do not match, they are not exactly one",
-        data1.getMeasurements().size() == expectedSize);
+        sample1.getMeasurements().size() == expectedSize);
     assertTrue("The amount of data and sampling period do not match, they are not exactly one",
-        data2.getMeasurements().size() == expectedSize);
+        sample2.getMeasurements().size() == expectedSize);
 
-    for (final Object measurement : data1.getMeasurements()) {
-      assertTrue("Measurement in data1 is not of type Location", measurement instanceof Location);
+    for (final Object measurement : sample1.getMeasurements()) {
+      assertTrue("Measurement in sample1 is not of type Location", measurement instanceof Location);
     }
 
-    for (final Object measurement : data1.getMeasurements()) {
-      assertTrue("Measurement in data2 is not of type Location", measurement instanceof Location);
+    for (final Object measurement : sample1.getMeasurements()) {
+      assertTrue("Measurement in sample2 is not of type Location", measurement instanceof Location);
     }
   }
 }
