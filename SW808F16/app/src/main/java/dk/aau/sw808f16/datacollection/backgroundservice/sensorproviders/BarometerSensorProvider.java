@@ -12,15 +12,16 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.R;
+import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
-public class BarometerSensorProvider extends SensorProvider<List<Float>> {
+public class BarometerSensorProvider extends SensorProvider<Sample> {
 
   public BarometerSensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
   }
 
   @Override
-  protected List<Float> retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
+  protected Sample retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
 
     final CountDownLatch latch = new CountDownLatch(1);
     final List<Float> sensorValues = new ArrayList<>();
@@ -29,7 +30,7 @@ public class BarometerSensorProvider extends SensorProvider<List<Float>> {
     final Sensor barometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
 
     // Listeners used when we have one measurement from each sensor
-    final SensorEventListener  barometerEventListener = new SensorEventListener() {
+    final SensorEventListener barometerEventListener = new SensorEventListener() {
 
       private long lastUpdateTime;
 
@@ -70,6 +71,6 @@ public class BarometerSensorProvider extends SensorProvider<List<Float>> {
 
     sensorManager.unregisterListener(barometerEventListener);
 
-    return sensorValues;
+    return new Sample(sensorValues);
   }
 }
