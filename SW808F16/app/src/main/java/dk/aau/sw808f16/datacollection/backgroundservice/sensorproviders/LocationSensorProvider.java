@@ -5,8 +5,6 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationManager;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
