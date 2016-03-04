@@ -9,23 +9,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-public class LocationSensorProvider extends SensorProvider<List<Location>> {
+import dk.aau.sw808f16.datacollection.snapshot.Sample;
+
+public class LocationSensorProvider extends SensorProvider<Sample> {
 
   public LocationSensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
   }
 
   @Override
-  protected List<Location> retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency)
+  protected Sample retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency)
       throws InterruptedException {
 
     final LocationManager locationManager = (LocationManager) context.get().getSystemService(Context.LOCATION_SERVICE);
     final Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
 
-    return new ArrayList<Location>() {
-      {
-        add(lastKnownLocation);
-      }
-    };
+    return new Sample(lastKnownLocation);
   }
 }
