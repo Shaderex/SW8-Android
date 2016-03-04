@@ -5,12 +5,23 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class SampleTest {
 
   @Test
   public void testConstructor() {
     new Sample();
+  }
+
+  @Test
+  public void testConstructorWithInitialMeasurement() {
+    new Sample(2);
+  }
+
+  @Test
+  public void testConstructorWithInitialMeasurements() {
+    new Sample(Arrays.asList(1, 2, 3));
   }
 
   @Test
