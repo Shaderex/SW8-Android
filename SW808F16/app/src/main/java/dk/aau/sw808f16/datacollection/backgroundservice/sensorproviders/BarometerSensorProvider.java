@@ -36,9 +36,6 @@ public class BarometerSensorProvider extends SensorProvider<Sample> {
 
       @Override
       public void onSensorChanged(final SensorEvent event) {
-
-        synchronized (BarometerSensorProvider.this) {
-
           final long currentTime = System.currentTimeMillis();
 
           final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
@@ -54,7 +51,6 @@ public class BarometerSensorProvider extends SensorProvider<Sample> {
             latch.countDown();
           }
         }
-      }
 
       @Override
       public void onAccuracyChanged(final Sensor sensor, final int accuracy) {

@@ -29,28 +29,23 @@ public class AmbientLightSensorProvider extends SensorProvider<Sample> {
     final Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
 
     final SensorEventListener accelerometerListener = new SensorEventListener() {
-
       private long lastUpdateTime;
 
       @Override
       public void onSensorChanged(final SensorEvent event) {
+        final long currentTime = System.currentTimeMillis();
 
-        synchronized (AmbientLightSensorProvider.this) {
+        final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
+        if (lastUpdateTime + measurementFrequency / micro_per_milli >= currentTime) {
+          return;
+        }
 
-          final long currentTime = System.currentTimeMillis();
+        sensorValues.add(event.values[0]);
 
-          final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
-          if (lastUpdateTime + measurementFrequency / micro_per_milli >= currentTime) {
-            return;
-          }
+        lastUpdateTime = currentTime;
 
-          sensorValues.add(event.values[0]);
-
-          lastUpdateTime = currentTime;
-
-          if (endTime <= currentTime) {
-            latch.countDown();
-          }
+        if (endTime <= currentTime) {
+          latch.countDown();
         }
       }
 
