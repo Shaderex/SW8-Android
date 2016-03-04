@@ -42,20 +42,20 @@ public class AmbientLightSensorProviderTest extends ApplicationTestCase<DataColl
     final AmbientLightSensorProvider ambientLightSensorProvider =
         new AmbientLightSensorProvider(getContext(), sensorThreadPool, sensorManager);
 
-    final Sample data1 = ambientLightSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
-    final Sample data2 = ambientLightSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
+    final Sample sample1 = ambientLightSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
+    final Sample sample2 = ambientLightSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
 
-    assertNotNull("Sensor data is null", data1);
-    assertFalse("Sensor data is empty", data1.getMeasurements().isEmpty());
+    assertNotNull("Sensor data is null", sample1);
+    assertFalse("Sensor data is empty", sample1.getMeasurements().isEmpty());
 
-    assertNotNull("Sensor data is null (second measure)", data2);
-    assertFalse("Sensor data is empty (second measure)", data2.getMeasurements().isEmpty());
+    assertNotNull("Sensor data is null (second measure)", sample2);
+    assertFalse("Sensor data is empty (second measure)", sample2.getMeasurements().isEmpty());
 
     final Sensor gyroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
     final float maxValue = gyroscopeSensor.getMaximumRange();
     final float minValue = -gyroscopeSensor.getMaximumRange();
 
-    for (final Object measurement : data1.getMeasurements()) {
+    for (final Object measurement : sample1.getMeasurements()) {
       if (!(measurement instanceof Float)) {
         Assert.assertEquals("Ambient light sensor data is of wrong type.", Float.class, measurement.getClass());
       }
@@ -67,7 +67,7 @@ public class AmbientLightSensorProviderTest extends ApplicationTestCase<DataColl
       assertTrue("The value is above " + minValue, ambientValue < maxValue);
     }
 
-    for (final Object measurement : data1.getMeasurements()) {
+    for (final Object measurement : sample1.getMeasurements()) {
       if (!(measurement instanceof Float)) {
         Assert.assertEquals("Ambient light sensor data is of wrong type.", Float.class, measurement.getClass());
       }
@@ -78,12 +78,12 @@ public class AmbientLightSensorProviderTest extends ApplicationTestCase<DataColl
       assertTrue("The value is above " + minValue, ambientValue < maxValue);
     }
 
-    assertTrue("The amount of data and sampling period do not match, not enough data", data1.getMeasurements().size() >= minSize);
-    assertTrue("The amount of data and sampling period do not match, too much data", data1.getMeasurements().size() <= maxSize);
+    assertTrue("The amount of data and sampling period do not match, not enough data", sample1.getMeasurements().size() >= minSize);
+    assertTrue("The amount of data and sampling period do not match, too much data", sample1.getMeasurements().size() <= maxSize);
     assertTrue("The amount of data and sampling period do not match, not enough data (second measure)",
-        data2.getMeasurements().size() >= minSize);
+        sample2.getMeasurements().size() >= minSize);
     assertTrue("The amount of data and sampling period do not match, too much data (second measure)",
-        data2.getMeasurements().size() <= maxSize);
+        sample2.getMeasurements().size() <= maxSize);
 
 
   }
