@@ -14,7 +14,9 @@ public class FloatTriplePerformanceTest extends ApplicationTestCase<Application>
   }
 
   public void testData() {
-    final int floatIterations = 500000;
+    // Increase this number if you want to perform this test (Approximate 500.000)
+    // Values too large will make the device run out of memory (Approximate 4.000.000, Nexus 5)
+    final int floatIterations = 100;
 
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     final ArrayList<float[]> floatArrays = new ArrayList<>();
