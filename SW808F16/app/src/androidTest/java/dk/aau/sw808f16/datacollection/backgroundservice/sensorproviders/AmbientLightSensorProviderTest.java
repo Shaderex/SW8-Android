@@ -67,7 +67,7 @@ public class AmbientLightSensorProviderTest extends ApplicationTestCase<DataColl
       assertTrue("The value is above " + minValue, ambientValue < maxValue);
     }
 
-    for (final Object measurement : sample1.getMeasurements()) {
+    for (final Object measurement : sample2.getMeasurements()) {
       if (!(measurement instanceof Float)) {
         Assert.assertEquals("Ambient light sensor data is of wrong type.", Float.class, measurement.getClass());
       }
