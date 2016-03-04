@@ -64,6 +64,7 @@ public class AccelerometerSensorProviderTest extends ApplicationTestCase<DataCol
         Assert.assertEquals("Accelerometer sensor data is of wrong type.", FloatTriple.class, measurement.getClass());
       }
 
+      @SuppressWarnings("ConstantConditions")
       FloatTriple accelerometerValues = (FloatTriple) measurement;
 
       assertTrue("Data for index 0 value must be between " + minValue + " and " + maxValue,
@@ -80,6 +81,7 @@ public class AccelerometerSensorProviderTest extends ApplicationTestCase<DataCol
         Assert.assertEquals("Accelerometer sensor data is of wrong type.", FloatTriple.class, measurement.getClass());
       }
 
+      @SuppressWarnings("ConstantConditions")
       FloatTriple accelerometerValues = (FloatTriple) measurement;
 
       assertTrue("Data for index 0 value must be between " + minValue + " and " + maxValue,

@@ -16,7 +16,9 @@ public class FloatTriplePerformanceTest extends ApplicationTestCase<Application>
   public void testData() {
     final int floatIterations = 500000;
 
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     final ArrayList<float[]> floatArrays = new ArrayList<>();
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     final ArrayList<FloatTriple> floatTriples = new ArrayList<>();
 
     final Random rng = new Random();
@@ -26,6 +28,7 @@ public class FloatTriplePerformanceTest extends ApplicationTestCase<Application>
     for (int i = 0; i < floatIterations; i++) {
       final float[] newFloats = new float[] {rng.nextFloat(), rng.nextFloat(), rng.nextFloat()};
       floatArrays.add(newFloats);
+      @SuppressWarnings("UnusedAssignment")
       final float result = newFloats[0] * newFloats[1] * newFloats[2];
     }
 
@@ -38,6 +41,7 @@ public class FloatTriplePerformanceTest extends ApplicationTestCase<Application>
     for (int i = 0; i < floatIterations; i++) {
       final FloatTriple floatTriple = new FloatTriple(rng.nextFloat(), rng.nextFloat(), rng.nextFloat());
       floatTriples.add(floatTriple);
+      @SuppressWarnings("UnusedAssignment")
       final float result = floatTriple.getFirstValue() * floatTriple.getSecondValue() * floatTriple.getThirdValue();
     }
 
