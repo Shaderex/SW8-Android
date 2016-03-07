@@ -14,8 +14,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.R;
+import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
-public class ProximitySensorProvider extends SensorProvider<List<Float>> {
+public class ProximitySensorProvider extends SensorProvider<Sample> {
 
   private final Timer proximitySamplingTimer;
 
@@ -25,11 +26,11 @@ public class ProximitySensorProvider extends SensorProvider<List<Float>> {
   }
 
   @Override
-  protected List<Float> retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
+  protected Sample retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
 
     final long endTime = System.currentTimeMillis() + sampleDuration;
     final CountDownLatch latch = new CountDownLatch(1);
-    final List<Float> sensorValues = new ArrayList<>();
+    final List<Float> measurements = new ArrayList<>();
 
     final Sensor proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
@@ -54,7 +55,7 @@ public class ProximitySensorProvider extends SensorProvider<List<Float>> {
                 return;
               }
 
-              sensorValues.add(proximitySensorOutput[0]);
+              measurements.add(proximitySensorOutput[0]);
             }
           };
 
@@ -80,6 +81,6 @@ public class ProximitySensorProvider extends SensorProvider<List<Float>> {
 
     sensorManager.unregisterListener(proximityListener);
 
-    return sensorValues;
+    return new Sample(measurements);
   }
 }
