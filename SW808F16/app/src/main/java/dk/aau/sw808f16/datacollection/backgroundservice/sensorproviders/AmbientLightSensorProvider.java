@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutorService;
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
-public class AmbientLightSensorProvider extends SensorProvider<Sample> {
+public class AmbientLightSensorProvider extends SensorProvider {
   public AmbientLightSensorProvider(Context context, ExecutorService sensorThreadPool, SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
   }

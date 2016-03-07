@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutorService;
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
-public class BarometerSensorProvider extends SensorProvider<Sample> {
+public class BarometerSensorProvider extends SensorProvider {
 
   public BarometerSensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);

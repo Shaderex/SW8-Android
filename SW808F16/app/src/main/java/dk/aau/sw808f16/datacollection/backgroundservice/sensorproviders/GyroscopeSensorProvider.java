@@ -15,7 +15,7 @@ import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.snapshot.FloatTriple;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
-public class GyroscopeSensorProvider extends SensorProvider<Sample> {
+public class GyroscopeSensorProvider extends SensorProvider {
 
   public GyroscopeSensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);

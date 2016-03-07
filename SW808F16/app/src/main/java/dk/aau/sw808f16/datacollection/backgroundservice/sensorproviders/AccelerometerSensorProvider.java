@@ -13,7 +13,7 @@ import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.snapshot.FloatTriple;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
-public class AccelerometerSensorProvider extends SensorProvider<Sample> {
+public class AccelerometerSensorProvider extends SensorProvider {
 
   public AccelerometerSensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);

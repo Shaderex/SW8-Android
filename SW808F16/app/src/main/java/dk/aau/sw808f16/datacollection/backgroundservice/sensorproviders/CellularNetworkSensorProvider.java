@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutorService;
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
-public class CellularNetworkSensorProvider extends SensorProvider<Sample> {
+public class CellularNetworkSensorProvider extends SensorProvider {
 
   private final Context context;
   private final Timer cellNetworkMeasurementTimer;

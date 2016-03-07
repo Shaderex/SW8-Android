@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutorService;
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
-public class CompassSensorProvider extends SensorProvider<Sample> {
+public class CompassSensorProvider extends SensorProvider {
 
   private static final int maxArcDegrees = 360;
 
