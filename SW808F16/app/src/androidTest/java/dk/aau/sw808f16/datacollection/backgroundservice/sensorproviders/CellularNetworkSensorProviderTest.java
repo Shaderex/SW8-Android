@@ -14,7 +14,6 @@ import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class CellularNetworkSensorProviderTest extends ApplicationTestCase<DataCollectionApplication> {
-
   private static final long sampleDuration = 10000; // In milliseconds
   private static final int measurementFrequency = 2000000; // In microseconds
 
