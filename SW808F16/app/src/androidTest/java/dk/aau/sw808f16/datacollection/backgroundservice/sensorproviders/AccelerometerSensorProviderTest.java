@@ -45,7 +45,6 @@ public class AccelerometerSensorProviderTest extends ApplicationTestCase<DataCol
         new AccelerometerSensorProvider(getContext(), sensorThreadPool, sensorManager);
 
     final Sample sample1 = accelerometerSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
-
     final Sample sample2 = accelerometerSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
 
     assertNotNull("Sensor data is null", sample1);

@@ -12,18 +12,20 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.R;
+import dk.aau.sw808f16.datacollection.snapshot.FloatTriple;
+import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
-public class GyroscopeSensorProvider extends SensorProvider<List<float[]>> {
+public class GyroscopeSensorProvider extends SensorProvider {
 
   public GyroscopeSensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
   }
 
   @Override
-  protected List<float[]> retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
+  protected Sample retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
 
     final CountDownLatch latch = new CountDownLatch(1);
-    final List<float[]> sensorValues = new ArrayList<>();
+    final List<FloatTriple> sensorValues = new ArrayList<>();
     final long endTime = System.currentTimeMillis() + sampleDuration;
 
     final Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
@@ -35,9 +37,6 @@ public class GyroscopeSensorProvider extends SensorProvider<List<float[]>> {
 
       @Override
       public void onSensorChanged(final SensorEvent event) {
-
-        synchronized (GyroscopeSensorProvider.this) {
-
           final long currentTime = System.currentTimeMillis();
           final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
 
@@ -45,7 +44,9 @@ public class GyroscopeSensorProvider extends SensorProvider<List<float[]>> {
             return;
           }
 
-          sensorValues.add(event.values);
+          FloatTriple triple = new FloatTriple(event.values);
+
+          sensorValues.add(triple);
 
           lastUpdateTime = currentTime;
 
@@ -53,7 +54,6 @@ public class GyroscopeSensorProvider extends SensorProvider<List<float[]>> {
             latch.countDown();
           }
         }
-      }
 
       @Override
       public void onAccuracyChanged(final Sensor sensor, final int accuracy) {
@@ -74,6 +74,6 @@ public class GyroscopeSensorProvider extends SensorProvider<List<float[]>> {
 
     sensorManager.unregisterListener(gyroscopeListener);
 
-    return sensorValues;
+    return new Sample(sensorValues);
   }
 }

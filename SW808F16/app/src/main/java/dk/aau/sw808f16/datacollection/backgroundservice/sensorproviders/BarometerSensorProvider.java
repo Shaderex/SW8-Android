@@ -12,15 +12,16 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.R;
+import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
-public class BarometerSensorProvider extends SensorProvider<List<Float>> {
+public class BarometerSensorProvider extends SensorProvider {
 
   public BarometerSensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
   }
 
   @Override
-  protected List<Float> retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
+  protected Sample retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
 
     final CountDownLatch latch = new CountDownLatch(1);
     final List<Float> sensorValues = new ArrayList<>();
@@ -29,15 +30,12 @@ public class BarometerSensorProvider extends SensorProvider<List<Float>> {
     final Sensor barometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
 
     // Listeners used when we have one measurement from each sensor
-    final SensorEventListener  barometerEventListener = new SensorEventListener() {
+    final SensorEventListener barometerEventListener = new SensorEventListener() {
 
       private long lastUpdateTime;
 
       @Override
       public void onSensorChanged(final SensorEvent event) {
-
-        synchronized (BarometerSensorProvider.this) {
-
           final long currentTime = System.currentTimeMillis();
 
           final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
@@ -53,7 +51,6 @@ public class BarometerSensorProvider extends SensorProvider<List<Float>> {
             latch.countDown();
           }
         }
-      }
 
       @Override
       public void onAccuracyChanged(final Sensor sensor, final int accuracy) {
@@ -70,6 +67,6 @@ public class BarometerSensorProvider extends SensorProvider<List<Float>> {
 
     sensorManager.unregisterListener(barometerEventListener);
 
-    return sensorValues;
+    return new Sample(sensorValues);
   }
 }

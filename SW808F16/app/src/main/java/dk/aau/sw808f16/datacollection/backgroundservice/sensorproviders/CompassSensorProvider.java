@@ -12,8 +12,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.R;
+import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
-public class CompassSensorProvider extends SensorProvider<List<Float>> {
+public class CompassSensorProvider extends SensorProvider {
 
   private static final int maxArcDegrees = 360;
 
@@ -22,12 +23,12 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
   }
 
   @Override
-  protected List<Float> retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
+  protected Sample retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
 
     final long endTime = System.currentTimeMillis() + sampleDuration;
 
     final CountDownLatch latch = new CountDownLatch(1);
-    final List<Float> sensorValues = new ArrayList<>();
+    final List<Float> measurements = new ArrayList<>();
 
     final Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
     final Sensor magneticFieldSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
@@ -123,7 +124,7 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
                   return;
                 }
 
-                sensorValues.add(sensorDataToOrientation(values));
+                measurements.add(sensorDataToOrientation(values));
 
                 lastUpdateTime = currentTime;
               }
@@ -156,7 +157,7 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
                   return;
                 }
 
-                sensorValues.add(sensorDataToOrientation(values));
+                measurements.add(sensorDataToOrientation(values));
 
                 lastUpdateTime = currentTime;
               }
@@ -198,7 +199,7 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
 
     fetchData.run();
 
-    return sensorValues;
+    return new Sample(measurements);
   }
 
   private static float sensorDataToOrientation(final float[] sensorData) {

@@ -4,13 +4,15 @@ import android.content.Context;
 import android.hardware.SensorManager;
 import android.test.ApplicationTestCase;
 
-import java.util.List;
+import junit.framework.Assert;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 import dk.aau.sw808f16.datacollection.R;
+import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class CompassSensorProviderTest extends ApplicationTestCase<DataCollectionApplication> {
 
@@ -38,31 +40,50 @@ public class CompassSensorProviderTest extends ApplicationTestCase<DataCollectio
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
     final CompassSensorProvider compassSensorProvider = new CompassSensorProvider(getContext(), sensorThreadPool, sensorManager);
 
-    final List<Float> data = compassSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
-    final List<Float> data2 = compassSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
+    final Sample sample1 = compassSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
+    final Sample sample2 = compassSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
 
-    assertNotNull("Sensor data is null", data);
-    assertFalse("Sensor data is empty", data.isEmpty());
+    assertNotNull("Sensor sample1 is null", sample1);
+    assertFalse("Sensor sample1 is empty", sample1.getMeasurements().isEmpty());
 
-    assertNotNull("Sensor data is null (second measure)", data2);
-    assertFalse("Sensor data is empty (second measure)", data2.isEmpty());
+    assertNotNull("Sensor sample2 is null (second measure)", sample2);
+    assertFalse("Sensor sample2 is empty (second measure)", sample2.getMeasurements().isEmpty());
 
     final int maxDegrees = 360;
     final int minDegrees = 0;
 
-    for (final Float orientationValue : data) {
+    for (final Object measurement : sample1.getMeasurements()) {
+
+      if (!(measurement instanceof Float)) {
+        Assert.assertEquals("Compass sensor data is of wrong type.", Float.class, measurement.getClass());
+      }
+
+      @SuppressWarnings("ConstantConditions")
+      Float orientationValue = (Float) measurement;
+
       assertTrue("Values are too large (not smaller than 360 degrees)", orientationValue < maxDegrees);
       assertTrue("Values are too small (below 0 degrees)", orientationValue >= minDegrees);
     }
 
-    for (final Float orientationValue : data2) {
+    for (final Object measurement : sample2.getMeasurements()) {
+
+      if (!(measurement instanceof Float)) {
+        Assert.assertEquals("Compass sensor data is of wrong type.", Float.class, measurement.getClass());
+      }
+
+      @SuppressWarnings("ConstantConditions")
+      Float orientationValue = (Float) measurement;
       assertTrue("Values are too large (not smaller than 360 degrees) (second measure)", orientationValue < maxDegrees);
       assertTrue("Values are too small (below 0 degrees)) (second measure)", orientationValue >= minDegrees);
     }
 
-    assertTrue("The amount of data and sampling period do not match, not enough data", data.size() >= minSize);
-    assertTrue("The amount of data and sampling period do not match, too much data", data.size() <= maxSize);
-    assertTrue("The amount of data and sampling period do not match, not enough data (second measure)", data2.size() >= minSize);
-    assertTrue("The amount of data and sampling period do not match, too much data (second measure)", data2.size() <= maxSize);
+    assertTrue("The amount of measurements and sampling period do not match, not enough measurements",
+        sample1.getMeasurements().size() >= minSize);
+    assertTrue("The amount of measurements and sampling period do not match, too many measurements",
+        sample1.getMeasurements().size() <= maxSize);
+    assertTrue("The amount of measurements and sampling period do not match, not enough measurements (second measure)",
+        sample2.getMeasurements().size() >= minSize);
+    assertTrue("The amount of measurements and sampling period do not match, too many measurements (second measure)",
+        sample2.getMeasurements().size() <= maxSize);
   }
 }
