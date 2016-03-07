@@ -77,9 +77,13 @@ public class CompassSensorProviderTest extends ApplicationTestCase<DataCollectio
       assertTrue("Values are too small (below 0 degrees)) (second measure)", orientationValue >= minDegrees);
     }
 
-    assertTrue("The amount of sample1 and sampling period do not match, not enough sample1", sample1.getMeasurements().size() >= minSize);
-    assertTrue("The amount of sample1 and sampling period do not match, too much sample1", sample1.getMeasurements().size() <= maxSize);
-    assertTrue("The amount of sample1 and sampling period do not match, not enough sample1 (second measure)", sample2.getMeasurements().size() >= minSize);
-    assertTrue("The amount of sample1 and sampling period do not match, too much sample1 (second measure)", sample2.getMeasurements().size() <= maxSize);
+    assertTrue("The amount of measurements and sampling period do not match, not enough measurements",
+        sample1.getMeasurements().size() >= minSize);
+    assertTrue("The amount of measurements and sampling period do not match, too many measurements",
+        sample1.getMeasurements().size() <= maxSize);
+    assertTrue("The amount of measurements and sampling period do not match, not enough measurements (second measure)",
+        sample2.getMeasurements().size() >= minSize);
+    assertTrue("The amount of measurements and sampling period do not match, too many measurements (second measure)",
+        sample2.getMeasurements().size() <= maxSize);
   }
 }
