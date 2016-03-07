@@ -27,12 +27,13 @@ public abstract class SensorProvider {
     this.sensorManager = sensorManager;
   }
 
-  protected abstract Sample retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException;
+  protected abstract Sample retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency)
+      throws InterruptedException;
 
   public Future<List<Sample>> retrieveSamplesForDuration(final long totalDuration,
-                                                    final long sampleFrequency,
-                                                    final long sampleDuration,
-                                                    final int measurementFrequency) {
+                                                         final long sampleFrequency,
+                                                         final long sampleDuration,
+                                                         final int measurementFrequency) {
 
     if (!(totalDuration >= sampleFrequency)) {
       throw new IllegalArgumentException("Total duration must be greater than or equal to sample frequency");
