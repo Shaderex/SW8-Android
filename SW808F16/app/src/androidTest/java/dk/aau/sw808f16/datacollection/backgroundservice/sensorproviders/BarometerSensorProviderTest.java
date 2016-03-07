@@ -76,7 +76,9 @@ public class BarometerSensorProviderTest extends ApplicationTestCase<DataCollect
 
     assertTrue("The amount of data and sampling period do not match, not enough data", sample1.getMeasurements().size() >= minSize);
     assertTrue("The amount of data and sampling period do not match, too much data", sample1.getMeasurements().size() <= maxSize);
-    assertTrue("The amount of data and sampling period do not match, not enough data (second measure)", sample2.getMeasurements().size() >= minSize);
-    assertTrue("The amount of data and sampling period do not match, too much data (second measure)", sample2.getMeasurements().size() <= maxSize);
+    assertTrue("The amount of data and sampling period do not match, not enough data (second measure)",
+        sample2.getMeasurements().size() >= minSize);
+    assertTrue("The amount of data and sampling period do not match, too much data (second measure)",
+        sample2.getMeasurements().size() <= maxSize);
   }
 }
