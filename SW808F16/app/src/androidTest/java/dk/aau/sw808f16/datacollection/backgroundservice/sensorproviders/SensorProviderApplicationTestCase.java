@@ -27,7 +27,7 @@ public abstract class SensorProviderApplicationTestCase extends ApplicationTestC
   private int minSize;
   private int maxSize;
 
-  private SensorProvider sensorProvider;
+  protected SensorProvider sensorProvider;
 
   ExecutorService sensorThreadPool;
   SensorManager sensorManager;
@@ -64,24 +64,28 @@ public abstract class SensorProviderApplicationTestCase extends ApplicationTestC
   }
 
   public void testGetSample() throws ExecutionException, InterruptedException, ClassCastException {
-    final Sample sample1 = sensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
-    final Sample sample2 = sensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
+    if (sensorProvider.isSensorAvailable()) {
+      final Sample sample1 = sensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
+      final Sample sample2 = sensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
 
-    validateSample(sample1, "sample1");
-    validateSample(sample2, "sample2");
+      validateSample(sample1, "sample1");
+      validateSample(sample2, "sample2");
+    }
   }
 
   public void testGetSamples() throws ExecutionException, InterruptedException {
-    final Future<List<Sample>> futureSamples = sensorProvider.retrieveSamplesForDuration(totalDuration,
-        sampleFrequency,
-        sampleDuration,
-        measurementFrequency);
+    if (sensorProvider.isSensorAvailable()) {
+      final Future<List<Sample>> futureSamples = sensorProvider.retrieveSamplesForDuration(totalDuration,
+          sampleFrequency,
+          sampleDuration,
+          measurementFrequency);
 
-    // Run through the samples from the future list of samples
-    List<Sample> samples = futureSamples.get();
-    for (int i = 0; i < samples.size(); i++) {
-      Sample sample = samples.get(i);
-      validateSample(sample, "sample" + i);
+      // Run through the samples from the future list of samples
+      List<Sample> samples = futureSamples.get();
+      for (int i = 0; i < samples.size(); i++) {
+        Sample sample = samples.get(i);
+        validateSample(sample, "sample" + i);
+      }
     }
   }
 }

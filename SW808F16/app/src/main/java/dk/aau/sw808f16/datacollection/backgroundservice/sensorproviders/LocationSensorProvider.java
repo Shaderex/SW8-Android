@@ -1,6 +1,7 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -16,12 +17,10 @@ import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class LocationSensorProvider extends SensorProvider {
 
-  private final Context context;
   private final Timer locationMeasureTimer;
 
   public LocationSensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
-    this.context = context;
     locationMeasureTimer = new Timer(true);
   }
 
@@ -29,7 +28,7 @@ public class LocationSensorProvider extends SensorProvider {
   protected Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency)
       throws InterruptedException {
 
-    final LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+    final LocationManager locationManager = (LocationManager) context.get().getSystemService(Context.LOCATION_SERVICE);
     final long endTime = System.currentTimeMillis() + sampleDuration;
     final CountDownLatch latch = new CountDownLatch(1);
     final List<Location> locations = new ArrayList<>();
@@ -55,5 +54,10 @@ public class LocationSensorProvider extends SensorProvider {
     return new Sample(locations);
 
 
+  }
+
+  @Override
+  public boolean isSensorAvailable() {
+    return context.get().getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS);
   }
 }

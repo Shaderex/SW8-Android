@@ -85,4 +85,6 @@ public abstract class SensorProvider {
       }
     });
   }
+
+  public abstract boolean isSensorAvailable();
 }

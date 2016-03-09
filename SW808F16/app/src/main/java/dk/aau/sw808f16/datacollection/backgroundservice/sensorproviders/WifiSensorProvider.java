@@ -16,12 +16,10 @@ import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class WifiSensorProvider extends SensorProvider {
 
-  private final Context context;
   private final Timer wifiMeasurementTimer;
 
   public WifiSensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
-    this.context = context;
     wifiMeasurementTimer = new Timer(true);
   }
 
@@ -32,7 +30,7 @@ public class WifiSensorProvider extends SensorProvider {
 
     final long endTime = System.currentTimeMillis() + sampleDuration;
     final CountDownLatch latch = new CountDownLatch(1);
-    final WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+    final WifiManager wifiManager = (WifiManager) context.get().getSystemService(Context.WIFI_SERVICE);
     final List<List<ScanResult>> scanResultListMeasurements = new ArrayList<>();
 
     final TimerTask cellNetworkMeasurementTask = new TimerTask() {
@@ -54,5 +52,10 @@ public class WifiSensorProvider extends SensorProvider {
     latch.await();
 
     return new Sample(scanResultListMeasurements);
+  }
+
+  @Override
+  public boolean isSensorAvailable() {
+    return ((WifiManager) context.get().getSystemService(Context.WIFI_SERVICE)).getWifiState() == WifiManager.WIFI_STATE_ENABLED;
   }
 }
