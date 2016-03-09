@@ -1,6 +1,10 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
+import android.telephony.TelephonyManager;
 
 import java.util.List;
 
@@ -19,5 +23,10 @@ public class WifiSensorProviderTest extends SensorProviderApplicationTestCase {
     for (final Object object : list) {
       assertTrue("[" + sampleIdentifier + "] item in measurement is of wrong type", ScanResult.class.isAssignableFrom(object.getClass()));
     }
+  }
+
+  @Override
+  protected boolean hasSensor() {
+    return ((WifiManager) getContext().getSystemService(Context.WIFI_SERVICE)).getWifiState() == WifiManager.WIFI_STATE_ENABLED;
   }
 }

@@ -1,5 +1,6 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 
 import junit.framework.Assert;
@@ -26,5 +27,10 @@ public class BarometerSensorProviderTest extends SensorProviderApplicationTestCa
     assertTrue("[" + sampleIdentifier + "] Measurement value is below " + minValue, pressure > minValue);
     assertTrue("[" + sampleIdentifier + "] Measurement value is above " + minValue, pressure < maxValue);
 
+  }
+
+  @Override
+  protected boolean hasSensor() {
+    return getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_BAROMETER);
   }
 }

@@ -1,6 +1,9 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.telephony.CellInfo;
+import android.telephony.TelephonyManager;
 
 import java.util.List;
 
@@ -22,5 +25,10 @@ public class CellularNetworkSensorProviderTest extends SensorProviderApplication
       assertTrue("[" + sampleIdentifier + "] item in measurement is of wrong type", CellInfo.class.isAssignableFrom(object.getClass()));
     }
 
+  }
+
+  @Override
+  protected boolean hasSensor() {
+    return ((TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE)).getSimState() == TelephonyManager.SIM_STATE_READY;
   }
 }

@@ -1,5 +1,6 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 
 import junit.framework.Assert;
@@ -33,5 +34,10 @@ public class AccelerometerSensorProviderTest extends SensorProviderApplicationTe
         accelerometerValues.getSecondValue() <= maxValue && accelerometerValues.getSecondValue() >= minValue);
     assertTrue("[" + sampleIdentifier + "] third value of measurement must be between " + minValue + " and " + maxValue,
         accelerometerValues.getThirdValue() <= maxValue && accelerometerValues.getThirdValue() >= minValue);
+  }
+
+  @Override
+  protected boolean hasSensor() {
+    return getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_ACCELEROMETER);
   }
 }

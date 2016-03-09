@@ -36,6 +36,8 @@ public abstract class SensorProviderApplicationTestCase extends ApplicationTestC
 
   protected abstract void validateMeasurement(Object measurement, String sampleIdentifier);
 
+  protected abstract boolean hasSensor();
+
   @Override
   protected void setUp() throws Exception {
     // Calculate the expected size(s), because of real time issues the size may differ +/- 1
@@ -64,24 +66,28 @@ public abstract class SensorProviderApplicationTestCase extends ApplicationTestC
   }
 
   public void testGetSample() throws ExecutionException, InterruptedException, ClassCastException {
-    final Sample sample1 = sensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
-    final Sample sample2 = sensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
+    if (hasSensor()) {
+      final Sample sample1 = sensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
+      final Sample sample2 = sensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
 
-    validateSample(sample1, "sample1");
-    validateSample(sample2, "sample2");
+      validateSample(sample1, "sample1");
+      validateSample(sample2, "sample2");
+    }
   }
 
   public void testGetSamples() throws ExecutionException, InterruptedException {
-    final Future<List<Sample>> futureSamples = sensorProvider.retrieveSamplesForDuration(totalDuration,
-        sampleFrequency,
-        sampleDuration,
-        measurementFrequency);
+    if (hasSensor()) {
+      final Future<List<Sample>> futureSamples = sensorProvider.retrieveSamplesForDuration(totalDuration,
+          sampleFrequency,
+          sampleDuration,
+          measurementFrequency);
 
-    // Run through the samples from the future list of samples
-    List<Sample> samples = futureSamples.get();
-    for (int i = 0; i < samples.size(); i++) {
-      Sample sample = samples.get(i);
-      validateSample(sample, "sample" + i);
+      // Run through the samples from the future list of samples
+      List<Sample> samples = futureSamples.get();
+      for (int i = 0; i < samples.size(); i++) {
+        Sample sample = samples.get(i);
+        validateSample(sample, "sample" + i);
+      }
     }
   }
 }

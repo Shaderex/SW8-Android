@@ -1,5 +1,7 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
+import android.content.pm.PackageManager;
+
 import junit.framework.Assert;
 
 public class CompassSensorProviderTest extends SensorProviderApplicationTestCase {
@@ -22,5 +24,10 @@ public class CompassSensorProviderTest extends SensorProviderApplicationTestCase
 
     assertTrue("[" + sampleIdentifier + "] measurement value are too large (not smaller than 360 degrees)", orientationValue < maxDegrees);
     assertTrue("[" + sampleIdentifier + "] measurement value are too small (below 0 degrees)", orientationValue >= minDegrees);
+  }
+
+  @Override
+  protected boolean hasSensor() {
+    return getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_COMPASS);
   }
 }

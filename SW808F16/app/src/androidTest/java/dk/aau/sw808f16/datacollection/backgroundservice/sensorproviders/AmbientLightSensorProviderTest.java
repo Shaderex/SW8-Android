@@ -1,5 +1,6 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 
 import junit.framework.Assert;
@@ -26,5 +27,10 @@ public class AmbientLightSensorProviderTest extends SensorProviderApplicationTes
     Float ambientValue = (Float) measurement;
     assertTrue("[" + sampleIdentifier + "] The value is below " + minValue, ambientValue > minValue);
     assertTrue("[" + sampleIdentifier + "] The value is above " + minValue, ambientValue < maxValue);
+  }
+
+  @Override
+  protected boolean hasSensor() {
+    return getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_LIGHT);
   }
 }
