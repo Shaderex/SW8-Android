@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class BarometerSensorProvider extends SensorProvider {
@@ -36,21 +35,20 @@ public class BarometerSensorProvider extends SensorProvider {
 
       @Override
       public void onSensorChanged(final SensorEvent event) {
-          final long currentTime = System.currentTimeMillis();
+        final long currentTime = System.currentTimeMillis();
 
-          final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
-          if (lastUpdateTime + measurementFrequency / micro_per_milli >= currentTime) {
-            return;
-          }
-
-          sensorValues.add(event.values[0]);
-
-          lastUpdateTime = currentTime;
-
-          if (endTime <= currentTime) {
-            latch.countDown();
-          }
+        if (lastUpdateTime + measurementFrequency >= currentTime) {
+          return;
         }
+
+        sensorValues.add(event.values[0]);
+
+        lastUpdateTime = currentTime;
+
+        if (endTime <= currentTime) {
+          latch.countDown();
+        }
+      }
 
       @Override
       public void onAccuracyChanged(final Sensor sensor, final int accuracy) {
