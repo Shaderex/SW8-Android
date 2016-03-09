@@ -9,7 +9,6 @@ import android.hardware.SensorManager;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.snapshot.FloatTriple;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
@@ -36,7 +35,7 @@ public class AccelerometerSensorProvider extends SensorProvider {
       public void onSensorChanged(final SensorEvent event) {
         final long currentTime = System.currentTimeMillis();
 
-        if (lastUpdateTime + measurementFrequency  >= currentTime) {
+        if (lastUpdateTime + measurementFrequency >= currentTime) {
           return;
         }
 
