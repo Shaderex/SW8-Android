@@ -22,7 +22,7 @@ public class GyroscopeSensorProvider extends SensorProvider {
   }
 
   @Override
-  protected Sample retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
+  protected Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency) throws InterruptedException {
 
     final CountDownLatch latch = new CountDownLatch(1);
     final List<FloatTriple> sensorValues = new ArrayList<>();

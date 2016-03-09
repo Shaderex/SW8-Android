@@ -26,7 +26,7 @@ public class ProximitySensorProvider extends SensorProvider {
   }
 
   @Override
-  protected Sample retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
+  protected Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency) throws InterruptedException {
 
     final long endTime = System.currentTimeMillis() + sampleDuration;
     final CountDownLatch latch = new CountDownLatch(1);
@@ -59,8 +59,7 @@ public class ProximitySensorProvider extends SensorProvider {
             }
           };
 
-          final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
-          proximitySamplingTimer.scheduleAtFixedRate(proximitySamplingTask, 0, measurementFrequency / micro_per_milli);
+          proximitySamplingTimer.scheduleAtFixedRate(proximitySamplingTask, 0, measurementFrequency);
         } else {
           proximitySensorOutput = event.values;
         }
@@ -70,8 +69,11 @@ public class ProximitySensorProvider extends SensorProvider {
       public void onAccuracyChanged(final Sensor sensor, final int accuracy) {
       }
     };
+    // Convert measurement frequency to micro seconds for the Android API
+    final int microPerMilli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
+    final int measurementFrequencyInMicroSeconds = (int) (measurementFrequency * microPerMilli);
 
-    if (!sensorManager.registerListener(proximityListener, proximitySensor, measurementFrequency)) {
+    if (!sensorManager.registerListener(proximityListener, proximitySensor, measurementFrequencyInMicroSeconds)) {
 
       sensorManager.unregisterListener(proximityListener);
       return null;

@@ -27,7 +27,7 @@ public class LocationSensorProvider extends SensorProvider {
   }
 
   @Override
-  protected Sample retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency)
+  protected Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency)
       throws InterruptedException {
 
     final LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);

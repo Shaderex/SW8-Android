@@ -27,7 +27,7 @@ public class WifiSensorProvider extends SensorProvider {
   }
 
   @Override
-  protected Sample retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency)
+  protected Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency)
       throws InterruptedException {
 
 

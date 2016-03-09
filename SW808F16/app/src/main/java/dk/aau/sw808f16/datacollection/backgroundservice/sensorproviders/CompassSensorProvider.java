@@ -23,7 +23,7 @@ public class CompassSensorProvider extends SensorProvider {
   }
 
   @Override
-  protected Sample retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
+  protected Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency) throws InterruptedException {
 
     final long endTime = System.currentTimeMillis() + sampleDuration;
 
@@ -55,6 +55,10 @@ public class CompassSensorProvider extends SensorProvider {
 
       @Override
       public void run() {
+        // Convert measurement frequency to micro seconds for the Android API
+        final int microPerMilli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
+        final int measurementFrequencyInMicroSeconds = (int) (measurementFrequency * microPerMilli);
+
         initialAccelerometerListener = new SensorEventListener() {
           @Override
           public void onSensorChanged(final SensorEvent event) {
@@ -70,8 +74,14 @@ public class CompassSensorProvider extends SensorProvider {
                 sensorManager.unregisterListener(initialAccelerometerListener);
                 sensorManager.unregisterListener(initialMagneticFieldListener);
 
-                sensorManager.registerListener(accelerometerListener, accelerometerSensor, measurementFrequency, measurementFrequency);
-                sensorManager.registerListener(magneticFieldListener, magneticFieldSensor, measurementFrequency, measurementFrequency);
+                sensorManager.registerListener(accelerometerListener,
+                                               accelerometerSensor,
+                                               measurementFrequencyInMicroSeconds,
+                                               measurementFrequencyInMicroSeconds);
+                sensorManager.registerListener(magneticFieldListener,
+                                               magneticFieldSensor,
+                                               measurementFrequencyInMicroSeconds,
+                                               measurementFrequencyInMicroSeconds);
               }
             }
           }
@@ -96,8 +106,14 @@ public class CompassSensorProvider extends SensorProvider {
                 sensorManager.unregisterListener(initialAccelerometerListener);
                 sensorManager.unregisterListener(initialMagneticFieldListener);
 
-                sensorManager.registerListener(accelerometerListener, accelerometerSensor, measurementFrequency, measurementFrequency);
-                sensorManager.registerListener(magneticFieldListener, magneticFieldSensor, measurementFrequency, measurementFrequency);
+                sensorManager.registerListener(accelerometerListener,
+                                               accelerometerSensor,
+                                               measurementFrequencyInMicroSeconds,
+                                               measurementFrequencyInMicroSeconds);
+                sensorManager.registerListener(magneticFieldListener,
+                                               magneticFieldSensor,
+                                               measurementFrequencyInMicroSeconds,
+                                               measurementFrequencyInMicroSeconds);
               }
             }
           }
@@ -119,8 +135,7 @@ public class CompassSensorProvider extends SensorProvider {
               if (SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, accelerometerOutput, magneticFieldOutput)) {
                 SensorManager.getOrientation(rotationMatrix, values);
 
-                final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
-                if (lastUpdateTime + measurementFrequency / micro_per_milli >= currentTime) {
+                if (lastUpdateTime + measurementFrequency >= currentTime) {
                   return;
                 }
 
@@ -152,8 +167,7 @@ public class CompassSensorProvider extends SensorProvider {
               if (SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, accelerometerOutput, magneticFieldOutput)) {
                 SensorManager.getOrientation(rotationMatrix, values);
 
-                final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
-                if (lastUpdateTime + measurementFrequency / micro_per_milli >= currentTime) {
+                if (lastUpdateTime + measurementFrequency >= currentTime) {
                   return;
                 }
 
