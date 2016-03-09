@@ -38,9 +38,8 @@ public class GyroscopeSensorProvider extends SensorProvider {
       @Override
       public void onSensorChanged(final SensorEvent event) {
           final long currentTime = System.currentTimeMillis();
-          final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
 
-          if (lastUpdateTime + measurementFrequency / micro_per_milli >= currentTime) {
+          if (lastUpdateTime + measurementFrequency >= currentTime) {
             return;
           }
 
