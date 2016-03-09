@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.snapshot.FloatTriple;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
@@ -22,7 +21,7 @@ public class GyroscopeSensorProvider extends SensorProvider {
   }
 
   @Override
-  protected Sample retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
+  protected Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency) throws InterruptedException {
 
     final CountDownLatch latch = new CountDownLatch(1);
     final List<FloatTriple> sensorValues = new ArrayList<>();
@@ -37,23 +36,22 @@ public class GyroscopeSensorProvider extends SensorProvider {
 
       @Override
       public void onSensorChanged(final SensorEvent event) {
-          final long currentTime = System.currentTimeMillis();
-          final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
+        final long currentTime = System.currentTimeMillis();
 
-          if (lastUpdateTime + measurementFrequency / micro_per_milli >= currentTime) {
-            return;
-          }
-
-          FloatTriple triple = new FloatTriple(event.values);
-
-          sensorValues.add(triple);
-
-          lastUpdateTime = currentTime;
-
-          if (endTime <= currentTime) {
-            latch.countDown();
-          }
+        if (lastUpdateTime + measurementFrequency >= currentTime) {
+          return;
         }
+
+        FloatTriple triple = new FloatTriple(event.values);
+
+        sensorValues.add(triple);
+
+        lastUpdateTime = currentTime;
+
+        if (endTime <= currentTime) {
+          latch.countDown();
+        }
+      }
 
       @Override
       public void onAccuracyChanged(final Sensor sensor, final int accuracy) {

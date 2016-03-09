@@ -12,7 +12,6 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class LocationSensorProvider extends SensorProvider {
@@ -27,7 +26,7 @@ public class LocationSensorProvider extends SensorProvider {
   }
 
   @Override
-  protected Sample retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency)
+  protected Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency)
       throws InterruptedException {
 
     final LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
@@ -49,8 +48,7 @@ public class LocationSensorProvider extends SensorProvider {
       }
     };
 
-    final int micro_per_milli = context.getResources().getInteger(R.integer.micro_seconds_per_milli_second);
-    locationMeasureTimer.scheduleAtFixedRate(cellNetworkMeasurementTask, 0, measurementFrequency / micro_per_milli);
+    locationMeasureTimer.scheduleAtFixedRate(cellNetworkMeasurementTask, 0, measurementFrequency);
 
     latch.await();
 

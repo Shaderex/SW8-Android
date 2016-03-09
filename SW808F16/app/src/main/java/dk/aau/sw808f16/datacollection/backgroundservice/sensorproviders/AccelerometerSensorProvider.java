@@ -9,7 +9,6 @@ import android.hardware.SensorManager;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.snapshot.FloatTriple;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
@@ -20,7 +19,7 @@ public class AccelerometerSensorProvider extends SensorProvider {
   }
 
   @Override
-  protected Sample retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
+  protected Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency) throws InterruptedException {
 
     final CountDownLatch latch = new CountDownLatch(1);
     final Sample sensorValues = new Sample();
@@ -36,8 +35,7 @@ public class AccelerometerSensorProvider extends SensorProvider {
       public void onSensorChanged(final SensorEvent event) {
         final long currentTime = System.currentTimeMillis();
 
-        final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
-        if (lastUpdateTime + measurementFrequency / micro_per_milli >= currentTime) {
+        if (lastUpdateTime + measurementFrequency >= currentTime) {
           return;
         }
 

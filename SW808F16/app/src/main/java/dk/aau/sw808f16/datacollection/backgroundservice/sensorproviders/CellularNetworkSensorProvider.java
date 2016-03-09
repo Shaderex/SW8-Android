@@ -12,7 +12,6 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class CellularNetworkSensorProvider extends SensorProvider {
@@ -28,7 +27,7 @@ public class CellularNetworkSensorProvider extends SensorProvider {
   }
 
   @Override
-  protected Sample retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency)
+  protected Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency)
       throws InterruptedException {
 
     final long endTime = System.currentTimeMillis() + sampleDuration;
@@ -50,8 +49,7 @@ public class CellularNetworkSensorProvider extends SensorProvider {
       }
     };
 
-    final int micro_per_milli = context.getResources().getInteger(R.integer.micro_seconds_per_milli_second);
-    cellNetworkMeasurementTimer.scheduleAtFixedRate(cellNetworkMeasurementTask, 0, measurementFrequency / micro_per_milli);
+    cellNetworkMeasurementTimer.scheduleAtFixedRate(cellNetworkMeasurementTask, 0, measurementFrequency);
 
     latch.await();
 
