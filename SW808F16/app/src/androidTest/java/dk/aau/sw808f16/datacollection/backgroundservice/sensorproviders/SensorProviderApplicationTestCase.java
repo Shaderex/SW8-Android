@@ -14,22 +14,23 @@ import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public abstract class SensorProviderApplicationTestCase extends ApplicationTestCase<DataCollectionApplication> {
-  public SensorProviderApplicationTestCase() {
+  SensorProviderApplicationTestCase() {
     super(DataCollectionApplication.class);
   }
 
   // Times given in milliseconds
-  protected static final long totalDuration = 12 * 1000;
-  protected static final long sampleFrequency = 4 * 1000;
-  protected static final long sampleDuration = 2000;
-  protected static final long measurementFrequency = 500;
+  private static final long totalDuration = 12 * 1000;
+  private static final long sampleFrequency = 4 * 1000;
+  private static final long sampleDuration = 2000;
+  private static final long measurementFrequency = 500;
 
-  protected int minSize;
-  protected int maxSize;
+  private int minSize;
+  private int maxSize;
 
-  protected ExecutorService sensorThreadPool;
-  protected SensorManager sensorManager;
-  protected SensorProvider sensorProvider;
+  private SensorProvider sensorProvider;
+
+  ExecutorService sensorThreadPool;
+  SensorManager sensorManager;
 
   protected abstract SensorProvider getSensorProvider();
 
@@ -47,7 +48,7 @@ public abstract class SensorProviderApplicationTestCase extends ApplicationTestC
     sensorProvider = getSensorProvider();
   }
 
-  protected void validateSample(Sample sample, String sampleIdentifier) {
+  private void validateSample(Sample sample, String sampleIdentifier) {
     assertNotNull("[" + sampleIdentifier + "] Sample data is null", sample);
     assertFalse("[" + sampleIdentifier + "] Sample data is empty", sample.getMeasurements().isEmpty());
 
