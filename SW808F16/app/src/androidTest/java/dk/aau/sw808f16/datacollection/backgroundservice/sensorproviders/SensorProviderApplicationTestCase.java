@@ -19,10 +19,10 @@ public abstract class SensorProviderApplicationTestCase extends ApplicationTestC
   }
 
   // Times given in milliseconds
-  protected static final long totalDuration = 10 * 1000;
-  protected static final long sampleFrequency = 2 * 1000;
-  protected static final long sampleDuration = 1000;
-  protected static final long measurementFrequency = 200;
+  protected static final long totalDuration = 12 * 1000;
+  protected static final long sampleFrequency = 4 * 1000;
+  protected static final long sampleDuration = 2000;
+  protected static final long measurementFrequency = 500;
 
   protected int minSize;
   protected int maxSize;
@@ -57,10 +57,9 @@ public abstract class SensorProviderApplicationTestCase extends ApplicationTestC
     }
 
     // Check the amount of measurements of the sample
-    assertTrue("[" + sampleIdentifier + "] The amount of data and sampling period do not match, not enough data",
-        sample.getMeasurements().size() >= minSize);
-    assertTrue("[" + sampleIdentifier + "] The amount of data and sampling period do not match, too much data",
-        sample.getMeasurements().size() <= maxSize);
+    assertTrue("[" + sampleIdentifier + "] The amount of data and sampling period do not match. "
+            + "Expected: " + minSize + " - " + maxSize + ", Actual: " + sample.getMeasurements().size(),
+        sample.getMeasurements().size() <= maxSize && sample.getMeasurements().size() >= minSize);
   }
 
   public void testGetSample() throws ExecutionException, InterruptedException, ClassCastException {
