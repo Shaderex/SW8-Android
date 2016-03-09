@@ -1,7 +1,10 @@
 package dk.aau.sw808f16.datacollection.backgroundservice;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Binder;
 import android.os.Handler;
@@ -11,26 +14,37 @@ import android.os.Looper;
 import android.os.Message;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.lang.reflect.Field;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AccelerometerSensorProvider;
+import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AmbientLightSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.CompassSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.ProximitySensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.SensorProvider;
+import dk.aau.sw808f16.datacollection.snapshot.Sample;
+import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
 
 public final class BackgroundSensorService extends Service {
 
+  public static final String SNAPSHOT_SHARED_PREFERENCE_NAME = "SNAPSHOT_SHARED_PREFERENCE_NAME";
+  public static final String SNAPSHOT_SHARED_PREFERENCE_KEY = "SNAPSHOT_SHARED_PREFERENCE_KEY";
   private ServiceHandler serviceHandler;
   @SuppressWarnings("FieldCanBeLocal")
   private final ExecutorService sensorThreadPool;
   @SuppressWarnings("FieldCanBeLocal")
-  private CompassSensorProvider compassSensor;
+  private AmbientLightSensorProvider ambientLightSensorProvider;
   @SuppressWarnings("FieldCanBeLocal")
-  private ProximitySensorProvider proximitySensor;
+  private ProximitySensorProvider proximitySensorProvider;
   @SuppressWarnings("FieldCanBeLocal")
-  private AccelerometerSensorProvider accelerometerSensor;
+  private AccelerometerSensorProvider accelerometerSensorProvider;
 
   public BackgroundSensorService() {
     // The number of threads in the pool should correspond to the number of SensorProvider instances
@@ -75,9 +89,9 @@ public final class BackgroundSensorService extends Service {
     final SensorManager sensorManager = (SensorManager) getApplicationContext().getSystemService(SENSOR_SERVICE);
 
     // Initialize SensorProvider instances with the shared thread pool
-    compassSensor = new CompassSensorProvider(this, sensorThreadPool, sensorManager);
-    proximitySensor = new ProximitySensorProvider(this, sensorThreadPool, sensorManager);
-    accelerometerSensor = new AccelerometerSensorProvider(this, sensorThreadPool, sensorManager);
+    ambientLightSensorProvider = new AmbientLightSensorProvider(this, sensorThreadPool, sensorManager);
+    proximitySensorProvider = new ProximitySensorProvider(this, sensorThreadPool, sensorManager);
+    accelerometerSensorProvider = new AccelerometerSensorProvider(this, sensorThreadPool, sensorManager);
 
     // Start up the thread running the service.  Note that we create a
     // separate thread because the service normally runs in the process's
@@ -95,6 +109,35 @@ public final class BackgroundSensorService extends Service {
   @Override
   public int onStartCommand(final Intent intent, final int flags, final int startId) {
     Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
+
+    Thread snapshotThread = new Thread(new Runnable() {
+      @Override
+      public void run() {
+
+        Snapshot snapshot = new Snapshot();
+        Future<List<Sample>> ambientLightSamples = ambientLightSensorProvider.retrieveSamplesForDuration(10000, 2000, 1000, 500);
+        Future<List<Sample>> proximitySamples = proximitySensorProvider.retrieveSamplesForDuration(10000, 2000, 1000, 500);
+        Future<List<Sample>> accelerometerSamples = accelerometerSensorProvider.retrieveSamplesForDuration(10000, 2000, 1000, 500);
+
+        try {
+          snapshot.addSamples(Sensor.TYPE_LIGHT, ambientLightSamples.get());
+          snapshot.addSamples(Sensor.TYPE_PROXIMITY, proximitySamples.get());
+          snapshot.addSamples(Sensor.TYPE_ACCELEROMETER, accelerometerSamples.get());
+        } catch (InterruptedException | ExecutionException exception) {
+          exception.printStackTrace();
+        }
+
+        Gson gson = new GsonBuilder().create();
+        String serializedSnapshot = gson.toJson(snapshot, Snapshot.class);
+
+        SharedPreferences prefs = getSharedPreferences(SNAPSHOT_SHARED_PREFERENCE_NAME, Context.MODE_MULTI_PROCESS);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(SNAPSHOT_SHARED_PREFERENCE_KEY, serializedSnapshot);
+        editor.apply();
+      }
+    });
+
+    snapshotThread.start();
 
     // For each start request, send a message to start a job and deliver the
     // start ID so we know which request we're stopping when we finish the job
