@@ -12,7 +12,6 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class WifiSensorProvider extends SensorProvider {
@@ -50,8 +49,7 @@ public class WifiSensorProvider extends SensorProvider {
       }
     };
 
-    final int micro_per_milli = context.getResources().getInteger(R.integer.micro_seconds_per_milli_second);
-    wifiMeasurementTimer.scheduleAtFixedRate(cellNetworkMeasurementTask, 0, measurementFrequency / micro_per_milli);
+    wifiMeasurementTimer.scheduleAtFixedRate(cellNetworkMeasurementTask, 0, measurementFrequency);
 
     latch.await();
 
