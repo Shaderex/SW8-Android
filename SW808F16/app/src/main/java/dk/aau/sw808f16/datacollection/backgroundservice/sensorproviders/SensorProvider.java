@@ -45,9 +45,9 @@ public abstract class SensorProvider {
       throw new IllegalArgumentException("Sample duration must be greater than or equal to measurement frequency");
     }
 
-    final Timer timer = new Timer(true);
-
     return sensorThreadPool.submit(new Callable<List<Sample>>() {
+
+      final Timer timer = new Timer(true);
 
       @Override
       public List<Sample> call() throws InterruptedException {
