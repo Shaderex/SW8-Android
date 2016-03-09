@@ -1,6 +1,5 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
-import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 
 import junit.framework.Assert;
@@ -32,10 +31,5 @@ public class GyroscopeSensorProviderTest extends SensorProviderApplicationTestCa
         gyroscopeValues.getSecondValue() <= maxValue && gyroscopeValues.getSecondValue() >= minValue);
     assertTrue("Data for index 2 value must be between " + minValue + " and " + maxValue,
         gyroscopeValues.getThirdValue() <= maxValue && gyroscopeValues.getThirdValue() >= minValue);
-  }
-
-  @Override
-  protected boolean hasSensor() {
-    return getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_GYROSCOPE);
   }
 }

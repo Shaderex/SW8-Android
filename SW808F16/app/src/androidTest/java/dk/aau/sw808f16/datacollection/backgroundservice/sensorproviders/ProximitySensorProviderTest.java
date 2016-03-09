@@ -1,6 +1,5 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
-import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 
 import junit.framework.Assert;
@@ -25,10 +24,5 @@ public class ProximitySensorProviderTest extends SensorProviderApplicationTestCa
     Float proximityValue = (Float) measurement;
     assertTrue("[" + sampleIdentifier + "] value of measurement must be below or equal to " + maxValue, proximityValue <= maxValue);
     assertTrue("[" + sampleIdentifier + "] value of measurement must be larger or equal to " + maxValue, proximityValue >= minValue);
-  }
-
-  @Override
-  protected boolean hasSensor() {
-    return getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_PROXIMITY);
   }
 }

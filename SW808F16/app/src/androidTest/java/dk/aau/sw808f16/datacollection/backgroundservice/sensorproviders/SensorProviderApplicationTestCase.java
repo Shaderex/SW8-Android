@@ -27,7 +27,7 @@ public abstract class SensorProviderApplicationTestCase extends ApplicationTestC
   private int minSize;
   private int maxSize;
 
-  private SensorProvider sensorProvider;
+  protected SensorProvider sensorProvider;
 
   ExecutorService sensorThreadPool;
   SensorManager sensorManager;
@@ -35,8 +35,6 @@ public abstract class SensorProviderApplicationTestCase extends ApplicationTestC
   protected abstract SensorProvider getSensorProvider();
 
   protected abstract void validateMeasurement(Object measurement, String sampleIdentifier);
-
-  protected abstract boolean hasSensor();
 
   @Override
   protected void setUp() throws Exception {
@@ -66,7 +64,7 @@ public abstract class SensorProviderApplicationTestCase extends ApplicationTestC
   }
 
   public void testGetSample() throws ExecutionException, InterruptedException, ClassCastException {
-    if (hasSensor()) {
+    if (sensorProvider.isSensorAvailable()) {
       final Sample sample1 = sensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
       final Sample sample2 = sensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
 
@@ -76,7 +74,7 @@ public abstract class SensorProviderApplicationTestCase extends ApplicationTestC
   }
 
   public void testGetSamples() throws ExecutionException, InterruptedException {
-    if (hasSensor()) {
+    if (sensorProvider.isSensorAvailable()) {
       final Future<List<Sample>> futureSamples = sensorProvider.retrieveSamplesForDuration(totalDuration,
           sampleFrequency,
           sampleDuration,

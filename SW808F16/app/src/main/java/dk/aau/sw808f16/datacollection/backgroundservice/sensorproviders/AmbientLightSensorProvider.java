@@ -1,6 +1,7 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -14,8 +15,11 @@ import java.util.concurrent.ExecutorService;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class AmbientLightSensorProvider extends SensorProvider {
+
+  private Context context;
   public AmbientLightSensorProvider(Context context, ExecutorService sensorThreadPool, SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
+    this.context = context;
   }
 
   @Override
@@ -63,5 +67,10 @@ public class AmbientLightSensorProvider extends SensorProvider {
     sensorManager.unregisterListener(accelerometerListener);
 
     return new Sample(sensorValues);
+  }
+
+  @Override
+  public boolean isSensorAvailable() {
+    return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_LIGHT);
   }
 }

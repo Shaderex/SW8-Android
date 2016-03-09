@@ -16,13 +16,10 @@ import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class CellularNetworkSensorProvider extends SensorProvider {
 
-  private final Context context;
   private final Timer cellNetworkMeasurementTimer;
-
 
   public CellularNetworkSensorProvider(Context context, ExecutorService sensorThreadPool, SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
-    this.context = context;
     cellNetworkMeasurementTimer = new Timer(true);
   }
 
@@ -32,7 +29,7 @@ public class CellularNetworkSensorProvider extends SensorProvider {
 
     final long endTime = System.currentTimeMillis() + sampleDuration;
     final CountDownLatch latch = new CountDownLatch(1);
-    final TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+    final TelephonyManager telephonyManager = (TelephonyManager) context.get().getSystemService(Context.TELEPHONY_SERVICE);
     final List<List<CellInfo>> cellInfoListMeasurements = new ArrayList<>();
 
     final TimerTask cellNetworkMeasurementTask = new TimerTask() {
@@ -54,5 +51,10 @@ public class CellularNetworkSensorProvider extends SensorProvider {
     latch.await();
 
     return new Sample(cellInfoListMeasurements);
+  }
+
+  @Override
+  public boolean isSensorAvailable() {
+    return ((TelephonyManager) context.get().getSystemService(Context.TELEPHONY_SERVICE)).getSimState() == TelephonyManager.SIM_STATE_READY;
   }
 }
