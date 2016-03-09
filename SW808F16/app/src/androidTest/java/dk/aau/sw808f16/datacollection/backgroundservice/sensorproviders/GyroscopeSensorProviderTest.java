@@ -1,20 +1,10 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
-import android.content.Context;
 import android.hardware.Sensor;
-import android.hardware.SensorManager;
-import android.test.ApplicationTestCase;
 
 import junit.framework.Assert;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import dk.aau.sw808f16.datacollection.DataCollectionApplication;
-import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.snapshot.FloatTriple;
-import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class GyroscopeSensorProviderTest extends SensorProviderApplicationTestCase {
   @Override
