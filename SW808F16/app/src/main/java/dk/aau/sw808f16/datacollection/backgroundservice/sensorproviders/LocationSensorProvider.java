@@ -49,8 +49,7 @@ public class LocationSensorProvider extends SensorProvider {
       }
     };
 
-    final int micro_per_milli = context.getResources().getInteger(R.integer.micro_seconds_per_milli_second);
-    locationMeasureTimer.scheduleAtFixedRate(cellNetworkMeasurementTask, 0, measurementFrequency / micro_per_milli);
+    locationMeasureTimer.scheduleAtFixedRate(cellNetworkMeasurementTask, 0, measurementFrequency);
 
     latch.await();
 
