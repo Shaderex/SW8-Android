@@ -4,13 +4,7 @@ import android.hardware.Sensor;
 
 import junit.framework.Assert;
 
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
-import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 import dk.aau.sw808f16.datacollection.snapshot.FloatTriple;
-import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class AccelerometerSensorProviderTest extends SensorProviderApplicationTestCase {
 
@@ -39,27 +33,5 @@ public class AccelerometerSensorProviderTest extends SensorProviderApplicationTe
         accelerometerValues.getSecondValue() <= maxValue && accelerometerValues.getSecondValue() >= minValue);
     assertTrue("[" + sampleIdentifier + "] third value of measurement must be between " + minValue + " and " + maxValue,
         accelerometerValues.getThirdValue() <= maxValue && accelerometerValues.getThirdValue() >= minValue);
-  }
-
-  public void testGetSample() throws ExecutionException, InterruptedException, ClassCastException {
-    final Sample sample1 = sensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
-    final Sample sample2 = sensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
-
-    validateSample(sample1, "sample1");
-    validateSample(sample2, "sample2");
-  }
-
-  public void testGetSamples() throws InterruptedException, ExecutionException {
-    final Future<List<Sample>> futureSamples = sensorProvider.retrieveSamplesForDuration(totalDuration,
-                                                                                         sampleFrequency,
-                                                                                         sampleDuration,
-                                                                                         measurementFrequency);
-
-    // Run through the samples from the future list of samples
-    List<Sample> samples = futureSamples.get();
-    for (int i = 0; i < samples.size(); i++) {
-      Sample sample = samples.get(i);
-      validateSample(sample, "sample" + i);
-    }
   }
 }
