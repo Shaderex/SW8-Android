@@ -37,13 +37,11 @@ public final class BackgroundSensorService extends Service {
   public static final String SNAPSHOT_SHARED_PREFERENCE_NAME = "SNAPSHOT_SHARED_PREFERENCE_NAME";
   public static final String SNAPSHOT_SHARED_PREFERENCE_KEY = "SNAPSHOT_SHARED_PREFERENCE_KEY";
   private ServiceHandler serviceHandler;
-  @SuppressWarnings("FieldCanBeLocal")
+  
   private final ExecutorService sensorThreadPool;
-  @SuppressWarnings("FieldCanBeLocal")
-  private AmbientLightSensorProvider ambientLightSensorProvider;
-  @SuppressWarnings("FieldCanBeLocal")
+
   private ProximitySensorProvider proximitySensorProvider;
-  @SuppressWarnings("FieldCanBeLocal")
+  private AmbientLightSensorProvider ambientLightSensorProvider;
   private AccelerometerSensorProvider accelerometerSensorProvider;
 
   public BackgroundSensorService() {
