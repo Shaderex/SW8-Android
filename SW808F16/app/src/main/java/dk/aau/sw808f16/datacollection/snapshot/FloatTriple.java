@@ -77,6 +77,9 @@ public class FloatTriple {
   }
 
   private float decompressValue(byte valuePosition) {
+
+
+
     // Calculate the amount of bits to be shifted based on the position of the value
     final int shiftAmount = valuePosition * 20;
 
