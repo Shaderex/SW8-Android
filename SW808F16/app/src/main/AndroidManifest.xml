@@ -50,7 +50,7 @@
         </service>
 
         <service
-            android:name=".gcm.TokenRefresherService"
+            android:name=".gcm.InstanceIDService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.gms.iid.InstanceID" />
