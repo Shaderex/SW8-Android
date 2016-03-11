@@ -11,6 +11,6 @@ public class LocationSensorProviderTest extends SensorProviderApplicationTestCas
 
   @Override
   protected void validateMeasurement(Object measurement, String sampleIdentifier) {
-    assertTrue("[" + sampleIdentifier + "] measurement is not of type Location", measurement.getClass().isAssignableFrom(Location.class));
+    assertTrue("[" + sampleIdentifier + "] measurement is not of type Location", Location.class.isAssignableFrom(measurement.getClass()));
   }
 }
