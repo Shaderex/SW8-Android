@@ -4,10 +4,6 @@ import android.hardware.Sensor;
 
 import junit.framework.Assert;
 
-import java.util.concurrent.ExecutionException;
-
-import dk.aau.sw808f16.datacollection.snapshot.Sample;
-
 public class AmbientLightSensorProviderTest extends SensorProviderApplicationTestCase {
 
   @Override
@@ -30,29 +26,5 @@ public class AmbientLightSensorProviderTest extends SensorProviderApplicationTes
     Float ambientValue = (Float) measurement;
     assertTrue("[" + sampleIdentifier + "] The value is below " + minValue, ambientValue > minValue);
     assertTrue("[" + sampleIdentifier + "] The value is above " + minValue, ambientValue < maxValue);
-  }
-
-  @Override
-  public void testGetSample() throws ExecutionException, InterruptedException, ClassCastException {
-    if (sensorProvider.isSensorAvailable()) {
-      final Sample sample1 = sensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
-      final Sample sample2 = sensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
-
-      // Cellular networks are not always available. If both samples are null, pass the test.
-
-      for (final Object measurement : sample1.getMeasurements()) {
-        if (measurement != null) {
-          validateSample(sample1, "sample1");
-          break;
-        }
-      }
-
-      for (final Object measurement : sample2.getMeasurements()) {
-        if (measurement != null) {
-          validateSample(sample2, "sample2");
-          break;
-        }
-      }
-    }
   }
 }

@@ -21,8 +21,8 @@ public abstract class SensorProviderApplicationTestCase extends ApplicationTestC
   // Times given in milliseconds
   private static final long totalDuration = 12 * 1000;
   private static final long sampleFrequency = 4 * 1000;
-  static final long sampleDuration = 2000;
-  static final long measurementFrequency = 500;
+  private static final long sampleDuration = 2000;
+  private static final long measurementFrequency = 500;
 
   private int minSize;
   private int maxSize;
@@ -48,7 +48,7 @@ public abstract class SensorProviderApplicationTestCase extends ApplicationTestC
     sensorProvider = getSensorProvider();
   }
 
-  void validateSample(Sample sample, String sampleIdentifier) {
+  private void validateSample(Sample sample, String sampleIdentifier) {
     assertNotNull("[" + sampleIdentifier + "] Sample data is null", sample);
     assertFalse("[" + sampleIdentifier + "] Sample data is empty", sample.getMeasurements().isEmpty());
 
