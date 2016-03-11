@@ -23,6 +23,8 @@ public class LocationSensorTest extends ApplicationTestCase<Application> {
     final LocationManager locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
     final Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
 
+    assertNotNull("Last known location was null", lastKnownLocation);
+
     if (lastKnownLocation.getTime() <= System.currentTimeMillis()) {
       Assert.assertTrue(true);
     }
