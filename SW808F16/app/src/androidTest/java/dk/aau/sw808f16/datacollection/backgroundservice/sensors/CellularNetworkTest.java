@@ -21,8 +21,12 @@ public class CellularNetworkTest extends ApplicationTestCase<Application> {
     final TelephonyManager manager = (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
     final List<CellInfo> cellInfoList = manager.getAllCellInfo();
 
-    for (final CellInfo info : cellInfoList) {
-      Log.i("CellInfo", info.toString());
+    if(cellInfoList != null){
+      for (final CellInfo info : cellInfoList) {
+        Log.i("CellInfo", info.toString());
+      }
+    } else {
+      Log.i("CellInfo", "Could not retrieve cell info");
     }
   }
 }
