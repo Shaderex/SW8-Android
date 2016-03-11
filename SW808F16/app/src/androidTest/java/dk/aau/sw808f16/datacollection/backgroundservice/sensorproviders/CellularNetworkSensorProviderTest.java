@@ -13,6 +13,7 @@ public class CellularNetworkSensorProviderTest extends SensorProviderApplication
 
   @Override
   protected void validateMeasurement(Object measurement, String sampleIdentifier) {
+    assertNotNull("[" + sampleIdentifier + "] measurement is null", measurement);
 
     assertTrue("[" + sampleIdentifier + "] measurement is not a List", List.class.isAssignableFrom(measurement.getClass()));
 
