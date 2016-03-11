@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'checkstyle'
-apply plugin: 'com.google.gms.google-services'
 apply from: '../jacoco.gradle'
 
 android {
@@ -37,7 +36,7 @@ dependencies {
     compile "com.google.android.gms:play-services-gcm:8.4.0"
 }
 
-
+apply plugin: 'com.google.gms.google-services'
 
 checkstyle {
     toolVersion = '6.15'
