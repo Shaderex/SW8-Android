@@ -17,6 +17,7 @@ import dk.aau.sw808f16.datacollection.snapshot.Sample;
 public class AmbientLightSensorProvider extends SensorProvider {
 
   private Context context;
+
   public AmbientLightSensorProvider(Context context, ExecutorService sensorThreadPool, SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
     this.context = context;
