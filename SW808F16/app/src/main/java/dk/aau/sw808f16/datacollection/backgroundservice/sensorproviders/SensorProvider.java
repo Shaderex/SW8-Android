@@ -62,7 +62,6 @@ public abstract class SensorProvider {
         timer.scheduleAtFixedRate(new TimerTask() {
           @Override
           public void run() {
-
             try {
               final long currentTime = System.currentTimeMillis();
 
