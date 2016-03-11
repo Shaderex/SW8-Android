@@ -4,6 +4,8 @@ import android.hardware.Sensor;
 
 import junit.framework.Assert;
 
+import java.util.concurrent.ExecutionException;
+
 import dk.aau.sw808f16.datacollection.snapshot.FloatTriple;
 
 public class GyroscopeSensorProviderTest extends SensorProviderApplicationTestCase {
@@ -31,5 +33,15 @@ public class GyroscopeSensorProviderTest extends SensorProviderApplicationTestCa
         gyroscopeValues.getSecondValue() <= maxValue && gyroscopeValues.getSecondValue() >= minValue);
     assertTrue("Data for index 2 value must be between " + minValue + " and " + maxValue,
         gyroscopeValues.getThirdValue() <= maxValue && gyroscopeValues.getThirdValue() >= minValue);
+  }
+
+  @Override
+  public void testGetSample() throws ExecutionException, InterruptedException, ClassCastException {
+    super.testGetSample();
+  }
+
+  @Override
+  public void testGetSamples() throws ExecutionException, InterruptedException {
+    super.testGetSamples();
   }
 }

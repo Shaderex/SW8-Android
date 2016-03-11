@@ -4,6 +4,8 @@ import android.hardware.Sensor;
 
 import junit.framework.Assert;
 
+import java.util.concurrent.ExecutionException;
+
 import dk.aau.sw808f16.datacollection.snapshot.FloatTriple;
 
 public class AccelerometerSensorProviderTest extends SensorProviderApplicationTestCase {
@@ -33,5 +35,15 @@ public class AccelerometerSensorProviderTest extends SensorProviderApplicationTe
         accelerometerValues.getSecondValue() <= maxValue && accelerometerValues.getSecondValue() >= minValue);
     assertTrue("[" + sampleIdentifier + "] third value of measurement must be between " + minValue + " and " + maxValue,
         accelerometerValues.getThirdValue() <= maxValue && accelerometerValues.getThirdValue() >= minValue);
+  }
+
+  @Override
+  public void testGetSample() throws ExecutionException, InterruptedException, ClassCastException {
+    super.testGetSample();
+  }
+
+  @Override
+  public void testGetSamples() throws ExecutionException, InterruptedException {
+    super.testGetSamples();
   }
 }
