@@ -4,6 +4,8 @@ import android.hardware.Sensor;
 
 import junit.framework.Assert;
 
+import java.util.concurrent.ExecutionException;
+
 public class ProximitySensorProviderTest extends SensorProviderApplicationTestCase {
   @Override
   protected SensorProvider getSensorProvider() {
@@ -24,5 +26,15 @@ public class ProximitySensorProviderTest extends SensorProviderApplicationTestCa
     Float proximityValue = (Float) measurement;
     assertTrue("[" + sampleIdentifier + "] value of measurement must be below or equal to " + maxValue, proximityValue <= maxValue);
     assertTrue("[" + sampleIdentifier + "] value of measurement must be larger or equal to " + maxValue, proximityValue >= minValue);
+  }
+
+  @Override
+  public void testGetSample() throws ExecutionException, InterruptedException, ClassCastException {
+    super.testGetSample();
+  }
+
+  @Override
+  public void testGetSamples() throws ExecutionException, InterruptedException {
+    super.testGetSamples();
   }
 }

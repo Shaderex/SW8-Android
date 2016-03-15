@@ -1,5 +1,13 @@
 package dk.aau.sw808f16.datacollection.snapshot;
 
+import android.content.Context;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.sromku.simple.storage.SimpleStorage;
+import com.sromku.simple.storage.SimpleStorageConfiguration;
+import com.sromku.simple.storage.Storage;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +22,22 @@ public class Snapshot {
 
   public Snapshot() {
     samplesMap = new HashMap<>();
+  }
+
+  public Snapshot(final Context context, final String directory, final String file, final String publicKey, final String secretKey) {
+    final Gson gson = new GsonBuilder().create();
+
+    final Storage storage = SimpleStorage.getInternalStorage(context);
+
+    final String extractedData = storage.readTextFile(directory, file);
+    final Snapshot newSnapshot = gson.fromJson(extractedData, Snapshot.class);
+
+    // Update the label accordingly to the restored snapshot
+    this.setLabel(newSnapshot.getLabel());
+
+    // Update the samples accordingly to the restored snapshot
+    samplesMap = new HashMap<>();
+    samplesMap.putAll(newSnapshot.samplesMap);
   }
 
   public Label getLabel() {
@@ -44,5 +68,18 @@ public class Snapshot {
     for (final Sample sample : samples) {
       addSample(sensorType, sample);
     }
+  }
+
+  public boolean save(final Context context, final String directory, final String file, final String publicKey, final String secretKey) {
+    final Storage storage = SimpleStorage.getInternalStorage(context);
+
+    final SimpleStorageConfiguration config = new SimpleStorageConfiguration.Builder().setEncryptContent(publicKey, secretKey).build();
+    SimpleStorage.updateConfiguration(config);
+
+    // Convert the snapshot to a GSON (json) string
+    final String snapshotAsString = new GsonBuilder().create().toJson(this);
+
+    // Create the directory and the file containing the snapshot as a string
+    return storage.createDirectory(directory) && storage.createFile(directory, file, snapshotAsString);
   }
 }

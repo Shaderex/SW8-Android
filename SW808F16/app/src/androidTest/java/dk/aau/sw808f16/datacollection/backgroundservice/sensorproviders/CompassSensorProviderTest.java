@@ -2,6 +2,8 @@ package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
 import junit.framework.Assert;
 
+import java.util.concurrent.ExecutionException;
+
 public class CompassSensorProviderTest extends SensorProviderApplicationTestCase {
   @Override
   protected SensorProvider getSensorProvider() {
@@ -22,5 +24,15 @@ public class CompassSensorProviderTest extends SensorProviderApplicationTestCase
 
     assertTrue("[" + sampleIdentifier + "] measurement value are too large (not smaller than 360 degrees)", orientationValue < maxDegrees);
     assertTrue("[" + sampleIdentifier + "] measurement value are too small (below 0 degrees)", orientationValue >= minDegrees);
+  }
+
+  @Override
+  public void testGetSample() throws ExecutionException, InterruptedException, ClassCastException {
+    super.testGetSample();
+  }
+
+  @Override
+  public void testGetSamples() throws ExecutionException, InterruptedException {
+    super.testGetSamples();
   }
 }

@@ -4,6 +4,8 @@ import android.hardware.Sensor;
 
 import junit.framework.Assert;
 
+import java.util.concurrent.ExecutionException;
+
 public class BarometerSensorProviderTest extends SensorProviderApplicationTestCase {
 
   @Override
@@ -26,5 +28,15 @@ public class BarometerSensorProviderTest extends SensorProviderApplicationTestCa
     assertTrue("[" + sampleIdentifier + "] Measurement value is below " + minValue, pressure > minValue);
     assertTrue("[" + sampleIdentifier + "] Measurement value is above " + minValue, pressure < maxValue);
 
+  }
+
+  @Override
+  public void testGetSample() throws ExecutionException, InterruptedException, ClassCastException {
+    super.testGetSample();
+  }
+
+  @Override
+  public void testGetSamples() throws ExecutionException, InterruptedException {
+    super.testGetSamples();
   }
 }

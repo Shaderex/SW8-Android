@@ -4,6 +4,8 @@ import android.hardware.Sensor;
 
 import junit.framework.Assert;
 
+import java.util.concurrent.ExecutionException;
+
 public class AmbientLightSensorProviderTest extends SensorProviderApplicationTestCase {
 
   @Override
@@ -26,5 +28,15 @@ public class AmbientLightSensorProviderTest extends SensorProviderApplicationTes
     Float ambientValue = (Float) measurement;
     assertTrue("[" + sampleIdentifier + "] The value is below " + minValue, ambientValue > minValue);
     assertTrue("[" + sampleIdentifier + "] The value is above " + minValue, ambientValue < maxValue);
+  }
+
+  @Override
+  public void testGetSample() throws ExecutionException, InterruptedException, ClassCastException {
+    super.testGetSample();
+  }
+
+  @Override
+  public void testGetSamples() throws ExecutionException, InterruptedException {
+    super.testGetSamples();
   }
 }
