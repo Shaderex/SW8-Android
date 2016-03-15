@@ -72,17 +72,22 @@ public class CompassSensorProvider extends SensorProvider {
 
                 SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, accelerometerOutput, magneticFieldOutput);
 
+                SensorManager.getOrientation(rotationMatrix, values);
+                measurements.add(sensorDataToOrientation(values));
+                final long currentTime = System.currentTimeMillis();
+                lastUpdateTime = currentTime;
+
                 sensorManager.unregisterListener(initialAccelerometerListener);
                 sensorManager.unregisterListener(initialMagneticFieldListener);
 
                 sensorManager.registerListener(accelerometerListener,
-                                               accelerometerSensor,
-                                               measurementFrequencyInMicroSeconds,
-                                               measurementFrequencyInMicroSeconds);
+                    accelerometerSensor,
+                    measurementFrequencyInMicroSeconds,
+                    measurementFrequencyInMicroSeconds);
                 sensorManager.registerListener(magneticFieldListener,
-                                               magneticFieldSensor,
-                                               measurementFrequencyInMicroSeconds,
-                                               measurementFrequencyInMicroSeconds);
+                    magneticFieldSensor,
+                    measurementFrequencyInMicroSeconds,
+                    measurementFrequencyInMicroSeconds);
               }
             }
           }
@@ -104,17 +109,22 @@ public class CompassSensorProvider extends SensorProvider {
 
                 SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, accelerometerOutput, magneticFieldOutput);
 
+                SensorManager.getOrientation(rotationMatrix, values);
+                measurements.add(sensorDataToOrientation(values));
+                final long currentTime = System.currentTimeMillis();
+                lastUpdateTime = currentTime;
+
                 sensorManager.unregisterListener(initialAccelerometerListener);
                 sensorManager.unregisterListener(initialMagneticFieldListener);
 
                 sensorManager.registerListener(accelerometerListener,
-                                               accelerometerSensor,
-                                               measurementFrequencyInMicroSeconds,
-                                               measurementFrequencyInMicroSeconds);
+                    accelerometerSensor,
+                    measurementFrequencyInMicroSeconds,
+                    measurementFrequencyInMicroSeconds);
                 sensorManager.registerListener(magneticFieldListener,
-                                               magneticFieldSensor,
-                                               measurementFrequencyInMicroSeconds,
-                                               measurementFrequencyInMicroSeconds);
+                    magneticFieldSensor,
+                    measurementFrequencyInMicroSeconds,
+                    measurementFrequencyInMicroSeconds);
               }
             }
           }

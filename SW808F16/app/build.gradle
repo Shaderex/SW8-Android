@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'checkstyle'
-
 apply from: '../jacoco.gradle'
 
 android {
@@ -35,10 +34,10 @@ dependencies {
     testCompile 'org.robolectric:robolectric:3.0'
     //noinspection GradleDependency
     compile 'com.android.support:appcompat-v7:21.0.3'
-
+    compile "com.google.android.gms:play-services-gcm:8.4.0"
 }
 
-
+apply plugin: 'com.google.gms.google-services'
 
 checkstyle {
     toolVersion = '6.15'
