@@ -10,6 +10,7 @@ public class CompassSensorProviderTest extends SensorProviderApplicationTestCase
 
   @Override
   protected void validateMeasurement(Object measurement, String sampleIdentifier) {
+
     if (!(measurement instanceof Float)) {
       Assert.assertEquals("[" + sampleIdentifier + "] Measurement is of wrong type.", Float.class, measurement.getClass());
     }
