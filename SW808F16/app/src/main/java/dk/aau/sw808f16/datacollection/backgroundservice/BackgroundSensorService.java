@@ -26,18 +26,16 @@ import java.util.concurrent.Future;
 
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AccelerometerSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AmbientLightSensorProvider;
-import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.CompassSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.ProximitySensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.SensorProvider;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
 
 public final class BackgroundSensorService extends Service {
-
   public static final String SNAPSHOT_SHARED_PREFERENCE_NAME = "SNAPSHOT_SHARED_PREFERENCE_NAME";
   public static final String SNAPSHOT_SHARED_PREFERENCE_KEY = "SNAPSHOT_SHARED_PREFERENCE_KEY";
   private ServiceHandler serviceHandler;
-  
+
   private final ExecutorService sensorThreadPool;
 
   private ProximitySensorProvider proximitySensorProvider;
@@ -149,8 +147,7 @@ public final class BackgroundSensorService extends Service {
 
   @Override
   public IBinder onBind(final Intent intent) {
-    // We don't provide binding, so return null
-    return null;
+    return new LocalBinder();
   }
 
   @Override

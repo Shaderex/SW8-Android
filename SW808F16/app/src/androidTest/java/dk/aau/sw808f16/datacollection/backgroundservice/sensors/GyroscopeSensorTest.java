@@ -83,7 +83,7 @@ public class GyroscopeSensorTest extends ApplicationTestCase<Application> {
   @Override
   protected void tearDown() throws Exception {
 
-    Log.i("Gyroscope data: ", data.size() * 4 * 3 + " Bytes" );
+    Log.i("Gyroscope data: ", data.size() * 4 * 3 + " Bytes");
 
     super.tearDown();
   }

@@ -1,76 +1,86 @@
 package dk.aau.sw808f16.datacollection.snapshot;
 
-import junit.framework.Assert;
+import android.test.ApplicationTestCase;
 
-import org.junit.Test;
+import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 
-public class FloatTripleTest {
+public class FloatTripleTest extends ApplicationTestCase<DataCollectionApplication> {
 
-  @Test
+  public FloatTripleTest() {
+    super(DataCollectionApplication.class);
+  }
+
   public void testConstructor() {
     new FloatTriple(3f, 3f, 3f);
     new FloatTriple(new float[] {3f, 3f, 3f});
   }
 
-  @Test(expected = IllegalArgumentException.class)
   public void testConstructorInvalidInputTooLargeArray() {
-    new FloatTriple(new float[] {3f, 3f, 3f, 3f});
+
+    try {
+      new FloatTriple(new float[] {3f, 3f, 3f, 3f});
+    } catch (IllegalArgumentException e) {
+      return;
+    }
+
+    fail("Did not throw IllegalArgumentException with illegal arguments ");
   }
 
-  @Test(expected = IllegalArgumentException.class)
   public void testConstructorInvalidInputTooSmallArray() {
-    new FloatTriple(new float[] {3f, 3f});
+
+    try {
+      new FloatTriple(new float[] {3f, 3f});
+    } catch (IllegalArgumentException e) {
+      return;
+    }
+
+    fail("Did not throw IllegalArgumentException with illegal arguments ");
   }
 
-  @Test
   public void testGetIndividualValuesThreeArgumentConstructor() {
     final float expected1 = 3f;
     final float expected2 = 4f;
     final float expected3 = 5f;
     final FloatTriple floatTriple = new FloatTriple(expected1, expected2, expected3);
 
-    Assert.assertEquals("First value is not set properly", expected1, floatTriple.getFirstValue());
-    Assert.assertEquals("Second value is not set properly", expected2, floatTriple.getSecondValue());
-    Assert.assertEquals("Third value is not set properly", expected3, floatTriple.getThirdValue());
+    assertEquals("First value is not set properly", expected1, floatTriple.getFirstValue());
+    assertEquals("Second value is not set properly", expected2, floatTriple.getSecondValue());
+    assertEquals("Third value is not set properly", expected3, floatTriple.getThirdValue());
   }
 
-  @Test
   public void testGetIndividualValuesArrayConstructor() {
     final float expected1 = 3f;
     final float expected2 = 4f;
     final float expected3 = 5f;
     final FloatTriple floatTriple = new FloatTriple(new float[] {expected1, expected2, expected3});
 
-    Assert.assertEquals("First value is not set properly", expected1, floatTriple.getFirstValue());
-    Assert.assertEquals("Second value is not set properly", expected2, floatTriple.getSecondValue());
-    Assert.assertEquals("Third value is not set properly", expected3, floatTriple.getThirdValue());
+    assertEquals("First value is not set properly", expected1, floatTriple.getFirstValue());
+    assertEquals("Second value is not set properly", expected2, floatTriple.getSecondValue());
+    assertEquals("Third value is not set properly", expected3, floatTriple.getThirdValue());
   }
 
-  @Test
   public void testGetValueArrayThreeArgumentConstructor() {
     final float expected1 = 3f;
     final float expected2 = 4f;
     final float expected3 = 5f;
     final FloatTriple floatTriple = new FloatTriple(expected1, expected2, expected3);
 
-    Assert.assertEquals(expected1, floatTriple.getValues()[0]);
-    Assert.assertEquals(expected2, floatTriple.getValues()[1]);
-    Assert.assertEquals(expected3, floatTriple.getValues()[2]);
+    assertEquals(expected1, floatTriple.getValues()[0]);
+    assertEquals(expected2, floatTriple.getValues()[1]);
+    assertEquals(expected3, floatTriple.getValues()[2]);
   }
 
-  @Test
   public void testGetValueArrayArrayConstructor() {
     final float expected1 = 3f;
     final float expected2 = 4f;
     final float expected3 = 5f;
     final FloatTriple floatTriple = new FloatTriple(new float[] {expected1, expected2, expected3});
 
-    Assert.assertEquals(expected1, floatTriple.getValues()[0]);
-    Assert.assertEquals(expected2, floatTriple.getValues()[1]);
-    Assert.assertEquals(expected3, floatTriple.getValues()[2]);
+    assertEquals(expected1, floatTriple.getValues()[0]);
+    assertEquals(expected2, floatTriple.getValues()[1]);
+    assertEquals(expected3, floatTriple.getValues()[2]);
   }
 
-  @Test
   public void testGetCompressedValues() {
     final float expected1 = -08.7845f; // 10010101011100100101
     final float expected2 = 11.1234f; // 00011011001010000010
@@ -79,10 +89,9 @@ public class FloatTripleTest {
 
     final long expected = 0b0010100101010111001001010001101100101000001000010111111001001000L;
 
-    Assert.assertEquals(expected, floatTriple.getCompressedValues());
+    assertEquals(expected, floatTriple.getCompressedValues());
   }
 
-  @Test
   public void testGetCompressedValuesMoreDigits() {
     final float expected1 = -08.784545f; // 10010101011100100101
     final float expected2 = 11.123436f; // 00011011001010000010
@@ -91,10 +100,9 @@ public class FloatTripleTest {
 
     final long expected = 0b0010100101010111001001010001101100101000001000010111111001001000L;
 
-    Assert.assertEquals(expected, floatTriple.getCompressedValues());
+    assertEquals(expected, floatTriple.getCompressedValues());
   }
 
-  @Test
   public void testGetCompressedValuesFewerDigits() {
     final float expected1 = -08.784f; // 10010101011100100000
     final float expected2 = 11.123f; // 00011011001001111110
@@ -103,7 +111,7 @@ public class FloatTripleTest {
 
     final long expected = 0b0010100101010111001000000001101100100111111000010111111001000100L;
 
-    Assert.assertEquals(expected, floatTriple.getCompressedValues());
+    assertEquals(expected, floatTriple.getCompressedValues());
   }
 
 }

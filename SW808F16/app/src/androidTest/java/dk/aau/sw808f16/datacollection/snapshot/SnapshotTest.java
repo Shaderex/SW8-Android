@@ -1,34 +1,33 @@
 package dk.aau.sw808f16.datacollection.snapshot;
 
 import android.hardware.Sensor;
-
-import junit.framework.Assert;
-
-import org.junit.Test;
+import android.test.ApplicationTestCase;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 import dk.aau.sw808f16.datacollection.label.Label;
 
-public class SnapshotTest {
+public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication> {
 
-  @Test
+  public SnapshotTest() {
+    super(DataCollectionApplication.class);
+  }
+
   public void testConstructor() {
     new Snapshot();
   }
 
-  @Test
   public void testGetSetLabel() {
     final Label expectedLabel = new Label();
     final Snapshot snapshot = new Snapshot();
 
     snapshot.setLabel(expectedLabel);
 
-    Assert.assertEquals(expectedLabel, snapshot.getLabel());
+    assertEquals(expectedLabel, snapshot.getLabel());
   }
 
-  @Test
   public void testAddSampleGetSamples() {
     final Snapshot snapshot = new Snapshot();
     final Sample sample = new Sample();
@@ -36,22 +35,22 @@ public class SnapshotTest {
 
     snapshot.addSample(sensorType, sample);
 
-    Assert.assertTrue(snapshot.getSamples(sensorType).contains(sample));
+    assertTrue(snapshot.getSamples(sensorType).contains(sample));
   }
 
-  @Test
   public void testEmptyGetSamples() {
     final Snapshot snapshot = new Snapshot();
 
     final List<Sample> actual = snapshot.getSamples(Sensor.TYPE_ACCELEROMETER);
 
-    Assert.assertTrue(actual.isEmpty());
+    assertTrue(actual.isEmpty());
   }
 
-  @Test
   public void testAddSamplesGetSamples() {
+
     final Snapshot snapshot = new Snapshot();
     final int sensorType = Sensor.TYPE_ACCELEROMETER;
+
     final List<Sample> expected = new ArrayList<Sample>() {
       {
         add(new Sample());
@@ -62,8 +61,7 @@ public class SnapshotTest {
 
     snapshot.addSamples(sensorType, expected);
 
-    Assert.assertEquals(expected, snapshot.getSamples(sensorType));
-
+    assertEquals(expected, snapshot.getSamples(sensorType));
   }
 
 }

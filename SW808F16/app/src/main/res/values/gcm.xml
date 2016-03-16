@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="defaultSenderID">369415405893</string>
+    <string name="gcmRegisterBackendURL_AAU">http://jenkins.lokal.element67.dk:8000/gcm/registerDevice</string>
+    <string name="gcmRegisterBackendURL">http://jenkins.element67.dk:8000/gcm/registerDevice</string>
+    <string name="aau_wifi_ssid">AAU-1x</string>
+</resources>

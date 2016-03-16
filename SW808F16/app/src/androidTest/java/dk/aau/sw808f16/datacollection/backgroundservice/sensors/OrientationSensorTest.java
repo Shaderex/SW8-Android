@@ -133,7 +133,7 @@ public class OrientationSensorTest extends ApplicationTestCase<Application> {
 
           if (accelerometerOutput != null) {
             SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerOutput, magneticFieldOutput);
-            
+
             getSensorManager().unregisterListener(initialAccelerometerListener);
             getSensorManager().unregisterListener(initialMagneticFieldListener);
 

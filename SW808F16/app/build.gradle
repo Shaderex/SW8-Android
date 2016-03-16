@@ -1,11 +1,15 @@
 apply plugin: 'com.android.application'
 apply plugin: 'checkstyle'
-
 apply from: '../jacoco.gradle'
 
 android {
     compileSdkVersion 21
     buildToolsVersion "23.0.2"
+
+    dexOptions {
+        jumboMode true
+        javaMaxHeapSize "4g"
+    }
 
     defaultConfig {
         applicationId "dk.aau.sw808f16.datacollection"
@@ -14,12 +18,16 @@ android {
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
+        testInstrumentationRunner "com.android.test.runner.MultiDexTestRunner"
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+
         debug {
             testCoverageEnabled = true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -31,14 +39,18 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.google.code.gson:gson:2.4'
     compile 'com.sromku:simple-storage:1.2.0'
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.robolectric:robolectric:3.0'
+
     //noinspection GradleDependency
     compile 'com.android.support:appcompat-v7:21.0.3'
+    compile 'com.android.support:multidex:1.0.1'
+    compile "com.google.android.gms:play-services-gcm:8.4.0"
 
+    // Testing dependencies
+    androidTestCompile 'junit:junit:4.12'
+    androidTestCompile 'org.robolectric:robolectric:3.0'
 }
 
-
+apply plugin: 'com.google.gms.google-services'
 
 checkstyle {
     toolVersion = '6.15'
@@ -51,6 +63,3 @@ task checkstyle(type: Checkstyle) {
     exclude '**/gen/**'
     classpath = files()
 }
-
-
-
