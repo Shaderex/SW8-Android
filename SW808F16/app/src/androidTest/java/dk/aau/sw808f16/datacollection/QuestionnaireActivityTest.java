@@ -50,7 +50,6 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
   }
 
   public void testQuestionnaireParcelIdentifier() {
-
     final String questionnaireParcelIdentifier = QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER;
 
     assertNotNull(questionnaireParcelIdentifier);
@@ -69,7 +68,6 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
   }
 
   public void testTextViewSetGivenQuestion() {
-
     final TextView questionText = (TextView) questionnaireActivity.findViewById(R.id.questionnaire_question_text);
     final String expected = questionnaireActivity.getQuestionnaire().getQuestions().get(0).getQuestion();
 
@@ -77,7 +75,6 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
   }
 
   public void testYesAnswerButtonAnnotatesQuestion() throws InterruptedException {
-
     final CountDownLatch latch = new CountDownLatch(1);
     final Button yesButton = (Button) questionnaireActivity.findViewById(R.id.questionnaire_answer_button_yes);
 
@@ -97,7 +94,6 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
   }
 
   public void testNoAnswerButtonAnnotatesQuestion() throws InterruptedException {
-
     final CountDownLatch latch = new CountDownLatch(1);
     final Button yesButton = (Button) questionnaireActivity.findViewById(R.id.questionnaire_answer_button_no);
 
@@ -115,13 +111,12 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
   }
 
   public void testQuestionNotAnsweredYet() {
-
     final Boolean expected = null;
+
     assertEquals(expected, questionnaire.getQuestions().get(0).getAnswer());
   }
 
   public void testYesAnswerButtonGoesToNextQuestion() throws InterruptedException {
-
     final CountDownLatch latch = new CountDownLatch(1);
     final TextView questionTextView = (TextView) questionnaireActivity.findViewById(R.id.questionnaire_question_text);
     final Button yesButton = (Button) questionnaireActivity.findViewById(R.id.questionnaire_answer_button_yes);
@@ -143,7 +138,6 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
   }
 
   public void testNoAnswerButtonGoesToNextQuestion() throws InterruptedException {
-
     final CountDownLatch latch = new CountDownLatch(1);
     final TextView questionTextView = (TextView) questionnaireActivity.findViewById(R.id.questionnaire_question_text);
     final Button noButton = (Button) questionnaireActivity.findViewById(R.id.questionnaire_answer_button_no);
@@ -165,7 +159,6 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
   }
 
   public void testAnsweredLastQuestion() throws InterruptedException {
-
     final CountDownLatch latch = new CountDownLatch(1);
     final Button yesButton = (Button) questionnaireActivity.findViewById(R.id.questionnaire_answer_button_yes);
 
@@ -187,7 +180,6 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
   }
 
   public void testActivityFinishedWithCorrectResultCompleted() throws InterruptedException {
-
     final CountDownLatch latch = new CountDownLatch(1);
     final Button yesButton = (Button) questionnaireActivity.findViewById(R.id.questionnaire_answer_button_yes);
 
@@ -216,7 +208,6 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
   }
 
   public void testActivityFinishedWithCorrectResultCancelled() throws InterruptedException {
-
     final CountDownLatch latch = new CountDownLatch(1);
 
     questionnaireActivity.runOnUiThread(new Runnable() {
@@ -241,7 +232,6 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
   }
 
   public void testActivityFinishedWithCorrectResultNotFullyCompleted() {
-
     final Button yesButton = (Button) questionnaireActivity.findViewById(R.id.questionnaire_answer_button_yes);
 
     for (int i = 0; i < questionnaire.getQuestions().size() - 1; i++) {
