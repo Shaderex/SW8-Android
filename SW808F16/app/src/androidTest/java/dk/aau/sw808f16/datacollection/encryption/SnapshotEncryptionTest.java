@@ -82,7 +82,7 @@ public class SnapshotEncryptionTest extends AndroidTestCase {
     super.tearDown();
 
     final Storage storage = SimpleStorage.getInternalStorage(getContext());
-    storage.deleteFile(DIRECTORY,FILE);
+    storage.deleteFile(DIRECTORY, FILE);
     storage.deleteDirectory(DIRECTORY);
   }
 }

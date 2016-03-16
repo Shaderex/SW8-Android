@@ -83,7 +83,7 @@ public class AccelerometerSensorTest extends ApplicationTestCase<Application> {
   @Override
   protected void tearDown() throws Exception {
 
-    Log.i("Accelerometer data: ", data.size() * 4 * 3 + " Bytes" );
+    Log.i("Accelerometer data: ", data.size() * 4 * 3 + " Bytes");
 
     super.tearDown();
   }

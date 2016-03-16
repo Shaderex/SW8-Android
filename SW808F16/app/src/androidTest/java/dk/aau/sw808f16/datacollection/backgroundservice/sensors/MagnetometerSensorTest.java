@@ -83,7 +83,7 @@ public class MagnetometerSensorTest extends ApplicationTestCase<Application> {
   @Override
   protected void tearDown() throws Exception {
 
-    Log.i("Magnetometer data: ", data.size() * 4 * 3 + " Bytes" );
+    Log.i("Magnetometer data: ", data.size() * 4 * 3 + " Bytes");
 
     super.tearDown();
   }

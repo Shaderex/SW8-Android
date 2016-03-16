@@ -29,9 +29,9 @@ public class SensorProviderTest extends ApplicationTestCase<DataCollectionApplic
 
     final ProximitySensorProvider proximitySensorProvider = new ProximitySensorProvider(getContext(), sensorThreadPool, sensorManager);
 
-    try{
+    try {
       proximitySensorProvider.retrieveSamplesForDuration(100, 1000, 10000, 100000);
-    } catch(IllegalArgumentException exception) {
+    } catch (IllegalArgumentException exception) {
       return;
     }
     fail("Expected illegal argument exception");
@@ -44,9 +44,9 @@ public class SensorProviderTest extends ApplicationTestCase<DataCollectionApplic
 
     final ProximitySensorProvider proximitySensorProvider = new ProximitySensorProvider(getContext(), sensorThreadPool, sensorManager);
 
-    try{
+    try {
       proximitySensorProvider.retrieveSamplesForDuration(1000, 1000, 10000, 100000);
-    } catch(IllegalArgumentException exception) {
+    } catch (IllegalArgumentException exception) {
       return;
     }
     fail("Expected illegal argument exception");
@@ -59,9 +59,9 @@ public class SensorProviderTest extends ApplicationTestCase<DataCollectionApplic
 
     final ProximitySensorProvider proximitySensorProvider = new ProximitySensorProvider(getContext(), sensorThreadPool, sensorManager);
 
-    try{
+    try {
       proximitySensorProvider.retrieveSamplesForDuration(10000, 10000, 10000, 100000);
-    } catch(IllegalArgumentException exception) {
+    } catch (IllegalArgumentException exception) {
       return;
     }
     fail("Expected illegal argument exception");
