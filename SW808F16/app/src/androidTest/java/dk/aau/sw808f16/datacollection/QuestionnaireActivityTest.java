@@ -205,6 +205,8 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
     latch.await();
 
     final Intent resultIntent = getStartedActivityIntent();
+    assertNotNull(resultIntent);
+
     final Questionnaire resultQuestionnaire = resultIntent.getParcelableExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER);
 
     assertNotNull(getStartedActivityRequest());
@@ -228,6 +230,8 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
     latch.await();
 
     final Intent resultIntent = this.getStartedActivityIntent();
+    assertNotNull(resultIntent);
+
     final Questionnaire resultQuestionnaire = resultIntent.getParcelableExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER);
 
     assertNotNull(getStartedActivityRequest());
