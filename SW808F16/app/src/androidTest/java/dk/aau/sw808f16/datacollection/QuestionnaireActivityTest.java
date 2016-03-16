@@ -252,6 +252,8 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
     questionnaireActivity.onBackPressed();
 
     final Intent resultIntent = getStartedActivityIntent();
+    assertNotNull(resultIntent);
+
     final Questionnaire resultQuestionnaire = resultIntent.getParcelableExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER);
 
     assertNotNull(getFinishedActivityRequest());
