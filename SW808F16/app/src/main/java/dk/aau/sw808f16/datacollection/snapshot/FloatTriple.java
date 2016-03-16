@@ -1,6 +1,8 @@
 package dk.aau.sw808f16.datacollection.snapshot;
 
-public class FloatTriple {
+import io.realm.RealmObject;
+
+public class FloatTriple extends RealmObject {
 
   private static final byte FIRST_VALUE = 2;
   private static final byte SECOND_VALUE = 1;
@@ -12,6 +14,11 @@ public class FloatTriple {
   private static final long VALUE_MASK = 0b1111111111111111111L;
 
   private long compressedValues;
+
+  // Do not use this is needed to store it using Realm.io
+  @SuppressWarnings("unused")
+  public FloatTriple() {
+  }
 
   public FloatTriple(final float v1, final float v2, final float v3) {
     this(new float[] {v1, v2, v3});
