@@ -2,8 +2,6 @@ package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
 import android.hardware.Sensor;
 
-import junit.framework.Assert;
-
 import java.util.concurrent.ExecutionException;
 
 public class ProximitySensorProviderTest extends SensorProviderApplicationTestCase {
@@ -15,7 +13,7 @@ public class ProximitySensorProviderTest extends SensorProviderApplicationTestCa
   @Override
   protected void validateMeasurement(Object measurement, String sampleIdentifier) {
     if (!(measurement instanceof Float)) {
-      Assert.assertEquals("[" + sampleIdentifier + "] measurement is of wrong type.", Float.class, measurement.getClass());
+      assertEquals("[" + sampleIdentifier + "] measurement is of wrong type.", Float.class, measurement.getClass());
     }
 
     final Sensor proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);

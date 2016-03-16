@@ -1,16 +1,17 @@
 package dk.aau.sw808f16.datacollection.snapshot;
 
-import android.app.Application;
 import android.test.ApplicationTestCase;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Random;
 
-public class FloatTriplePerformanceTest extends ApplicationTestCase<Application> {
+import dk.aau.sw808f16.datacollection.DataCollectionApplication;
+
+public class FloatTriplePerformanceTest extends ApplicationTestCase<DataCollectionApplication> {
 
   public FloatTriplePerformanceTest() {
-    super(Application.class);
+    super(DataCollectionApplication.class);
   }
 
   public void testFloatTripleMeasurementPerformance() {

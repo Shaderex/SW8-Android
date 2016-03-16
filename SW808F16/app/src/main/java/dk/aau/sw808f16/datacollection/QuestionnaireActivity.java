@@ -85,4 +85,8 @@ public class QuestionnaireActivity extends Activity {
 
     finish();
   }
+
+  public Questionnaire getQuestionnaire() {
+    return questionnaire;
+  }
 }

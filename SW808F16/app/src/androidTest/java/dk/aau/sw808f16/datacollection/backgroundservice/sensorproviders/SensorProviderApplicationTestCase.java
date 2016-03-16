@@ -38,6 +38,7 @@ public abstract class SensorProviderApplicationTestCase extends ApplicationTestC
 
   @Override
   protected void setUp() throws Exception {
+
     // Calculate the expected size(s), because of real time issues the size may differ +/- 1
     final int expectedSize = (int) (sampleDuration / measurementFrequency);
     minSize = expectedSize - 1;

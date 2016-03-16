@@ -51,8 +51,9 @@ public class Question implements Parcelable {
     this.question = question;
   }
 
-  public void setAnswer(Boolean answer) {
+  public void setAnswer(final Boolean answer) {
     this.answer = answer;
+    return;
   }
 
   public Boolean getAnswer() {
@@ -60,7 +61,7 @@ public class Question implements Parcelable {
   }
 
   @Override
-  public boolean equals(Object object) {
+  public boolean equals(final Object object) {
     if (this == object) {
       return true;
     }
@@ -68,7 +69,7 @@ public class Question implements Parcelable {
       return false;
     }
 
-    Question instance = (Question) object;
+    final Question instance = (Question) object;
 
     return instance.getQuestion().equals(this.getQuestion())
         && instance.getAnswer() == this.getAnswer();

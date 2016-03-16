@@ -1,7 +1,5 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
-import junit.framework.Assert;
-
 import java.util.concurrent.ExecutionException;
 
 public class CompassSensorProviderTest extends SensorProviderApplicationTestCase {
@@ -14,7 +12,7 @@ public class CompassSensorProviderTest extends SensorProviderApplicationTestCase
   protected void validateMeasurement(Object measurement, String sampleIdentifier) {
 
     if (!(measurement instanceof Float)) {
-      Assert.assertEquals("[" + sampleIdentifier + "] Measurement is of wrong type.", Float.class, measurement.getClass());
+      assertEquals("[" + sampleIdentifier + "] Measurement is of wrong type.", Float.class, measurement.getClass());
     }
 
     final int maxDegrees = 360;

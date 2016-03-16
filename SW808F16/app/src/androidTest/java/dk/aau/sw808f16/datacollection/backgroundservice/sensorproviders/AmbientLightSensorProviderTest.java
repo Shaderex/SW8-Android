@@ -2,8 +2,6 @@ package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
 import android.hardware.Sensor;
 
-import junit.framework.Assert;
-
 import java.util.concurrent.ExecutionException;
 
 public class AmbientLightSensorProviderTest extends SensorProviderApplicationTestCase {
@@ -16,12 +14,12 @@ public class AmbientLightSensorProviderTest extends SensorProviderApplicationTes
   @Override
   protected void validateMeasurement(Object measurement, String sampleIdentifier) {
 
-    final Sensor gyroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-    final float maxValue = gyroscopeSensor.getMaximumRange();
-    final float minValue = -gyroscopeSensor.getMaximumRange();
+    final Sensor ambientLightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+    final float maxValue = ambientLightSensor.getMaximumRange();
+    final float minValue = -ambientLightSensor.getMaximumRange();
 
     if (!(measurement instanceof Float)) {
-      Assert.assertEquals("[" + sampleIdentifier + "] Ambient light sensor data is of wrong type.", Float.class, measurement.getClass());
+      assertEquals("[" + sampleIdentifier + "] Ambient light sensor data is of wrong type.", Float.class, measurement.getClass());
     }
 
     @SuppressWarnings("ConstantConditions")
