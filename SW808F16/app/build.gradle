@@ -21,19 +21,19 @@ android {
         multiDexEnabled true
         testInstrumentationRunner "com.android.test.runner.MultiDexTestRunner"
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+
         debug {
             testCoverageEnabled = true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 }
-
-
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -48,8 +48,6 @@ dependencies {
     // Testing dependencies
     androidTestCompile 'junit:junit:4.12'
     androidTestCompile 'org.robolectric:robolectric:3.0'
-    // testCompile "org.robolectric:shadows-play-services:3.0"
-    // testCompile "org.robolectric:shadows-support-v4:3.0"
 }
 
 apply plugin: 'com.google.gms.google-services'
@@ -65,6 +63,3 @@ task checkstyle(type: Checkstyle) {
     exclude '**/gen/**'
     classpath = files()
 }
-
-
-
