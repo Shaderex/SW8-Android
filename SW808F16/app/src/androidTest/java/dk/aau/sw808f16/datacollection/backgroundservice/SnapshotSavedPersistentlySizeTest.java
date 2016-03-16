@@ -115,7 +115,7 @@ public class SnapshotSavedPersistentlySizeTest extends ApplicationTestCase<DataC
     final long size = file.length();
 
     final long expectedSize = maxSizePerMinute * runTestForMinutes;
-    final double percentageSize = Math.round(((double) size) / ((double) expectedSize) * 100);
+    final long percentageSize = Math.round(((double) size) / ((double) expectedSize) * 100);
 
     String error = "File size is larger than expected.";
     error += " Should be maximally " + expectedSize + " bytes, but is " + size + " bytes";
