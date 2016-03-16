@@ -26,9 +26,7 @@ public class MainActivityTest extends ActivityUnitTestCase<MainActivity> {
 
     final ComponentName componentName = new ComponentName("dk.aau.sw808f16.datacollection", "MainActivity");
     final Intent mainActivityIntent = Intent.makeMainActivity(componentName);
-    mainActivity = startActivity(mainActivityIntent, null, null);  //launchActivityWithIntent(, MainActivity.class,);
-
-    return;
+    mainActivity = startActivity(mainActivityIntent, null, null);
   }
 
   public void testStartQuestionnaireButtonExists() {
