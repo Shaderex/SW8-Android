@@ -8,7 +8,7 @@ android {
 
     dexOptions {
         jumboMode true
-        javaMaxHeapSize "4g"
+        javaMaxHeapSize "3g"
     }
 
     defaultConfig {
@@ -44,10 +44,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.android.support:multidex:1.0.1'
     compile "com.google.android.gms:play-services-gcm:8.4.0"
-
-    // Testing dependencies
-    androidTestCompile 'junit:junit:4.12'
-    androidTestCompile 'org.robolectric:robolectric:3.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

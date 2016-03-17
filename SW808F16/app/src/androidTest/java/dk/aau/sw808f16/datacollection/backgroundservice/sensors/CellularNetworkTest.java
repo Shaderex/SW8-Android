@@ -25,7 +25,8 @@ public class CellularNetworkTest extends ApplicationTestCase<Application> {
       for (final CellInfo info : cellInfoList) {
         Log.i("CellInfo", info.toString());
       }
-    } else {
+    }
+    else {
       Log.i("CellInfo", "Could not retrieve cell info");
     }
   }
