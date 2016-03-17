@@ -1,18 +1,34 @@
 package dk.aau.sw808f16.datacollection.snapshot;
 
+import android.annotation.SuppressLint;
 import android.test.ApplicationTestCase;
 
 import java.io.File;
+import java.security.SecureRandom;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmList;
+import io.realm.RealmResults;
 
 public class FloatTripleTest extends ApplicationTestCase<DataCollectionApplication> {
 
+  private RealmConfiguration realmConfiguration;
+  private Realm realm;
+
   public FloatTripleTest() {
     super(DataCollectionApplication.class);
+  }
+
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
+
+    final byte[] key = new byte[64];
+    new SecureRandom().nextBytes(key);
+    realmConfiguration = new RealmConfiguration.Builder(getContext()).encryptionKey(key).build();
+    realm = Realm.getInstance(realmConfiguration);
   }
 
   public void testConstructor() {
@@ -120,30 +136,38 @@ public class FloatTripleTest extends ApplicationTestCase<DataCollectionApplicati
   }
 
   public void testStorable() {
-    RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).build();
+    final float expected1 = 3.1f;
+    final float expected2 = 4.2f;
+    final float expected3 = 5.32f;
 
-    Realm realm = Realm.getInstance(realmConfiguration);
-
-    realm.deleteAll();
-
-    final float expected1 = 3f;
-    final float expected2 = 4f;
-    final float expected3 = 5f;
+    final FloatTriple expected = new FloatTriple(expected1, expected2, expected3);
 
     RealmList<FloatTriple> realmList = new RealmList<>();
-
-    for (int i = 0; i < 10000; i++) {
-      final FloatTriple floatTriple = new FloatTriple(expected1, expected2, expected3);
-      realmList.add(floatTriple);
+    for (int i = 0; i < 10; i++) {
+      realmList.add(expected);
     }
+
     realm.beginTransaction();
     realm.copyToRealm(realmList);
     realm.commitTransaction();
 
-    final File file = new File("data/data/dk.aau.sw808f16.datacollection/files/realm.default");
-    final long size = file.length();
+    RealmResults<FloatTriple> extractedFloatTriples = realm.where(FloatTriple.class).findAll();
+    for (final FloatTriple actual : extractedFloatTriples) {
+      assertEquals(expected.getCompressedValues(), actual.getCompressedValues());
+    }
 
-    assertEquals(0L,size);
+    // These lines can be used to debug the size of the database
+    @SuppressLint("SdCardPath")
+    final File file = new File("/data/data/dk.aau.sw808f16.datacollection/files/default.realm");
+    final long size = file.length();
   }
 
+  @Override
+  protected void tearDown() throws Exception {
+    realm.close();
+    boolean deleteRealmResult = Realm.deleteRealm(realmConfiguration);
+    assertTrue(deleteRealmResult);
+
+    super.tearDown();
+  }
 }
