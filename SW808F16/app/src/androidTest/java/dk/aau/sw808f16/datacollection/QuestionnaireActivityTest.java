@@ -1,6 +1,5 @@
 package dk.aau.sw808f16.datacollection;
 
-
 import android.app.Activity;
 import android.content.Intent;
 import android.test.ActivityUnitTestCase;
@@ -13,7 +12,6 @@ import java.util.concurrent.CountDownLatch;
 
 import dk.aau.sw808f16.datacollection.questionaire.models.Question;
 import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
-
 
 public class QuestionnaireActivityTest extends ActivityUnitTestCase<QuestionnaireActivity> {
 
@@ -159,6 +157,7 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
   }
 
   public void testAnsweredLastQuestion() throws InterruptedException {
+
     final CountDownLatch latch = new CountDownLatch(1);
     final Button yesButton = (Button) questionnaireActivity.findViewById(R.id.questionnaire_answer_button_yes);
 
@@ -208,6 +207,7 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
   }
 
   public void testActivityFinishedWithCorrectResultCancelled() throws InterruptedException {
+
     final CountDownLatch latch = new CountDownLatch(1);
 
     questionnaireActivity.runOnUiThread(new Runnable() {

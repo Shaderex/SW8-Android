@@ -61,7 +61,8 @@ public class ProximitySensorProvider extends SensorProvider {
           };
 
           proximitySamplingTimer.scheduleAtFixedRate(proximitySamplingTask, 0, measurementFrequency);
-        } else {
+        }
+        else {
           proximitySensorOutput = event.values;
         }
       }

@@ -41,7 +41,8 @@ public class DataCollectionApplication extends Application {
 
         if (sentToken) {
           Toast.makeText(DataCollectionApplication.this, "GCM Registration Success", Toast.LENGTH_LONG).show();
-        } else {
+        }
+        else {
           Toast.makeText(DataCollectionApplication.this, "GCM Registration Failed!", Toast.LENGTH_LONG).show();
         }
 
