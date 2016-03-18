@@ -71,6 +71,7 @@ public class QuestionnaireActivity extends Activity {
       setResult(Activity.RESULT_OK, resultIntent);
 
       finishActivity(Activity.RESULT_OK);
+      finish();
     }
   }
 
@@ -84,6 +85,7 @@ public class QuestionnaireActivity extends Activity {
 
     super.onBackPressed();
     finishActivity(Activity.RESULT_CANCELED);
+    finish();
   }
 
   public Questionnaire getQuestionnaire() {

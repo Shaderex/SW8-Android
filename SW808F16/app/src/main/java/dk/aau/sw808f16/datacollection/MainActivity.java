@@ -1,39 +1,33 @@
 package dk.aau.sw808f16.datacollection;
 
-import android.content.Intent;
+import android.app.Activity;
+import android.app.FragmentManager;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
-import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
+import android.view.Menu;
 
-import java.io.IOException;
+import dk.aau.sw808f16.datacollection.fragment.StartFragment;
 
-import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
-import dk.aau.sw808f16.datacollection.questionaire.parser.FileToQuestionnaireParser;
+public class MainActivity extends Activity {
 
-public class MainActivity extends ActionBarActivity {
+  private static final String START_FRAGMENT_KEY = "START_FRAGMENT_KEY";
 
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
+  protected void onCreate(final Bundle savedInstanceState) {
+
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
-    final Button startQuestionnaireButton = (Button) findViewById(R.id.start_questionnaire_button);
+    final FragmentManager fragmentManager = getFragmentManager();
 
-    startQuestionnaireButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        try {
-          final Questionnaire questionnaire = FileToQuestionnaireParser.parseFile(MainActivity.this, R.raw.questionnaire);
-          final Intent intent = new Intent(MainActivity.this, QuestionnaireActivity.class);
-          intent.putExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER, questionnaire);
+    fragmentManager.beginTransaction()
+        .add(R.id.content_frame_layout, StartFragment.newInstance(), START_FRAGMENT_KEY).addToBackStack(START_FRAGMENT_KEY).commit();
+  }
 
-          startActivity(intent);
-        } catch (IOException exception) {
-          Toast.makeText(MainActivity.this, "Could not start questionnaire", Toast.LENGTH_LONG).show();
-        }
-      }
-    });
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    super.onCreateOptionsMenu(menu);
+
+
+    return true;
   }
 }
