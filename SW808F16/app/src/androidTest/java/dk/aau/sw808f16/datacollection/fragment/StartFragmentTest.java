@@ -84,10 +84,9 @@ public class StartFragmentTest extends ActivityUnitTestCase<MainActivity> {
 
     boolean b1 = privateFragment.isAdded();
     boolean b2 = !privateFragment.isHidden();
-    boolean b3 = privateFragment.getView() != null;
-    boolean b4 = privateFragment.getView().getVisibility() == View.VISIBLE;
+    boolean b3 = privateFragment.getView() != null && privateFragment.getView().getVisibility() == View.VISIBLE;
 
-    assertTrue(b1 && b2 && b3 && b4);
+    assertTrue(b1 && b2 && b3);
   }
 
   public void testClickedOnPublicButton() throws InterruptedException {
