@@ -107,7 +107,7 @@ public class SnapshotSavedPersistentlySizeTest extends ApplicationTestCase<DataC
       snapshot.addSamples(key, value);
     }
 
-    final boolean isSavedSuccessfully = snapshot.save(getContext(), DIRECTORY, FILE, PUBLIC_KEY, SECRET_KEY);
+    final boolean isSavedSuccessfully = snapshot.save();
     assertTrue("The snapshot could not be saved", isSavedSuccessfully);
 
     @SuppressLint("SdCardPath")

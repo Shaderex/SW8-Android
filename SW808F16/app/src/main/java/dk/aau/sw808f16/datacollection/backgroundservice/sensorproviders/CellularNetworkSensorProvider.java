@@ -5,7 +5,6 @@ import android.hardware.SensorManager;
 import android.telephony.CellInfo;
 import android.telephony.TelephonyManager;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -13,6 +12,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.GsonMeasurement;
+import io.realm.RealmList;
+import io.realm.RealmObject;
 
 public class CellularNetworkSensorProvider extends SensorProvider {
 
@@ -30,7 +32,7 @@ public class CellularNetworkSensorProvider extends SensorProvider {
     final long endTime = System.currentTimeMillis() + sampleDuration;
     final CountDownLatch latch = new CountDownLatch(1);
     final TelephonyManager telephonyManager = (TelephonyManager) context.get().getSystemService(Context.TELEPHONY_SERVICE);
-    final List<List<CellInfo>> cellInfoListMeasurements = new ArrayList<>();
+    final RealmList<RealmObject> cellInfoListMeasurements = new RealmList<>();
 
     final TimerTask cellNetworkMeasurementTask = new TimerTask() {
       @Override
@@ -42,7 +44,7 @@ public class CellularNetworkSensorProvider extends SensorProvider {
         }
 
         // Do the measurements
-        cellInfoListMeasurements.add(telephonyManager.getAllCellInfo());
+        cellInfoListMeasurements.add(new GsonMeasurement<>(telephonyManager.getAllCellInfo()));
       }
     };
 

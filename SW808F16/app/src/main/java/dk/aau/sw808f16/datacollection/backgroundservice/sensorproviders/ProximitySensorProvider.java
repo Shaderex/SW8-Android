@@ -7,8 +7,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
@@ -16,6 +14,10 @@ import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
+import io.realm.Realm;
+import io.realm.RealmList;
+import io.realm.RealmObject;
 
 public class ProximitySensorProvider extends SensorProvider {
 
@@ -31,7 +33,7 @@ public class ProximitySensorProvider extends SensorProvider {
 
     final long endTime = System.currentTimeMillis() + sampleDuration;
     final CountDownLatch latch = new CountDownLatch(1);
-    final List<Float> measurements = new ArrayList<>();
+    final RealmList<RealmObject> measurements = new RealmList<>();
 
     final Sensor proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
@@ -56,13 +58,12 @@ public class ProximitySensorProvider extends SensorProvider {
                 return;
               }
 
-              measurements.add(proximitySensorOutput[0]);
+              measurements.add(new FloatMeasurement(proximitySensorOutput[0]));
             }
           };
 
           proximitySamplingTimer.scheduleAtFixedRate(proximitySamplingTask, 0, measurementFrequency);
-        }
-        else {
+        } else {
           proximitySensorOutput = event.values;
         }
       }

@@ -1,41 +1,42 @@
 package dk.aau.sw808f16.datacollection.snapshot;
 
-import java.util.ArrayList;
-import java.util.List;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
+import io.realm.RealmList;
+import io.realm.RealmObject;
 
-public class Sample {
-  private List<Object> measurements;
+public class Sample extends RealmObject {
+  private RealmList<RealmObject> measurements;
 
   public Sample() {
-    this.measurements = new ArrayList<>();
+    this.measurements = new RealmList<>();
   }
 
-  public Sample(final Object initialMeasurement) {
+  public Sample(final RealmObject initialMeasurement) {
     this();
     addMeasurement(initialMeasurement);
   }
 
-  public Sample(final List<?> initialMeasurements) {
+  public Sample(final RealmList<RealmObject> initialMeasurements) {
     this();
     addMeasurements(initialMeasurements);
   }
 
-  public List<?> getMeasurements() {
+  public RealmList getMeasurements() {
     return measurements;
   }
 
-  public void setMeasurements(final List<?> measurements) {
-    this.measurements = new ArrayList<>();
+  public void setMeasurements(final RealmList<RealmObject> measurements) {
+    this.measurements = new RealmList<>();
     addMeasurements(measurements);
   }
 
-  public void addMeasurements(final List<?> measurements) {
-    for (final Object measurement : measurements) {
+  public void addMeasurements(final RealmList<RealmObject> measurements) {
+    for (final RealmObject measurement : measurements) {
       addMeasurement(measurement);
     }
   }
 
-  public void addMeasurement(Object measurement) {
+  public void addMeasurement(RealmObject measurement) {
     this.measurements.add(measurement);
   }
 }

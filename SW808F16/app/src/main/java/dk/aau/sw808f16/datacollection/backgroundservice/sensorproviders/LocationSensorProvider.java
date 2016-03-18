@@ -6,6 +6,8 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationManager;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -14,6 +16,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.GsonMeasurement;
+import io.realm.RealmList;
+import io.realm.RealmObject;
 
 public class LocationSensorProvider extends SensorProvider {
 
@@ -31,7 +36,7 @@ public class LocationSensorProvider extends SensorProvider {
     final LocationManager locationManager = (LocationManager) context.get().getSystemService(Context.LOCATION_SERVICE);
     final long endTime = System.currentTimeMillis() + sampleDuration;
     final CountDownLatch latch = new CountDownLatch(1);
-    final List<Location> locations = new ArrayList<>();
+    final RealmList<RealmObject> locations = new RealmList<>();
 
     final TimerTask cellNetworkMeasurementTask = new TimerTask() {
       @Override
@@ -43,7 +48,7 @@ public class LocationSensorProvider extends SensorProvider {
         }
 
         // Do the measurements
-        locations.add(locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER));
+        locations.add(new GsonMeasurement<>(locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER)));
       }
     };
 
