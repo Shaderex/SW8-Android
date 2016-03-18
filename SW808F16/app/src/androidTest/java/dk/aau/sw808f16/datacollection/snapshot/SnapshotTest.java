@@ -9,7 +9,6 @@ import com.sromku.simple.storage.SimpleStorage;
 import com.sromku.simple.storage.SimpleStorageConfiguration;
 import com.sromku.simple.storage.Storage;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,8 +70,6 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
     assertEquals(expected, snapshot.getSamples(sensorType));
   }
 
-  private static final String TEST_REALM_NAME = "TEST_REALM_NAME";
-
   private static final String PUBLIC_KEY = "AAAAAAAAAAAAAAAA";
   private static final String SECRET_KEY = "thisisasecret123";
 
@@ -115,7 +112,6 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
   public void testSnapshotSaveLoad() {
     final Snapshot originalSnapshot = new Snapshot();
 
-    // Create 10 samples with 10 measurements each (Mocking accelerometer sensor data)
     for (int i = 0; i < 10; i++) {
       final Sample sample = new Sample();
       for (double j = 0.0; j < 10; j++) {
@@ -124,19 +120,16 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
       originalSnapshot.addSample(Sensor.TYPE_ACCELEROMETER, sample);
     }
 
-    final byte[] key = new byte[64];
-    new SecureRandom().nextBytes(key);
-
     // Save the snapshot persistently
-    long snapshotIdentifier = originalSnapshot.save(getContext(), TEST_REALM_NAME, key);
-    assertTrue("Snapshot ID is not a natural number ( > 0)", snapshotIdentifier > 0);
+    boolean saveResult = originalSnapshot.save(getContext(), DIRECTORY, FILE, PUBLIC_KEY, SECRET_KEY);
+    assertTrue("Could not save snapshot", saveResult);
 
     // Load the snapshot from file
-    final Snapshot loadedSnapshot = Snapshot.load(getContext(), snapshotIdentifier, key, TEST_REALM_NAME);
+    final Snapshot loadedSnapshot = new Snapshot(getContext(), DIRECTORY, FILE, PUBLIC_KEY, SECRET_KEY);
 
-    // Use gson to check the equality
-    // TODO Consider overriding .equals for Snapshot
     final Gson gson = new GsonBuilder().create();
+
+    // Consider overriding .equals for Snapshot
     assertEquals("Original and saved snapshots are different", gson.toJson(originalSnapshot), gson.toJson(loadedSnapshot));
   }
 

@@ -5,6 +5,7 @@ import android.content.Context;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sromku.simple.storage.SimpleStorage;
+import com.sromku.simple.storage.SimpleStorageConfiguration;
 import com.sromku.simple.storage.Storage;
 
 import java.util.ArrayList;
@@ -13,21 +14,11 @@ import java.util.List;
 import java.util.Map;
 
 import dk.aau.sw808f16.datacollection.label.Label;
-import io.realm.Realm;
-import io.realm.RealmConfiguration;
-import io.realm.RealmObject;
-import io.realm.annotations.Ignore;
 
-public class Snapshot extends RealmObject {
-  private static final String DEFAULT_REALM_NAME = "DEFAULT_REALM_NAME";
+public class Snapshot {
 
-  private long timestamp;
-
-  @Ignore
   private Label label;
-
-  @Ignore
-  private Map<Integer, List<Sample>> samplesMap;
+  private final Map<Integer, List<Sample>> samplesMap;
 
   public Snapshot() {
     samplesMap = new HashMap<>();
@@ -79,47 +70,16 @@ public class Snapshot extends RealmObject {
     }
   }
 
-  public long save(final Context context, final byte[] encryptionKey) {
-    return save(context, DEFAULT_REALM_NAME, encryptionKey);
-  }
+  public boolean save(final Context context, final String directory, final String file, final String publicKey, final String secretKey) {
+    final Storage storage = SimpleStorage.getInternalStorage(context);
 
-  public long save(final Context context, final String realmName, final byte[] encryptionKey) {
-    this.timestamp = System.currentTimeMillis();
+    final SimpleStorageConfiguration config = new SimpleStorageConfiguration.Builder().setEncryptContent(publicKey, secretKey).build();
+    SimpleStorage.updateConfiguration(config);
 
-    RealmConfiguration config = new RealmConfiguration.Builder(context)
-        .name(realmName + ".realm")
-        .encryptionKey(encryptionKey)
-        .build();
+    // Convert the snapshot to a GSON (json) string
+    final String snapshotAsString = new GsonBuilder().create().toJson(this);
 
-    Realm realm = Realm.getInstance(config);
-
-    // Store this snapshot in the realm
-    realm.beginTransaction();
-    realm.copyToRealm(this);
-    realm.commitTransaction();
-
-    realm.close();
-
-    return timestamp;
-  }
-
-  public static Snapshot load(final Context context, final byte[] encryptionKey, final long snapshotIdentifier) {
-    return load(context, snapshotIdentifier, encryptionKey, DEFAULT_REALM_NAME);
-  }
-
-  public static Snapshot load(final Context context, final long snapshotIdentifier, final byte[] encryptionKey, final String realmName) {
-    RealmConfiguration config = new RealmConfiguration.Builder(context)
-        .name(realmName + ".realm")
-        .encryptionKey(encryptionKey)
-        .build();
-
-    Realm realm = Realm.getInstance(config);
-
-    // Load the snapshot with that timestamp
-    Snapshot snapshot = realm.where(Snapshot.class).equalTo("timestamp", snapshotIdentifier).findFirst();
-
-    realm.close();
-
-    return snapshot;
+    // Create the directory and the file containing the snapshot as a string
+    return storage.createDirectory(directory) && storage.createFile(directory, file, snapshotAsString);
   }
 }

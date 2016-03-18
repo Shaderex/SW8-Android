@@ -13,9 +13,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
-import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
-import io.realm.RealmList;
-import io.realm.RealmObject;
 
 public class AmbientLightSensorProvider extends SensorProvider {
 
@@ -30,7 +27,7 @@ public class AmbientLightSensorProvider extends SensorProvider {
   protected Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency) throws InterruptedException {
 
     final CountDownLatch latch = new CountDownLatch(1);
-    final RealmList<RealmObject> sensorValues = new RealmList<>();
+    final List<Float> sensorValues = new ArrayList<>();
     final long endTime = System.currentTimeMillis() + sampleDuration;
 
     final Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
@@ -46,7 +43,7 @@ public class AmbientLightSensorProvider extends SensorProvider {
           return;
         }
 
-        sensorValues.add(new FloatMeasurement(event.values[0]));
+        sensorValues.add(event.values[0]);
 
         lastUpdateTime = currentTime;
 

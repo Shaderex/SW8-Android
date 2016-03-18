@@ -7,13 +7,12 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
-import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
-import io.realm.RealmList;
-import io.realm.RealmObject;
 
 public class BarometerSensorProvider extends SensorProvider {
 
@@ -25,7 +24,7 @@ public class BarometerSensorProvider extends SensorProvider {
   protected Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency) throws InterruptedException {
 
     final CountDownLatch latch = new CountDownLatch(1);
-    final RealmList<RealmObject> sensorValues = new RealmList<>();
+    final List<Float> sensorValues = new ArrayList<>();
     final long endTime = System.currentTimeMillis() + sampleDuration;
 
     final Sensor barometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
@@ -43,7 +42,7 @@ public class BarometerSensorProvider extends SensorProvider {
           return;
         }
 
-        sensorValues.add(new FloatMeasurement(event.values[0]));
+        sensorValues.add(event.values[0]);
 
         lastUpdateTime = currentTime;
 
