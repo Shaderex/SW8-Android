@@ -15,6 +15,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.R;
+import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class ProximitySensorProvider extends SensorProvider {
@@ -85,7 +86,7 @@ public class ProximitySensorProvider extends SensorProvider {
 
     sensorManager.unregisterListener(proximityListener);
 
-    return new Sample(measurements);
+    return new Sample(SensorType.PROXIMITY, measurements);
   }
 
   @Override

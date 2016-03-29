@@ -13,6 +13,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.R;
+import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class CompassSensorProvider extends SensorProvider {
@@ -224,7 +225,7 @@ public class CompassSensorProvider extends SensorProvider {
 
     fetchData.run();
 
-    return new Sample(measurements);
+    return new Sample(SensorType.COMPASS, measurements);
   }
 
   @Override

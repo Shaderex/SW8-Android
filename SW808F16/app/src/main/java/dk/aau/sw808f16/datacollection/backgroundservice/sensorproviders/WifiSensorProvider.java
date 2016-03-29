@@ -12,6 +12,7 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
+import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class WifiSensorProvider extends SensorProvider {
@@ -51,7 +52,7 @@ public class WifiSensorProvider extends SensorProvider {
 
     latch.await();
 
-    return new Sample(scanResultListMeasurements);
+    return new Sample(SensorType.WIFI, scanResultListMeasurements);
   }
 
   @Override

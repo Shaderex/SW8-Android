@@ -14,10 +14,10 @@ public class FloatTriple extends RealmObject {
   private static final long VALUE_MASK = 0b1111111111111111111L;
 
   private long compressedValues;
+  private long sampleId;
 
-  // Do not use this is needed to store it using Realm.io
-  @SuppressWarnings("unused")
   public FloatTriple() {
+
   }
 
   public FloatTriple(final float v1, final float v2, final float v3) {
@@ -108,5 +108,13 @@ public class FloatTriple extends RealmObject {
     value /= Math.pow(10, precision);
 
     return value;
+  }
+
+  public long getSampleId() {
+    return sampleId;
+  }
+
+  public void setSampleId(final long id) {
+    sampleId = id;
   }
 }

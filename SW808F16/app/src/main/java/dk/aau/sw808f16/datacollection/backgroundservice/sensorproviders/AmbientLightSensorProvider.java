@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
+import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class AmbientLightSensorProvider extends SensorProvider {
@@ -67,7 +68,7 @@ public class AmbientLightSensorProvider extends SensorProvider {
 
     sensorManager.unregisterListener(accelerometerListener);
 
-    return new Sample(sensorValues);
+    return new Sample(SensorType.AMBIENT_LIGHT, sensorValues);
   }
 
   @Override

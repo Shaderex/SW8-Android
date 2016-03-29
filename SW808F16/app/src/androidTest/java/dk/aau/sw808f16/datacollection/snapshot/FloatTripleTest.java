@@ -1,39 +1,34 @@
 package dk.aau.sw808f16.datacollection.snapshot;
 
-import android.annotation.SuppressLint;
 import android.test.ApplicationTestCase;
 
-import java.io.File;
-import java.security.SecureRandom;
+import junit.framework.Assert;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
-import io.realm.Realm;
-import io.realm.RealmConfiguration;
-import io.realm.RealmList;
-import io.realm.RealmResults;
+import io.realm.RealmObject;
 
 public class FloatTripleTest extends ApplicationTestCase<DataCollectionApplication> {
-
-  private RealmConfiguration realmConfiguration;
-  private Realm realm;
 
   public FloatTripleTest() {
     super(DataCollectionApplication.class);
   }
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
-
-    final byte[] key = new byte[64];
-    new SecureRandom().nextBytes(key);
-    realmConfiguration = new RealmConfiguration.Builder(getContext()).encryptionKey(key).build();
-    realm = Realm.getInstance(realmConfiguration);
-  }
-
   public void testConstructor() {
+    new FloatTriple();
     new FloatTriple(3f, 3f, 3f);
     new FloatTriple(new float[] {3f, 3f, 3f});
+  }
+
+  public void testExtendsRealmObject() {
+    assertTrue(FloatTriple.class.getName() + " does not extend " + RealmObject.class.getName(),
+        RealmObject.class.isAssignableFrom(FloatTriple.class));
+  }
+
+  public void testGetSetSampleId() {
+    final FloatTriple ft1 = new FloatTriple();
+    long id = 1337;
+    ft1.setSampleId(id);
+    assertEquals(id, ft1.getSampleId());
   }
 
   public void testConstructorInvalidInputTooLargeArray() {
@@ -135,39 +130,4 @@ public class FloatTripleTest extends ApplicationTestCase<DataCollectionApplicati
     assertEquals(expected, floatTriple.getCompressedValues());
   }
 
-  public void testStorable() {
-    final float expected1 = 3.1f;
-    final float expected2 = 4.2f;
-    final float expected3 = 5.32f;
-
-    final FloatTriple expected = new FloatTriple(expected1, expected2, expected3);
-
-    RealmList<FloatTriple> realmList = new RealmList<>();
-    for (int i = 0; i < 10; i++) {
-      realmList.add(expected);
-    }
-
-    realm.beginTransaction();
-    realm.copyToRealm(realmList);
-    realm.commitTransaction();
-
-    RealmResults<FloatTriple> extractedFloatTriples = realm.where(FloatTriple.class).findAll();
-    for (final FloatTriple actual : extractedFloatTriples) {
-      assertEquals(expected.getCompressedValues(), actual.getCompressedValues());
-    }
-
-    // These lines can be used to debug the size of the database
-    @SuppressLint("SdCardPath")
-    final File file = new File("/data/data/dk.aau.sw808f16.datacollection/files/default.realm");
-    final long size = file.length();
-  }
-
-  @Override
-  protected void tearDown() throws Exception {
-    realm.close();
-    boolean deleteRealmResult = Realm.deleteRealm(realmConfiguration);
-    assertTrue(deleteRealmResult);
-
-    super.tearDown();
-  }
 }

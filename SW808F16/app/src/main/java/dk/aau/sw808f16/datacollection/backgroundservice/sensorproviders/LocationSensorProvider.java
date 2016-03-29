@@ -13,6 +13,7 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
+import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class LocationSensorProvider extends SensorProvider {
@@ -51,7 +52,7 @@ public class LocationSensorProvider extends SensorProvider {
 
     latch.await();
 
-    return new Sample(locations);
+    return new Sample(SensorType.LOCATION, locations);
 
 
   }
