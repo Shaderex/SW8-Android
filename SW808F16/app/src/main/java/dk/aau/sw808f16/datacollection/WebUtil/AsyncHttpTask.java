@@ -10,7 +10,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.concurrent.CountDownLatch;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 public abstract class AsyncHttpTask<Params, Progress> extends AsyncTask<Params, Progress, BufferedInputStream> {
 
@@ -58,13 +67,45 @@ public abstract class AsyncHttpTask<Params, Progress> extends AsyncTask<Params, 
 
   private BufferedInputStream makeRequest() {
 
+
     try {
+
+
+      // TODO: Remove this "Accept all certificate code" once the server gets a https certificate
+
+      TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
+        public X509Certificate[] getAcceptedIssuers() {
+          return null;
+        }
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+          // Not implemented
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+          // Not implemented
+        }
+      }};
+
+      try {
+        SSLContext sc = SSLContext.getInstance("TLS");
+        sc.init(null, trustAllCerts, new java.security.SecureRandom());
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+      } catch (KeyManagementException e) {
+        e.printStackTrace();
+      } catch (NoSuchAlgorithmException e) {
+        e.printStackTrace();
+      }
+
+
       urlConnection = (HttpURLConnection) url.openConnection();
+
       responseCode = urlConnection.getResponseCode();
       return new BufferedInputStream(urlConnection.getInputStream());
 
-    } catch (IOException e)
-    {
+    } catch (IOException e) {
       e.printStackTrace();
     } finally {
 
@@ -95,5 +136,6 @@ public abstract class AsyncHttpTask<Params, Progress> extends AsyncTask<Params, 
   }
 
   protected abstract void onResponseCodeMatching(final InputStream in);
+
   protected abstract void onResponseCodeNotMatching(final int responseCode);
 }
