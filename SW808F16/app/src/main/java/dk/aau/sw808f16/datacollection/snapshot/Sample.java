@@ -47,16 +47,16 @@ public class Sample extends RealmObject {
   }
 
   @Override
-  public boolean equals(final Object o) {
-    if (this == o) {
+  public boolean equals(final Object object) {
+    if (this == object) {
       return true;
     }
 
-    if (o == null || !Sample.class.isAssignableFrom(o.getClass())) {
+    if (object == null || !Sample.class.isAssignableFrom(object.getClass())) {
       return false;
     }
 
-    final Sample that = (Sample) o;
+    final Sample that = (Sample) object;
 
     List<?> ourMeasurements = this.getMeasurements();
     List<?> theirMeasurements = that.getMeasurements();
