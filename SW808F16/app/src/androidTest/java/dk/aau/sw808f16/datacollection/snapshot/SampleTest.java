@@ -18,14 +18,6 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
     super(DataCollectionApplication.class);
   }
 
-  public void setUp() {
-    realmConfiguration = new RealmConfiguration.Builder(getContext()).name(this.getClass().getName() + ".realm").build();
-  }
-
-  public void tearDown() {
-    Realm.deleteRealm(realmConfiguration);
-  }
-
   public void testConstructor() {
     new Sample();
 
@@ -114,25 +106,6 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
     assertTrue(IllegalArgumentException.class.getName() + " was not thrown", threwException);
   }
 
-  public void testSaveToRealm() {
-    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test.realm").build();
-    final Realm realm = Realm.getInstance(realmConfiguration);
-
-    final Sample sample = new Sample(new FloatTriple(1f, 2f, 3f));
-
-    realm.beginTransaction();
-    realm.copyToRealm(sample);
-    realm.commitTransaction();
-
-    final Sample loadedSample = realm.where(Sample.class).findFirst();
-
-    assertEquals(sample, loadedSample);
-
-    realm.close();
-
-    Realm.deleteRealm(realmConfiguration);
-  }
-
   public void testEqualsNull() {
     final Sample sample = new Sample();
 
@@ -191,6 +164,25 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
     Sample sample2 = sample1;
 
     assertEquals(sample1, sample2);
+  }
+
+  public void testSaveToRealm() {
+    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test.realm").build();
+    final Realm realm = Realm.getInstance(realmConfiguration);
+
+    final Sample sample = new Sample(new FloatTriple(1f, 2f, 3f));
+
+    realm.beginTransaction();
+    realm.copyToRealm(sample);
+    realm.commitTransaction();
+
+    final Sample loadedSample = realm.where(Sample.class).findFirst();
+
+    assertEquals(sample, loadedSample);
+
+    realm.close();
+
+    Realm.deleteRealm(realmConfiguration);
   }
 
 }
