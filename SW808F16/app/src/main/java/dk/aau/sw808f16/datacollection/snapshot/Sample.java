@@ -6,11 +6,17 @@ import java.util.List;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 
 
 public class Sample extends RealmObject {
 
+  @Ignore
+  private Class clazz = null;
+
   private RealmList<FloatTriple> floatTriples = new RealmList<>();
+
+  private RealmList<FloatMeasurement> floatMeasurements = new RealmList<>();
 
   public Sample() {
   }
@@ -24,8 +30,17 @@ public class Sample extends RealmObject {
   }
 
   public void addMeasurement(final Object measurement) {
+    if (clazz == null) {
+      clazz = measurement.getClass();
+    } else if (!clazz.equals(measurement.getClass())) {
+      throw new IllegalArgumentException("The sample contains measurements of type " + clazz.getName()
+          + " you cannot add measurements of type " + measurement.getClass().getName());
+    }
+
     if (measurement instanceof FloatTriple) {
       floatTriples.add((FloatTriple) measurement);
+    } else if (measurement instanceof FloatMeasurement) {
+      floatMeasurements.add((FloatMeasurement) measurement);
     } else {
       throw new IllegalArgumentException("Type " + measurement.getClass().getName() + " is not supported measurement type");
     }
@@ -42,6 +57,7 @@ public class Sample extends RealmObject {
 
     // Concatenate the different lists into a single one (there should only be one list containing elements)
     result.addAll(floatTriples);
+    result.addAll(floatMeasurements);
 
     return result;
   }
