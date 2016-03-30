@@ -3,6 +3,8 @@ package dk.aau.sw808f16.datacollection.snapshot;
 import android.test.ApplicationTestCase;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import io.realm.RealmObject;
 
 public class FloatTripleTest extends ApplicationTestCase<DataCollectionApplication> {
@@ -20,13 +22,6 @@ public class FloatTripleTest extends ApplicationTestCase<DataCollectionApplicati
   public void testExtendsRealmObject() {
     assertTrue(FloatTriple.class.getName() + " does not extend " + RealmObject.class.getName(),
         RealmObject.class.isAssignableFrom(FloatTriple.class));
-  }
-
-  public void testGetSetSampleId() {
-    final FloatTriple ft1 = new FloatTriple();
-    long id = 1337;
-    ft1.setSampleId(id);
-    assertEquals(id, ft1.getSampleId());
   }
 
   public void testConstructorInvalidInputTooLargeArray() {
@@ -153,5 +148,24 @@ public class FloatTripleTest extends ApplicationTestCase<DataCollectionApplicati
     final FloatTriple floatTriple2 = floatTriple1;
 
     assertEquals(floatTriple1, floatTriple2);
+  }
+
+  public void testSaveToRealm() {
+    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test.realm").build();
+    final Realm realm = Realm.getInstance(realmConfiguration);
+
+    final FloatTriple floatTriple = new FloatTriple(1f, 2f, 3f);
+
+    realm.beginTransaction();
+    realm.copyToRealm(floatTriple);
+    realm.commitTransaction();
+
+    final FloatTriple loadedFloatTriple = realm.where(FloatTriple.class).findFirst();
+
+    assertEquals(floatTriple, loadedFloatTriple);
+
+    realm.close();
+
+    Realm.deleteRealm(realmConfiguration);
   }
 }

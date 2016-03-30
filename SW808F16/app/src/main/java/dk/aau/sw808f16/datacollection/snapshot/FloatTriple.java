@@ -14,7 +14,6 @@ public class FloatTriple extends RealmObject {
   private static final long VALUE_MASK = 0b1111111111111111111L;
 
   private long compressedValues;
-  private long sampleId;
 
   public FloatTriple() {
 
@@ -108,14 +107,6 @@ public class FloatTriple extends RealmObject {
     value /= Math.pow(10, precision);
 
     return value;
-  }
-
-  public long getSampleId() {
-    return sampleId;
-  }
-
-  public void setSampleId(final long id) {
-    sampleId = id;
   }
 
   @Override
