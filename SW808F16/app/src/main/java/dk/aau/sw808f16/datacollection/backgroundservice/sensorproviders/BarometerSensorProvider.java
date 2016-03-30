@@ -67,7 +67,7 @@ public class BarometerSensorProvider extends SensorProvider {
 
     sensorManager.unregisterListener(barometerEventListener);
 
-    return new Sample(SensorType.BAROMETER, sensorValues);
+    return new Sample(sensorValues);
   }
 
   @Override

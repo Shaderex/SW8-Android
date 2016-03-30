@@ -117,4 +117,9 @@ public class FloatTriple extends RealmObject {
   public void setSampleId(final long id) {
     sampleId = id;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    return super.equals(o) || (o instanceof FloatTriple && ((FloatTriple) o).compressedValues == this.compressedValues);
+  }
 }

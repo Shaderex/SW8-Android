@@ -52,7 +52,7 @@ public class LocationSensorProvider extends SensorProvider {
 
     latch.await();
 
-    return new Sample(SensorType.LOCATION, locations);
+    return new Sample(locations);
 
 
   }

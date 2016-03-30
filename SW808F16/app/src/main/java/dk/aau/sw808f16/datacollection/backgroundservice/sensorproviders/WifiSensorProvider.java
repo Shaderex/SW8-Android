@@ -52,7 +52,7 @@ public class WifiSensorProvider extends SensorProvider {
 
     latch.await();
 
-    return new Sample(SensorType.WIFI, scanResultListMeasurements);
+    return new Sample(scanResultListMeasurements);
   }
 
   @Override

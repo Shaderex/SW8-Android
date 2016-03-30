@@ -51,7 +51,7 @@ public class CellularNetworkSensorProvider extends SensorProvider {
 
     latch.await();
 
-    return new Sample(SensorType.CELLULAR, cellInfoListMeasurements);
+    return new Sample(cellInfoListMeasurements);
   }
 
   @Override

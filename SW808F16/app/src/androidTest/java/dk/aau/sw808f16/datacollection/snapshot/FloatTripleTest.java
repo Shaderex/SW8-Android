@@ -2,8 +2,6 @@ package dk.aau.sw808f16.datacollection.snapshot;
 
 import android.test.ApplicationTestCase;
 
-import junit.framework.Assert;
-
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 import io.realm.RealmObject;
 
@@ -130,4 +128,30 @@ public class FloatTripleTest extends ApplicationTestCase<DataCollectionApplicati
     assertEquals(expected, floatTriple.getCompressedValues());
   }
 
+  public void testEqualsNull() {
+    final FloatTriple floatTriple = new FloatTriple();
+
+    assertNotSame(floatTriple, null);
+  }
+
+  public void testEqualsSameValues() {
+    final FloatTriple floatTriple1 = new FloatTriple(1f, 2f, 3f);
+    final FloatTriple floatTriple2 = new FloatTriple(1f, 2f, 3f);
+
+    assertEquals(floatTriple1, floatTriple2);
+  }
+
+  public void testEqualsDifferentValues() {
+    final FloatTriple floatTriple1 = new FloatTriple(1f, 2f, 3f);
+    final FloatTriple floatTriple2 = new FloatTriple(4f, 5f, 7f);
+
+    assertNotSame(floatTriple1, floatTriple2);
+  }
+
+  public void testEqualsSameReference() {
+    final FloatTriple floatTriple1 = new FloatTriple(1f, 2f, 3f);
+    final FloatTriple floatTriple2 = floatTriple1;
+
+    assertEquals(floatTriple1, floatTriple2);
+  }
 }

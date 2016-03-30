@@ -86,7 +86,7 @@ public class ProximitySensorProvider extends SensorProvider {
 
     sensorManager.unregisterListener(proximityListener);
 
-    return new Sample(SensorType.PROXIMITY, measurements);
+    return new Sample(measurements);
   }
 
   @Override

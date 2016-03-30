@@ -74,7 +74,7 @@ public class GyroscopeSensorProvider extends SensorProvider {
 
     sensorManager.unregisterListener(gyroscopeListener);
 
-    return new Sample(SensorType.GYROSCOPE, sensorValues);
+    return new Sample(sensorValues);
   }
 
   @Override

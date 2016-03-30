@@ -68,7 +68,7 @@ public class AmbientLightSensorProvider extends SensorProvider {
 
     sensorManager.unregisterListener(accelerometerListener);
 
-    return new Sample(SensorType.AMBIENT_LIGHT, sensorValues);
+    return new Sample(sensorValues);
   }
 
   @Override

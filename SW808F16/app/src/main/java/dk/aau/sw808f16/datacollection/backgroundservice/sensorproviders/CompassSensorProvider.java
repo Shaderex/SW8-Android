@@ -225,7 +225,7 @@ public class CompassSensorProvider extends SensorProvider {
 
     fetchData.run();
 
-    return new Sample(SensorType.COMPASS, measurements);
+    return new Sample(measurements);
   }
 
   @Override
