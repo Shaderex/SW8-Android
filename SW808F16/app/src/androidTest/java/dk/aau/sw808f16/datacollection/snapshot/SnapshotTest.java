@@ -1,19 +1,17 @@
 package dk.aau.sw808f16.datacollection.snapshot;
 
-import android.hardware.Sensor;
 import android.test.ApplicationTestCase;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.sromku.simple.storage.SimpleStorage;
-import com.sromku.simple.storage.SimpleStorageConfiguration;
-import com.sromku.simple.storage.Storage;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
+import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.label.Label;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+import io.realm.RealmObject;
 
 public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication> {
 
@@ -23,6 +21,11 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
 
   public void testConstructor() {
     new Snapshot();
+  }
+
+  public void testExtendsRealmObject() {
+    assertTrue(Snapshot.class.getName() + " does not extend " + RealmObject.class.getName(),
+        RealmObject.class.isAssignableFrom(Snapshot.class));
   }
 
   public void testGetSetLabel() {
@@ -36,8 +39,8 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
 
   public void testAddSampleGetSamples() {
     final Snapshot snapshot = new Snapshot();
-    final Sample sample = new Sample();
-    final int sensorType = Sensor.TYPE_ACCELEROMETER;
+    final Sample sample = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
+    final SensorType sensorType = SensorType.ACCELEROMETER;
 
     snapshot.addSample(sensorType, sample);
 
@@ -47,7 +50,7 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
   public void testEmptyGetSamples() {
     final Snapshot snapshot = new Snapshot();
 
-    final List<Sample> actual = snapshot.getSamples(Sensor.TYPE_ACCELEROMETER);
+    final List<Sample> actual = snapshot.getSamples(SensorType.ACCELEROMETER);
 
     assertTrue(actual.isEmpty());
   }
@@ -55,13 +58,13 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
   public void testAddSamplesGetSamples() {
 
     final Snapshot snapshot = new Snapshot();
-    final int sensorType = Sensor.TYPE_ACCELEROMETER;
+    final SensorType sensorType = SensorType.ACCELEROMETER;
 
     final List<Sample> expected = new ArrayList<Sample>() {
       {
-        add(new Sample());
-        add(new Sample());
-        add(new Sample());
+        add(new Sample(new FloatTripleMeasurement(1f, 2f, 3f)));
+        add(new Sample(new FloatTripleMeasurement(1f, 2f, 3f)));
+        add(new Sample(new FloatTripleMeasurement(1f, 2f, 3f)));
       }
     };
 
@@ -70,75 +73,92 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
     assertEquals(expected, snapshot.getSamples(sensorType));
   }
 
-  private static final String PUBLIC_KEY = "AAAAAAAAAAAAAAAA";
-  private static final String SECRET_KEY = "thisisasecret123";
-
-  private static final String DIRECTORY = "myDirectory";
-  private static final String FILE = "myFile.data";
-
-  // This test will check if the encrypted version of the snapshot is saved on the device and can be read properly
-  public void testSnapshotEncryption() {
+  public void testEqualsNull() {
     final Snapshot snapshot = new Snapshot();
 
-    for (int i = 0; i < 10; i++) {
-      final Sample sample = new Sample();
-      for (int j = 0; j < 10; j++) {
-        sample.addMeasurement(j);
-      }
-      snapshot.addSample(Sensor.TYPE_ACCELEROMETER, sample);
-    }
-
-    final Gson gson = new GsonBuilder().create();
-
-    // Convert the snapshot to a string
-    final String snapshotAsString = gson.toJson(snapshot);
-    assertNotNull(snapshotAsString);
-
-    final Storage storage = SimpleStorage.getInternalStorage(getContext());
-    assertNotNull(storage);
-
-    final SimpleStorageConfiguration config = new SimpleStorageConfiguration.Builder().setEncryptContent(PUBLIC_KEY, SECRET_KEY).build();
-    SimpleStorage.updateConfiguration(config);
-
-    // Create the directory and the file containing the snapshot as a string
-    storage.createDirectory(DIRECTORY);
-    storage.createFile(DIRECTORY, FILE, snapshotAsString);
-
-    final String readSnapshotFromFile = storage.readTextFile(DIRECTORY, FILE);
-
-    assertEquals(snapshotAsString, readSnapshotFromFile);
+    assertNotSame(snapshot, null);
   }
 
-  public void testSnapshotSaveLoad() {
-    final Snapshot originalSnapshot = new Snapshot();
+  public void testEqualsEmptySnapshot() {
+    final Snapshot snapshot1 = new Snapshot();
+    final Snapshot snapshot2 = new Snapshot();
 
-    for (int i = 0; i < 10; i++) {
-      final Sample sample = new Sample();
-      for (double j = 0.0; j < 10; j++) {
-        sample.addMeasurement(j);
-      }
-      originalSnapshot.addSample(Sensor.TYPE_ACCELEROMETER, sample);
-    }
-
-    // Save the snapshot persistently
-    boolean saveResult = originalSnapshot.save(getContext(), DIRECTORY, FILE, PUBLIC_KEY, SECRET_KEY);
-    assertTrue("Could not save snapshot", saveResult);
-
-    // Load the snapshot from file
-    final Snapshot loadedSnapshot = new Snapshot(getContext(), DIRECTORY, FILE, PUBLIC_KEY, SECRET_KEY);
-
-    final Gson gson = new GsonBuilder().create();
-
-    // Consider overriding .equals for Snapshot
-    assertEquals("Original and saved snapshots are different", gson.toJson(originalSnapshot), gson.toJson(loadedSnapshot));
+    assertEquals(snapshot1, snapshot2);
   }
 
-  @Override
-  protected void tearDown() throws Exception {
-    super.tearDown();
+  public void testEqualsEmptyAndNonEmptySnapshot() {
+    final Sample sample = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
 
-    final Storage storage = SimpleStorage.getInternalStorage(getContext());
-    storage.deleteFile(DIRECTORY, FILE);
-    storage.deleteDirectory(DIRECTORY);
+    final Snapshot snapshot1 = new Snapshot();
+    final Snapshot snapshot2 = new Snapshot();
+    snapshot2.addSample(SensorType.ACCELEROMETER, sample);
+
+    assertNotSame(snapshot1, snapshot2);
+  }
+
+  public void testEqualsSingleElementSameReference() {
+    final Sample sample = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
+
+    final Snapshot snapshot1 = new Snapshot();
+    final Snapshot snapshot2 = new Snapshot();
+    snapshot1.addSample(SensorType.ACCELEROMETER, sample);
+    snapshot2.addSample(SensorType.ACCELEROMETER, sample);
+
+    assertEquals(snapshot1, snapshot2);
+  }
+
+  public void testEqualsSingleElementSameValue() {
+    final Sample sample1 = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
+    final Sample sample2 = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
+
+    final Snapshot snapshot1 = new Snapshot();
+    final Snapshot snapshot2 = new Snapshot();
+    snapshot1.addSample(SensorType.ACCELEROMETER, sample1);
+    snapshot2.addSample(SensorType.ACCELEROMETER, sample2);
+
+    assertEquals(snapshot1, snapshot2);
+  }
+
+  public void testEqualsSingleElementDifferentValues() {
+    final Sample sample1 = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
+    final Sample sample2 = new Sample(new FloatTripleMeasurement(4f, 5f, 6f));
+
+    final Snapshot snapshot1 = new Snapshot();
+    final Snapshot snapshot2 = new Snapshot();
+    snapshot1.addSample(SensorType.ACCELEROMETER, sample1);
+    snapshot2.addSample(SensorType.ACCELEROMETER, sample2);
+
+    assertNotSame(snapshot1, snapshot2);
+  }
+
+  public void testEqualsSameReference() {
+    final Snapshot snapshot1 = new Snapshot();
+    final Snapshot snapshot2 = snapshot1;
+
+    assertEquals(snapshot1, snapshot2);
+  }
+
+  public void testSaveToRealm() {
+    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test.realm").build();
+    final Realm realm = Realm.getInstance(realmConfiguration);
+
+    final Sample sample = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
+    final Snapshot snapshot = new Snapshot();
+    snapshot.addSample(SensorType.ACCELEROMETER, sample);
+
+    realm.beginTransaction();
+    realm.copyToRealm(snapshot);
+    realm.commitTransaction();
+
+    final Snapshot loadedSnapshot = realm.where(Snapshot.class).findFirst();
+
+    Log.d("LORT", "HVORNÅR DØR LORT?");
+    final boolean equals = snapshot.equals(loadedSnapshot);
+
+    realm.close();
+
+    Realm.deleteRealm(realmConfiguration);
+
+    assertTrue("The loaded snapshot was not equal to the original", equals);
   }
 }
