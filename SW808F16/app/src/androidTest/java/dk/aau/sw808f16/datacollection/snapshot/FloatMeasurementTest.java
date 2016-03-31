@@ -63,10 +63,12 @@ public class FloatMeasurementTest extends ApplicationTestCase<DataCollectionAppl
 
     final FloatMeasurement loadedFloatMeasurement = realm.where(FloatMeasurement.class).findFirst();
 
-    assertEquals(floatMeasurement, loadedFloatMeasurement);
+    final boolean equals = floatMeasurement.equals(loadedFloatMeasurement);
 
     realm.close();
 
     Realm.deleteRealm(realmConfiguration);
+
+    assertTrue("The loaded float measurement was not equal to the original", equals);
   }
 }

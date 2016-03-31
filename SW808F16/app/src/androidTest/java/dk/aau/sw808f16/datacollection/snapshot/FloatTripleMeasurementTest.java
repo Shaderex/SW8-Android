@@ -162,10 +162,12 @@ public class FloatTripleMeasurementTest extends ApplicationTestCase<DataCollecti
 
     final FloatTripleMeasurement loadedFloatTripleMeasurement = realm.where(FloatTripleMeasurement.class).findFirst();
 
-    assertEquals(floatTripleMeasurement, loadedFloatTripleMeasurement);
+    final boolean equals = floatTripleMeasurement.equals(loadedFloatTripleMeasurement);
 
     realm.close();
 
     Realm.deleteRealm(realmConfiguration);
+
+    assertTrue("The loaded float triple measurement was not equal to the original", equals);
   }
 }

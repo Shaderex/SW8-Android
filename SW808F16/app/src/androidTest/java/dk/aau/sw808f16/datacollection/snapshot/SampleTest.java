@@ -252,11 +252,13 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
 
     final Sample loadedSample = realm.where(Sample.class).findFirst();
 
-    assertEquals(sample, loadedSample);
+    final boolean equals = sample.equals(loadedSample);
 
     realm.close();
 
     Realm.deleteRealm(realmConfiguration);
+
+    assertTrue("The loaded sample was not equal to the original", equals);
   }
 
 }
