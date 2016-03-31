@@ -9,6 +9,7 @@ import java.util.List;
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.label.Label;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmObject;

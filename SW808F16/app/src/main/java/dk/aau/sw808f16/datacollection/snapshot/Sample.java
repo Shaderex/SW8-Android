@@ -3,6 +3,8 @@ package dk.aau.sw808f16.datacollection.snapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;

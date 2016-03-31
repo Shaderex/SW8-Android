@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmObject;
