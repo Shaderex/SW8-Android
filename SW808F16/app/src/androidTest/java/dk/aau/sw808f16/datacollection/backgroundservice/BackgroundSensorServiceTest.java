@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
+import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
 
 public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollectionApplication> {
@@ -57,8 +58,8 @@ public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollect
     final Gson gson = new GsonBuilder().create();
     final Snapshot snapshot = gson.fromJson(serializedSnapshot, Snapshot.class);
 
-    assertFalse(snapshot.getSamples(Sensor.TYPE_ACCELEROMETER).isEmpty());
-    assertFalse(snapshot.getSamples(Sensor.TYPE_LIGHT).isEmpty());
-    assertFalse(snapshot.getSamples(Sensor.TYPE_PROXIMITY).isEmpty());
+    assertFalse(snapshot.getSamples(SensorType.ACCELEROMETER).isEmpty());
+    assertFalse(snapshot.getSamples(SensorType.AMBIENT_LIGHT).isEmpty());
+    assertFalse(snapshot.getSamples(SensorType.PROXIMITY).isEmpty());
   }
 }

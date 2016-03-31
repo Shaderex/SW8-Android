@@ -24,6 +24,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AccelerometerSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AmbientLightSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.ProximitySensorProvider;
@@ -116,9 +117,9 @@ public final class BackgroundSensorService extends Service {
         Future<List<Sample>> accelerometerSamples = accelerometerSensorProvider.retrieveSamplesForDuration(10000, 2000, 1000, 500);
 
         try {
-          snapshot.addSamples(Sensor.TYPE_LIGHT, ambientLightSamples.get());
-          snapshot.addSamples(Sensor.TYPE_PROXIMITY, proximitySamples.get());
-          snapshot.addSamples(Sensor.TYPE_ACCELEROMETER, accelerometerSamples.get());
+          snapshot.addSamples(SensorType.AMBIENT_LIGHT, ambientLightSamples.get());
+          snapshot.addSamples(SensorType.PROXIMITY, proximitySamples.get());
+          snapshot.addSamples(SensorType.ACCELEROMETER, accelerometerSamples.get());
         } catch (InterruptedException | ExecutionException exception) {
           exception.printStackTrace();
         }
