@@ -14,7 +14,7 @@ public class Sample extends RealmObject {
   @Ignore
   private Class clazz = null;
 
-  private RealmList<FloatTriple> floatTriples = new RealmList<>();
+  private RealmList<FloatTripleMeasurement> floatTripleMeasurements = new RealmList<>();
 
   private RealmList<FloatMeasurement> floatMeasurements = new RealmList<>();
 
@@ -37,8 +37,8 @@ public class Sample extends RealmObject {
           + " you cannot add measurements of type " + measurement.getClass().getName());
     }
 
-    if (measurement instanceof FloatTriple) {
-      floatTriples.add((FloatTriple) measurement);
+    if (measurement instanceof FloatTripleMeasurement) {
+      floatTripleMeasurements.add((FloatTripleMeasurement) measurement);
     } else if (measurement instanceof FloatMeasurement) {
       floatMeasurements.add((FloatMeasurement) measurement);
     } else {
@@ -56,7 +56,7 @@ public class Sample extends RealmObject {
     List<Object> result = new ArrayList<>();
 
     // Concatenate the different lists into a single one (there should only be one list containing elements)
-    result.addAll(floatTriples);
+    result.addAll(floatTripleMeasurements);
     result.addAll(floatMeasurements);
 
     return result;

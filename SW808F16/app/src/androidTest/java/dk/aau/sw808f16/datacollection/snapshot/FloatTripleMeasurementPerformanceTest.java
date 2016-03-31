@@ -8,9 +8,9 @@ import java.util.Random;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 
-public class FloatTriplePerformanceTest extends ApplicationTestCase<DataCollectionApplication> {
+public class FloatTripleMeasurementPerformanceTest extends ApplicationTestCase<DataCollectionApplication> {
 
-  public FloatTriplePerformanceTest() {
+  public FloatTripleMeasurementPerformanceTest() {
     super(DataCollectionApplication.class);
   }
 
@@ -22,7 +22,7 @@ public class FloatTriplePerformanceTest extends ApplicationTestCase<DataCollecti
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     final ArrayList<float[]> floatArrays = new ArrayList<>();
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
-    final ArrayList<FloatTriple> floatTriples = new ArrayList<>();
+    final ArrayList<FloatTripleMeasurement> floatTripleMeasurements = new ArrayList<>();
 
     final Random rng = new Random();
 
@@ -42,10 +42,10 @@ public class FloatTriplePerformanceTest extends ApplicationTestCase<DataCollecti
     long time2 = System.currentTimeMillis();
 
     for (int i = 0; i < floatIterations; i++) {
-      final FloatTriple floatTriple = new FloatTriple(rng.nextFloat(), rng.nextFloat(), rng.nextFloat());
-      floatTriples.add(floatTriple);
+      final FloatTripleMeasurement floatTripleMeasurement = new FloatTripleMeasurement(rng.nextFloat(), rng.nextFloat(), rng.nextFloat());
+      floatTripleMeasurements.add(floatTripleMeasurement);
       @SuppressWarnings("UnusedAssignment")
-      final float result = floatTriple.getFirstValue() * floatTriple.getSecondValue() * floatTriple.getThirdValue();
+      final float result = floatTripleMeasurement.getFirstValue() * floatTripleMeasurement.getSecondValue() * floatTripleMeasurement.getThirdValue();
     }
 
     long time3 = System.currentTimeMillis();

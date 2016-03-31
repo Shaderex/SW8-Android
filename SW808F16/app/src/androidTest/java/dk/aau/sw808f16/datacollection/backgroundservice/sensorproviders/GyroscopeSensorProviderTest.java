@@ -4,7 +4,7 @@ import android.hardware.Sensor;
 
 import java.util.concurrent.ExecutionException;
 
-import dk.aau.sw808f16.datacollection.snapshot.FloatTriple;
+import dk.aau.sw808f16.datacollection.snapshot.FloatTripleMeasurement;
 
 public class GyroscopeSensorProviderTest extends SensorProviderApplicationTestCase {
   @Override
@@ -14,8 +14,8 @@ public class GyroscopeSensorProviderTest extends SensorProviderApplicationTestCa
 
   @Override
   protected void validateMeasurement(Object measurement, String sampleIdentifier) {
-    if (!(measurement instanceof FloatTriple)) {
-      assertEquals("Compass sensor data is of wrong type.", FloatTriple.class, measurement.getClass());
+    if (!(measurement instanceof FloatTripleMeasurement)) {
+      assertEquals("Compass sensor data is of wrong type.", FloatTripleMeasurement.class, measurement.getClass());
     }
 
     final Sensor gyroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
@@ -23,7 +23,7 @@ public class GyroscopeSensorProviderTest extends SensorProviderApplicationTestCa
     final float minValue = -gyroscopeSensor.getMaximumRange();
 
     @SuppressWarnings("ConstantConditions")
-    FloatTriple gyroscopeValues = (FloatTriple) measurement;
+    FloatTripleMeasurement gyroscopeValues = (FloatTripleMeasurement) measurement;
 
     assertTrue("Data for index 0 value must be between " + minValue + " and " + maxValue,
         gyroscopeValues.getFirstValue() <= maxValue && gyroscopeValues.getFirstValue() >= minValue);

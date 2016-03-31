@@ -20,9 +20,9 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
   public void testConstructor() {
     new Sample();
 
-    new Sample(new FloatTriple(1f, 2f, 3f));
+    new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
 
-    new Sample(Arrays.asList(new FloatTriple(1f, 1f, 1f), new FloatTriple(2f, 2f, 2f), new FloatTriple(3f, 3f, 3f)));
+    new Sample(Arrays.asList(new FloatTripleMeasurement(1f, 1f, 1f), new FloatTripleMeasurement(2f, 2f, 2f), new FloatTripleMeasurement(3f, 3f, 3f)));
   }
 
   public void testExtendsRealmObject() {
@@ -31,13 +31,13 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
   }
 
   public void testAddFloatTripleMeasurement() {
-    final FloatTriple floatTriple = new FloatTriple(1f, 1f, 1f);
-    final Sample sample1 = new Sample(floatTriple);
+    final FloatTripleMeasurement floatTripleMeasurement = new FloatTripleMeasurement(1f, 1f, 1f);
+    final Sample sample1 = new Sample(floatTripleMeasurement);
 
     boolean foundActual = false;
     for (final Object m : sample1.getMeasurements()) {
-      final FloatTriple ft = (FloatTriple) m;
-      if (ft.equals(floatTriple)) {
+      final FloatTripleMeasurement ft = (FloatTripleMeasurement) m;
+      if (ft.equals(floatTripleMeasurement)) {
         foundActual = true;
         break;
       }
@@ -63,15 +63,15 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
   }
 
   public void testAddFloatTripleMeasurements() {
-    final FloatTriple measurement1 = new FloatTriple(1f, 1f, 1f);
+    final FloatTripleMeasurement measurement1 = new FloatTripleMeasurement(1f, 1f, 1f);
     final Sample sample = new Sample(measurement1);
 
-    final FloatTriple measurement2 = new FloatTriple(2f, 2f, 2f);
-    final FloatTriple measurement3 = new FloatTriple(3f, 3f, 3f);
+    final FloatTripleMeasurement measurement2 = new FloatTripleMeasurement(2f, 2f, 2f);
+    final FloatTripleMeasurement measurement3 = new FloatTripleMeasurement(3f, 3f, 3f);
 
     sample.addMeasurements(Arrays.asList(measurement2, measurement3));
 
-    final ArrayList<FloatTriple> expectedMeasurements = new ArrayList<>();
+    final ArrayList<FloatTripleMeasurement> expectedMeasurements = new ArrayList<>();
     expectedMeasurements.add(measurement1);
     expectedMeasurements.add(measurement2);
     expectedMeasurements.add(measurement3);
@@ -80,8 +80,8 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
         expectedMeasurements.size(), sample.getMeasurements().size());
 
     for (int i = 0; i < expectedMeasurements.size(); i++) {
-      final FloatTriple expected = expectedMeasurements.get(i);
-      final FloatTriple actual = ((FloatTriple) sample.getMeasurements().get(i));
+      final FloatTripleMeasurement expected = expectedMeasurements.get(i);
+      final FloatTripleMeasurement actual = ((FloatTripleMeasurement) sample.getMeasurements().get(i));
 
       assertEquals("The measurements at position " + i + " are not equal", expected, actual);
     }
@@ -114,7 +114,7 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
 
   public void testAddMeasurementInconsistentMeasurementTypes() {
     final FloatMeasurement measurement1 = new FloatMeasurement(1f);
-    final FloatTriple measurement2 = new FloatTriple(1f, 2f, 3f);
+    final FloatTripleMeasurement measurement2 = new FloatTripleMeasurement(1f, 2f, 3f);
     final Sample sample = new Sample();
 
     sample.addMeasurement(measurement1);
@@ -131,7 +131,7 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
 
   public void testAddMeasurementsInconsistentMeasurementTypes() {
     final FloatMeasurement measurement1 = new FloatMeasurement(1f);
-    final FloatTriple measurement2 = new FloatTriple(1f, 2f, 3f);
+    final FloatTripleMeasurement measurement2 = new FloatTripleMeasurement(1f, 2f, 3f);
     final Sample sample = new Sample();
 
     sample.addMeasurement(measurement1);
@@ -194,47 +194,47 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
   }
 
   public void testEqualsEmptyAndNonEmptySample() {
-    final FloatTriple floatTriple = new FloatTriple(1f, 2f, 3f);
+    final FloatTripleMeasurement floatTripleMeasurement = new FloatTripleMeasurement(1f, 2f, 3f);
 
     final Sample sample1 = new Sample();
-    final Sample sample2 = new Sample(floatTriple);
+    final Sample sample2 = new Sample(floatTripleMeasurement);
 
     assertNotSame(sample1, sample2);
   }
 
   public void testEqualsSingleElementSameReference() {
-    final FloatTriple floatTriple = new FloatTriple(1f, 2f, 3f);
+    final FloatTripleMeasurement floatTripleMeasurement = new FloatTripleMeasurement(1f, 2f, 3f);
 
-    final Sample sample1 = new Sample(floatTriple);
-    final Sample sample2 = new Sample(floatTriple);
+    final Sample sample1 = new Sample(floatTripleMeasurement);
+    final Sample sample2 = new Sample(floatTripleMeasurement);
 
     assertEquals(sample1, sample2);
   }
 
   public void testEqualsSingleElementSameValue() {
-    final FloatTriple floatTriple1 = new FloatTriple(1f, 2f, 3f);
-    final FloatTriple floatTriple2 = new FloatTriple(1f, 2f, 3f);
+    final FloatTripleMeasurement floatTripleMeasurement1 = new FloatTripleMeasurement(1f, 2f, 3f);
+    final FloatTripleMeasurement floatTripleMeasurement2 = new FloatTripleMeasurement(1f, 2f, 3f);
 
-    Sample sample1 = new Sample(floatTriple1);
-    Sample sample2 = new Sample(floatTriple2);
+    Sample sample1 = new Sample(floatTripleMeasurement1);
+    Sample sample2 = new Sample(floatTripleMeasurement2);
 
     assertEquals(sample1, sample2);
   }
 
   public void testEqualsSingleElementDifferentValues() {
-    final FloatTriple floatTriple1 = new FloatTriple(1f, 2f, 3f);
-    final FloatTriple floatTriple2 = new FloatTriple(1f, 2f, 4f);
+    final FloatTripleMeasurement floatTripleMeasurement1 = new FloatTripleMeasurement(1f, 2f, 3f);
+    final FloatTripleMeasurement floatTripleMeasurement2 = new FloatTripleMeasurement(1f, 2f, 4f);
 
-    Sample sample1 = new Sample(floatTriple1);
-    Sample sample2 = new Sample(floatTriple2);
+    Sample sample1 = new Sample(floatTripleMeasurement1);
+    Sample sample2 = new Sample(floatTripleMeasurement2);
 
     assertNotSame(sample1, sample2);
   }
 
   public void testEqualsSameReference() {
-    final FloatTriple floatTriple = new FloatTriple(1f, 2f, 3f);
+    final FloatTripleMeasurement floatTripleMeasurement = new FloatTripleMeasurement(1f, 2f, 3f);
 
-    Sample sample1 = new Sample(floatTriple);
+    Sample sample1 = new Sample(floatTripleMeasurement);
     Sample sample2 = sample1;
 
     assertEquals(sample1, sample2);
@@ -244,7 +244,7 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
     final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test.realm").build();
     final Realm realm = Realm.getInstance(realmConfiguration);
 
-    final Sample sample = new Sample(new FloatTriple(1f, 2f, 3f));
+    final Sample sample = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
 
     realm.beginTransaction();
     realm.copyToRealm(sample);

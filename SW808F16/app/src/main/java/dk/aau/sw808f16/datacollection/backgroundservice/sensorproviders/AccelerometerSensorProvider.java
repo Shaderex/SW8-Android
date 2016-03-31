@@ -10,7 +10,7 @@ import android.hardware.SensorManager;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-import dk.aau.sw808f16.datacollection.snapshot.FloatTriple;
+import dk.aau.sw808f16.datacollection.snapshot.FloatTripleMeasurement;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class AccelerometerSensorProvider extends SensorProvider {
@@ -40,7 +40,7 @@ public class AccelerometerSensorProvider extends SensorProvider {
           return;
         }
 
-        FloatTriple measurement = new FloatTriple(event.values[0], event.values[1], event.values[2]);
+        FloatTripleMeasurement measurement = new FloatTripleMeasurement(event.values[0], event.values[1], event.values[2]);
         sensorValues.addMeasurement(measurement);
 
         lastUpdateTime = currentTime;
