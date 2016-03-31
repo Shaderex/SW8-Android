@@ -107,34 +107,7 @@ public final class BackgroundSensorService extends Service {
   public int onStartCommand(final Intent intent, final int flags, final int startId) {
     Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
 
-    Thread snapshotThread = new Thread(new Runnable() {
-      @Override
-      public void run() {
-
-        Snapshot snapshot = new Snapshot();
-        Future<List<Sample>> ambientLightSamples = ambientLightSensorProvider.retrieveSamplesForDuration(10000, 2000, 1000, 500);
-        Future<List<Sample>> proximitySamples = proximitySensorProvider.retrieveSamplesForDuration(10000, 2000, 1000, 500);
-        Future<List<Sample>> accelerometerSamples = accelerometerSensorProvider.retrieveSamplesForDuration(10000, 2000, 1000, 500);
-
-        try {
-          snapshot.addSamples(SensorType.AMBIENT_LIGHT, ambientLightSamples.get());
-          snapshot.addSamples(SensorType.PROXIMITY, proximitySamples.get());
-          snapshot.addSamples(SensorType.ACCELEROMETER, accelerometerSamples.get());
-        } catch (InterruptedException | ExecutionException exception) {
-          exception.printStackTrace();
-        }
-
-        Gson gson = new GsonBuilder().create();
-        String serializedSnapshot = gson.toJson(snapshot, Snapshot.class);
-
-        SharedPreferences prefs = getSharedPreferences(SNAPSHOT_SHARED_PREFERENCE_NAME, Context.MODE_MULTI_PROCESS);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(SNAPSHOT_SHARED_PREFERENCE_KEY, serializedSnapshot);
-        editor.apply();
-      }
-    });
-
-    snapshotThread.start();
+    // TODO Store a simple snapshot here (Consider removing the shared preference test)
 
     // For each start request, send a message to start a job and deliver the
     // start ID so we know which request we're stopping when we finish the job
