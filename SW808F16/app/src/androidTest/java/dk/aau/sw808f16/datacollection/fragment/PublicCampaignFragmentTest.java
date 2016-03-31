@@ -3,8 +3,10 @@ package dk.aau.sw808f16.datacollection.fragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.database.DataSetObserver;
+import android.net.wifi.WifiManager;
 import android.test.ActivityUnitTestCase;
 import android.view.ContextThemeWrapper;
 import android.view.View;
@@ -31,6 +33,8 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
     super(MainActivity.class);
   }
 
+  static final String TEST_KEY = "TEST_KEY";
+
   @Override
   public void setUp() throws Exception {
     super.setUp();
@@ -47,10 +51,8 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
 
   public void testAddPublicCampaignFragmentToActivity() {
 
-    final String KEY = "KEY";
-
     final FragmentManager fragmentManager = getActivity().getFragmentManager();
-    fragmentManager.beginTransaction().add(R.id.content_frame_layout, PublicCampaignFragment.newInstance(), KEY).commit();
+    fragmentManager.beginTransaction().add(R.id.content_frame_layout, PublicCampaignFragment.newInstance(), TEST_KEY).commit();
     fragmentManager.executePendingTransactions();
 
     final Fragment fragment = fragmentManager.findFragmentById(R.id.content_frame_layout);
@@ -60,10 +62,8 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
 
   public void testPublicCampaignFragmentHasListView() {
 
-    final String KEY = "KEY";
-
     final FragmentManager fragmentManager = getActivity().getFragmentManager();
-    fragmentManager.beginTransaction().add(R.id.content_frame_layout, PublicCampaignFragment.newInstance(), KEY).commit();
+    fragmentManager.beginTransaction().add(R.id.content_frame_layout, PublicCampaignFragment.newInstance(), TEST_KEY).commit();
     fragmentManager.executePendingTransactions();
 
     final Fragment fragment = fragmentManager.findFragmentById(R.id.content_frame_layout);
@@ -71,12 +71,59 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
     assertNotNull(listView);
   }
 
-  public void testPublicCampaignFragmentIsListViewPopulatable() {
+  public void testPublicCampaignFragmentListViewEmptyViewVisible() throws InterruptedException {
 
-    final String KEY = "KEY";
+    final WifiManager wifiManager = (WifiManager) getActivity().getSystemService(Context.WIFI_SERVICE);
+
+    wifiManager.setWifiEnabled(false);
+
+    // Wait for wifi to be disabled
+    Thread.sleep(1000);
 
     final FragmentManager fragmentManager = getActivity().getFragmentManager();
-    fragmentManager.beginTransaction().add(R.id.content_frame_layout, PublicCampaignFragment.newInstance(), KEY).commit();
+    fragmentManager.beginTransaction().add(R.id.content_frame_layout, PublicCampaignFragment.newInstance(), TEST_KEY).commit();
+    fragmentManager.executePendingTransactions();
+
+    final Fragment fragment = fragmentManager.findFragmentById(R.id.content_frame_layout);
+
+    fragment.onResume();
+
+    final TextView emptyView = (TextView) fragment.getView().findViewById(android.R.id.empty);
+
+    assertEquals(emptyView.getVisibility(), View.VISIBLE);
+
+    wifiManager.setWifiEnabled(true);
+
+  }
+
+  public void testPublicCampaignFragmentListViewEmptyViewHiddenOrGone() throws InterruptedException {
+
+    final WifiManager wifiManager = (WifiManager) getActivity().getSystemService(Context.WIFI_SERVICE);
+
+    wifiManager.setWifiEnabled(true);
+
+    // Wait for wifi to be enabled
+    Thread.sleep(1000);
+
+    final FragmentManager fragmentManager = getActivity().getFragmentManager();
+    fragmentManager.beginTransaction().add(R.id.content_frame_layout, PublicCampaignFragment.newInstance(), TEST_KEY).commit();
+    fragmentManager.executePendingTransactions();
+
+    final Fragment fragment = fragmentManager.findFragmentById(R.id.content_frame_layout);
+    fragment.onResume();
+
+    // Wait for http request in AsyncHttpTask to complete
+    Thread.sleep(3000);
+
+    final TextView emptyView = (TextView) fragment.getView().findViewById(android.R.id.empty);
+
+    assertTrue(emptyView.getVisibility() == View.INVISIBLE || emptyView.getVisibility() == View.GONE);
+  }
+
+  public void testPublicCampaignFragmentIsListViewPopulatable() {
+
+    final FragmentManager fragmentManager = getActivity().getFragmentManager();
+    fragmentManager.beginTransaction().add(R.id.content_frame_layout, PublicCampaignFragment.newInstance(), TEST_KEY).commit();
     fragmentManager.executePendingTransactions();
 
     final PublicCampaignFragment fragment = (PublicCampaignFragment) fragmentManager.findFragmentById(R.id.content_frame_layout);
@@ -161,5 +208,6 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
 
 
   }
+
 
 }

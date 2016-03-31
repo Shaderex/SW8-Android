@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -58,13 +59,31 @@ public class PublicCampaignFragment extends Fragment {
     try {
 
       final AsyncHttpTask<Void, Void> task = new AsyncHttpTask<Void, Void>(getActivity(), new URL(campaignListResourcePath), HttpURLConnection.HTTP_OK) {
+
+        final JSONCampaingsAdapter adapter = new JSONCampaingsAdapter();
+
+        @Override
+        protected void onPreExecute() {
+          super.onPreExecute();
+
+          final View activityIndicator = getView().findViewById(R.id.activity_indicator);
+          final TextView activityIndicatorTextView = (TextView) activityIndicator.findViewById(R.id.activity_indicator_message_text_view);
+          activityIndicatorTextView.setText(R.string.loading_campaigns_message);
+          activityIndicator.setVisibility(View.VISIBLE);
+        }
+
         @Override
         protected void onResponseCodeMatching(final InputStream in) {
 
+          final View activityIndicator = getView().findViewById(R.id.activity_indicator);
+          activityIndicator.setVisibility(View.GONE);
 
           try {
             final JSONArray data = new JSONArray(convertInputStreamToString(in));
-
+            final ListView listView = (ListView) getView().findViewById(R.id.campaigns_list_view);
+            listView.setEmptyView(getView().findViewById(android.R.id.empty));
+            listView.setAdapter(adapter);
+            adapter.setData(data);
 
           } catch (JSONException e) {
             e.printStackTrace();
@@ -75,6 +94,11 @@ public class PublicCampaignFragment extends Fragment {
         @Override
         protected void onResponseCodeNotMatching(final int responseCode) {
 
+          final View activityIndicator = getView().findViewById(R.id.activity_indicator);
+          activityIndicator.setVisibility(View.GONE);
+          final ListView listView = (ListView) getView().findViewById(R.id.campaigns_list_view);
+          listView.setEmptyView(getView().findViewById(android.R.id.empty));
+          listView.setAdapter(adapter);
         }
       };
 
@@ -97,20 +121,33 @@ public class PublicCampaignFragment extends Fragment {
 
   @Override
   public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.fragment_public_campaign, container, false);
+
+    final View view = inflater.inflate(R.layout.fragment_public_campaign, container, false);
+    final ListView listView = (ListView) view.findViewById(R.id.campaigns_list_view);
+
+
+    return view;
   }
 
   class JSONCampaingsAdapter extends BaseAdapter {
 
     private JSONArray data;
 
+    JSONCampaingsAdapter() {
+    }
+
     JSONCampaingsAdapter(final JSONArray data) {
       this.data = data;
     }
 
+    public void setData(final JSONArray data) {
+      this.data = data;
+      this.notifyDataSetChanged();
+    }
+
     @Override
     public int getCount() {
-      return data.length();
+      return data == null ? 0 : data.length();
     }
 
     @Override
@@ -171,14 +208,11 @@ public class PublicCampaignFragment extends Fragment {
 
       try {
         holder.idTextView.setText("" + campaignObject.getLong("id"));
-        holder.titleTextView.setText("" + campaignObject.getLong("title"));
+        holder.titleTextView.setText(campaignObject.getString("name"));
 
       } catch (JSONException e) {
         e.printStackTrace();
       }
-
-
-      //holder.campaignCheckBox;
 
       return convertView;
     }

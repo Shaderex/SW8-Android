@@ -3,4 +3,5 @@
     <string name="questionnaire_question_yes_answer">Yes</string>
     <string name="questionnaire_question_no_answer">No</string>
     <string name="start_questionnaire_button_text">Start Questionnaire</string>
+    <string name="loading_campaigns_message">Please wait - Loading Campaigns</string>
 </resources>

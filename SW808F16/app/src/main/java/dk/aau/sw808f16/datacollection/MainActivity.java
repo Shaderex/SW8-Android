@@ -20,7 +20,7 @@ public class MainActivity extends Activity {
     final FragmentManager fragmentManager = getFragmentManager();
 
     fragmentManager.beginTransaction()
-        .add(R.id.content_frame_layout, StartFragment.newInstance(), START_FRAGMENT_KEY).addToBackStack(START_FRAGMENT_KEY).commit();
+        .replace(R.id.content_frame_layout, StartFragment.newInstance(), START_FRAGMENT_KEY).addToBackStack(START_FRAGMENT_KEY).commit();
   }
 
   @Override

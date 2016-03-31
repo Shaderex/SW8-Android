@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Bundle;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -30,12 +31,19 @@ public abstract class AsyncHttpTask<Params, Progress> extends AsyncTask<Params, 
   private int responseCode = -1;
   private final ConnectivityManager connectivityManager;
   private final CountDownLatch doInBackgroundLatch = new CountDownLatch(1);
+  private Bundle requestProperties = null;
 
   public AsyncHttpTask(final Context context, final URL url, final int expectedResponseCode) {
 
     this.url = url;
     this.expectedResponseCode = expectedResponseCode;
     connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+  }
+
+  public AsyncHttpTask(final Context context, final URL url, final int expectedResponseCode, final Bundle requestProperties) {
+    this(context, url, expectedResponseCode);
+
+    this.requestProperties = requestProperties;
   }
 
   @SafeVarargs
@@ -47,6 +55,12 @@ public abstract class AsyncHttpTask<Params, Progress> extends AsyncTask<Params, 
       connectivityManager.addDefaultNetworkActiveListener(new ConnectivityManager.OnNetworkActiveListener() {
         @Override
         public void onNetworkActive() {
+
+          try {
+            Thread.sleep(1000);
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
 
           inputStream = makeRequest();
         }
@@ -67,10 +81,7 @@ public abstract class AsyncHttpTask<Params, Progress> extends AsyncTask<Params, 
 
   private BufferedInputStream makeRequest() {
 
-
     try {
-
-
       // TODO: Remove this "Accept all certificate code" once the server gets a https certificate
 
       TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
@@ -99,8 +110,13 @@ public abstract class AsyncHttpTask<Params, Progress> extends AsyncTask<Params, 
         e.printStackTrace();
       }
 
-
       urlConnection = (HttpURLConnection) url.openConnection();
+
+      if (requestProperties != null) {
+        for (String key : requestProperties.keySet()) {
+          urlConnection.setRequestProperty(key, requestProperties.getString(key));
+        }
+      }
 
       responseCode = urlConnection.getResponseCode();
       return new BufferedInputStream(urlConnection.getInputStream());
