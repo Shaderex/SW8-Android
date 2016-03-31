@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-import dk.aau.sw808f16.datacollection.SensorType;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class AmbientLightSensorProvider extends SensorProvider {
@@ -28,7 +28,7 @@ public class AmbientLightSensorProvider extends SensorProvider {
   protected Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency) throws InterruptedException {
 
     final CountDownLatch latch = new CountDownLatch(1);
-    final List<Float> sensorValues = new ArrayList<>();
+    final List<FloatMeasurement> sensorValues = new ArrayList<>();
     final long endTime = System.currentTimeMillis() + sampleDuration;
 
     final Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
@@ -44,7 +44,7 @@ public class AmbientLightSensorProvider extends SensorProvider {
           return;
         }
 
-        sensorValues.add(event.values[0]);
+        sensorValues.add(new FloatMeasurement(event.values[0]));
 
         lastUpdateTime = currentTime;
 

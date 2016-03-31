@@ -4,7 +4,7 @@ import android.hardware.Sensor;
 
 import java.util.concurrent.ExecutionException;
 
-import dk.aau.sw808f16.datacollection.snapshot.FloatTripleMeasurement;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
 
 public class GyroscopeSensorProviderTest extends SensorProviderApplicationTestCase {
   @Override
