@@ -1,4 +1,4 @@
-package dk.aau.sw808f16.datacollection.snapshot;
+package dk.aau.sw808f16.datacollection.snapshot.measurement;
 
 import android.test.ApplicationTestCase;
 
