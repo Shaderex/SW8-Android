@@ -1,7 +1,6 @@
 package dk.aau.sw808f16.datacollection.snapshot;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import io.realm.RealmList;
@@ -22,11 +21,13 @@ public class Sample extends RealmObject {
   }
 
   public Sample(final Object initialMeasurement) {
-    this(Collections.singletonList(initialMeasurement));
+    addMeasurement(initialMeasurement);
   }
 
   public Sample(final List<?> initialMeasurements) {
-    addMeasurements(initialMeasurements);
+    for (Object o : initialMeasurements) {
+      addMeasurement(o);
+    }
   }
 
   public void addMeasurement(final Object measurement) {
@@ -42,13 +43,13 @@ public class Sample extends RealmObject {
     } else if (measurement instanceof FloatMeasurement) {
       floatMeasurements.add((FloatMeasurement) measurement);
     } else {
-      throw new IllegalArgumentException("Type " + measurement.getClass().getName() + " is not supported measurement type");
+      throw new IllegalArgumentException("Type " + measurement.getClass().getName() + " is not a supported measurement type");
     }
   }
 
   public void addMeasurements(final List<?> measurements) {
-    for (final Object measurement : measurements) {
-      addMeasurement(measurement);
+    for (Object o : measurements) {
+      addMeasurement(o);
     }
   }
 

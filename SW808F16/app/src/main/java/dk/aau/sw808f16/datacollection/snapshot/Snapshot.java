@@ -1,6 +1,5 @@
 package dk.aau.sw808f16.datacollection.snapshot;
 
-import android.content.Context;
 import android.util.Log;
 
 import java.util.HashMap;
@@ -118,10 +117,5 @@ public class Snapshot extends RealmObject {
     sensorSampleMap.put(SensorType.LOCATION, locationSamples);
     sensorSampleMap.put(SensorType.PROXIMITY, proximitySamples);
     sensorSampleMap.put(SensorType.WIFI, wifiSamples);
-  }
-
-  // TODO Remove?
-  public boolean save(Context context, String directory, String file, String publicKey, String secretKey) {
-    return false;
   }
 }
