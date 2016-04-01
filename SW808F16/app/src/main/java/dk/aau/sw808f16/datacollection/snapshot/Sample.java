@@ -5,6 +5,7 @@ import java.util.List;
 
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.WifiMeasurement;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
@@ -18,6 +19,8 @@ public class Sample extends RealmObject {
   private RealmList<FloatTripleMeasurement> floatTripleMeasurements = new RealmList<>();
 
   private RealmList<FloatMeasurement> floatMeasurements = new RealmList<>();
+
+  private RealmList<WifiMeasurement> wifiMeasurements = new RealmList<>();
 
   public Sample() {
   }
@@ -44,6 +47,8 @@ public class Sample extends RealmObject {
       floatTripleMeasurements.add((FloatTripleMeasurement) measurement);
     } else if (measurement instanceof FloatMeasurement) {
       floatMeasurements.add((FloatMeasurement) measurement);
+    } else if (measurement instanceof WifiMeasurement) {
+      wifiMeasurements.add((WifiMeasurement) measurement);
     } else {
       throw new IllegalArgumentException("Type " + measurement.getClass().getName() + " is not a supported measurement type");
     }

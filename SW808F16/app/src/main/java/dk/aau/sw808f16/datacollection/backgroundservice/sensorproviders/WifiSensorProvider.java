@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.WifiMeasurement;
 
 public class WifiSensorProvider extends SensorProvider {
 
@@ -32,7 +33,7 @@ public class WifiSensorProvider extends SensorProvider {
     final long endTime = System.currentTimeMillis() + sampleDuration;
     final CountDownLatch latch = new CountDownLatch(1);
     final WifiManager wifiManager = (WifiManager) context.get().getSystemService(Context.WIFI_SERVICE);
-    final List<List<ScanResult>> scanResultListMeasurements = new ArrayList<>();
+    final List<WifiMeasurement> scanResultListMeasurements = new ArrayList<>();
 
     final TimerTask cellNetworkMeasurementTask = new TimerTask() {
       @Override
@@ -44,7 +45,7 @@ public class WifiSensorProvider extends SensorProvider {
         }
 
         // Do the measurements
-        scanResultListMeasurements.add(wifiManager.getScanResults());
+        scanResultListMeasurements.add(new WifiMeasurement(wifiManager.getScanResults()));
       }
     };
 
