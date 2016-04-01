@@ -140,7 +140,7 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
   }
 
   public void testSaveToRealm() {
-    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test.realm").build();
+    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test_snapshot.realm").build();
     final Realm realm = Realm.getInstance(realmConfiguration);
 
     final Sample sample = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
@@ -153,7 +153,6 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
 
     final Snapshot loadedSnapshot = realm.where(Snapshot.class).findFirst();
 
-    Log.d("LORT", "HVORNÅR DØR LORT?");
     final boolean equals = snapshot.equals(loadedSnapshot);
 
     realm.close();

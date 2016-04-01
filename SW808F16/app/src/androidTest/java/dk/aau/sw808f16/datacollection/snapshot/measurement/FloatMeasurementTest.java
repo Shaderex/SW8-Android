@@ -24,6 +24,14 @@ public class FloatMeasurementTest extends ApplicationTestCase<DataCollectionAppl
         RealmObject.class.isAssignableFrom(FloatMeasurement.class));
   }
 
+  public void testGetSetValue() {
+    float value = 2.4f;
+    FloatMeasurement floatMeasurement = new FloatMeasurement();
+    floatMeasurement.setValue(value);
+
+    assertEquals("The getter and setter method are inconsistent", value, floatMeasurement.getValue(), 0.0001);
+  }
+
   public void testEqualsNull() {
     final FloatMeasurement floatMeasurement = new FloatMeasurement();
 
@@ -52,7 +60,7 @@ public class FloatMeasurementTest extends ApplicationTestCase<DataCollectionAppl
   }
 
   public void testSaveToRealm() {
-    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test.realm").build();
+    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test_float_measurement.realm").build();
     final Realm realm = Realm.getInstance(realmConfiguration);
 
     final FloatMeasurement floatMeasurement = new FloatMeasurement(13.37f);

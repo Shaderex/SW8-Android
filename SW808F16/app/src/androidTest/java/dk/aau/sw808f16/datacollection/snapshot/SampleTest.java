@@ -1,14 +1,22 @@
 package dk.aau.sw808f16.datacollection.snapshot;
 
+import android.content.Context;
+import android.location.Location;
+import android.location.LocationManager;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.test.ApplicationTestCase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.LocationMeasurement;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.WifiMeasurement;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmObject;
@@ -109,6 +117,71 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
     for (int i = 0; i < expectedMeasurements.size(); i++) {
       final FloatMeasurement expected = expectedMeasurements.get(i);
       final FloatMeasurement actual = ((FloatMeasurement) sample.getMeasurements().get(i));
+
+      assertEquals("The measurements at position " + i + " are not equal", expected, actual);
+    }
+  }
+
+  public void testAddWifiMeasurements() {
+
+    final WifiManager manager = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);
+    final List<ScanResult> realScanResults = manager.getScanResults();
+
+    if(realScanResults == null || realScanResults.size() < 3) {
+      return;
+    }
+
+    final WifiMeasurement measurement1 = new WifiMeasurement(realScanResults.subList(0,1));
+    final Sample sample = new Sample(measurement1);
+
+    final WifiMeasurement measurement2 = new WifiMeasurement(realScanResults.subList(1,2));
+    final WifiMeasurement measurement3 = new WifiMeasurement(realScanResults.subList(2,3));
+
+    sample.addMeasurements(Arrays.asList(measurement2, measurement3));
+
+    final ArrayList<WifiMeasurement> expectedMeasurements = new ArrayList<>();
+    expectedMeasurements.add(measurement1);
+    expectedMeasurements.add(measurement2);
+    expectedMeasurements.add(measurement3);
+
+    assertEquals("The sample does not contain the correct amount of measurements",
+        expectedMeasurements.size(), sample.getMeasurements().size());
+
+    for (int i = 0; i < expectedMeasurements.size(); i++) {
+      final WifiMeasurement expected = expectedMeasurements.get(i);
+      final WifiMeasurement actual = ((WifiMeasurement) sample.getMeasurements().get(i));
+
+      assertEquals("The measurements at position " + i + " are not equal", expected, actual);
+    }
+  }
+
+  public void testAddLocationMeasurements() {
+    final LocationManager manager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+    final Location location = manager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+
+    if(location == null) {
+      return;
+    }
+
+    final LocationMeasurement measurement1 = new LocationMeasurement(location);
+    final Sample sample = new Sample(measurement1);
+
+    final LocationMeasurement measurement2 = new LocationMeasurement(location);
+    final LocationMeasurement measurement3 = new LocationMeasurement(location);
+
+    sample.addMeasurements(Arrays.asList(measurement2, measurement3));
+
+    final ArrayList<LocationMeasurement> expectedMeasurements = new ArrayList<>();
+    expectedMeasurements.add(measurement1);
+    expectedMeasurements.add(measurement2);
+    expectedMeasurements.add(measurement3);
+
+    assertEquals("The sample does not contain the correct amount of measurements",
+        expectedMeasurements.size(), sample.getMeasurements().size());
+
+    for (int i = 0; i < expectedMeasurements.size(); i++) {
+      final LocationMeasurement expected = expectedMeasurements.get(i);
+      final LocationMeasurement actual = ((LocationMeasurement) sample.getMeasurements().get(i));
 
       assertEquals("The measurements at position " + i + " are not equal", expected, actual);
     }
@@ -243,7 +316,7 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
   }
 
   public void testSaveToRealm() {
-    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test.realm").build();
+    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test_sample.realm").build();
     final Realm realm = Realm.getInstance(realmConfiguration);
 
     final Sample sample = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));

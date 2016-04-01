@@ -155,7 +155,7 @@ public class FloatTripleMeasurementTest extends ApplicationTestCase<DataCollecti
   }
 
   public void testSaveToRealm() {
-    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test.realm").build();
+    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test_float_triple_measurement.realm").build();
     final Realm realm = Realm.getInstance(realmConfiguration);
 
     final FloatTripleMeasurement floatTripleMeasurement = new FloatTripleMeasurement(1f, 2f, 3f);

@@ -67,37 +67,33 @@ public class Snapshot extends RealmObject {
   public boolean equals(Object object) {
 
     if (this == object) {
-      Log.d("LORT", "1");
       return true;
     }
 
     if (object == null || !Snapshot.class.isAssignableFrom(object.getClass())) {
-      Log.d("LORT", "2");
       return false;
     }
 
     final Snapshot that = (Snapshot) object;
 
     if ((this.getLabel() == null || that.getLabel() == null) && this.getLabel() != that.getLabel()) {
-      Log.d("LORT", "3");
       return false;
     }
 
     if (this.getLabel() != null && !this.getLabel().equals(that.getLabel())) {
-      Log.d("LORT", "4");
       return false;
     }
+
+    populateMapIfNull();
 
     for (Map.Entry<SensorType, RealmList<Sample>> mapEntry : sensorSampleMap.entrySet()) {
       RealmList<Sample> theirSamples = (RealmList<Sample>) that.getSamples(mapEntry.getKey());
       RealmList<Sample> ourSamples = mapEntry.getValue();
 
       if (ourSamples.size() != theirSamples.size() || !ourSamples.equals(theirSamples)) {
-        Log.d("LORT", "5");
         return false;
       }
     }
-    Log.d("LORT", "6");
     return true;
   }
 

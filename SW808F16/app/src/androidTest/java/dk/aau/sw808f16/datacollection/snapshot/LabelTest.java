@@ -52,7 +52,7 @@ public class LabelTest extends ApplicationTestCase<DataCollectionApplication> {
   }
 
   public void testSaveToRealm() {
-    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test.realm").build();
+    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test_label.realm").build();
     final Realm realm = Realm.getInstance(realmConfiguration);
 
     final Label label = new Label("label");

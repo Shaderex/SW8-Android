@@ -103,7 +103,7 @@ public class WifiMeasurementTest extends ApplicationTestCase<DataCollectionAppli
       return;
     }
 
-    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test.realm").build();
+    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("wifi_measurement_test.realm").build();
     final Realm realm = Realm.getInstance(realmConfiguration);
 
     final WifiMeasurement wifiMeasurement = new WifiMeasurement(realScanResults);

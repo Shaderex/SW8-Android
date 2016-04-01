@@ -5,6 +5,7 @@ import java.util.List;
 
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.LocationMeasurement;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.WifiMeasurement;
 import io.realm.RealmList;
 import io.realm.RealmObject;
@@ -17,10 +18,9 @@ public class Sample extends RealmObject {
   private Class clazz = null;
 
   private RealmList<FloatTripleMeasurement> floatTripleMeasurements = new RealmList<>();
-
   private RealmList<FloatMeasurement> floatMeasurements = new RealmList<>();
-
   private RealmList<WifiMeasurement> wifiMeasurements = new RealmList<>();
+  private RealmList<LocationMeasurement> locationMeasurements = new RealmList<>();
 
   public Sample() {
   }
@@ -49,6 +49,8 @@ public class Sample extends RealmObject {
       floatMeasurements.add((FloatMeasurement) measurement);
     } else if (measurement instanceof WifiMeasurement) {
       wifiMeasurements.add((WifiMeasurement) measurement);
+    } else if (measurement instanceof LocationMeasurement) {
+      locationMeasurements.add((LocationMeasurement) measurement);
     } else {
       throw new IllegalArgumentException("Type " + measurement.getClass().getName() + " is not a supported measurement type");
     }
@@ -66,6 +68,8 @@ public class Sample extends RealmObject {
     // Concatenate the different lists into a single one (there should only be one list containing elements)
     result.addAll(floatTripleMeasurements);
     result.addAll(floatMeasurements);
+    result.addAll(wifiMeasurements);
+    result.addAll(locationMeasurements);
 
     return result;
   }
