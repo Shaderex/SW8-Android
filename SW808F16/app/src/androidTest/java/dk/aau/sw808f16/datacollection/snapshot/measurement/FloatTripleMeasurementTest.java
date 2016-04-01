@@ -172,7 +172,7 @@ public class FloatTripleMeasurementTest extends ApplicationTestCase<DataCollecti
 
     Realm.deleteRealm(realmConfiguration);
 
-    assertTrue("The loaded float triple measurement was not equal to the original", equals);
+    assertTrue("The loaded measurement was not equal to the original", equals);
   }
 
   public void testFloatTripleMeasurementPerformance() {

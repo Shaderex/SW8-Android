@@ -69,6 +69,6 @@ public class FloatMeasurementTest extends ApplicationTestCase<DataCollectionAppl
 
     Realm.deleteRealm(realmConfiguration);
 
-    assertTrue("The loaded float measurement was not equal to the original", equals);
+    assertTrue("The loaded measurement was not equal to the original", equals);
   }
 }
