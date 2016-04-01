@@ -5,4 +5,5 @@
     <string name="start_questionnaire_button_text">Start Questionnaire</string>
     <string name="private_campaign_id">Private Campaign Identifier</string>
     <string name="private_campaign_join">Join</string>
+    <string name="loading_campaigns_message">Please wait - Loading Campaigns</string>
 </resources>
