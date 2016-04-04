@@ -21,14 +21,14 @@ public class AsyncHttpTaskTest extends ApplicationTestCase<DataCollectionApplica
 
   public void testCanRequestGoogle() throws MalformedURLException, InterruptedException, ExecutionException {
 
-    final AsyncHttpTask<Void, Void> task = new AsyncHttpTask<Void, Void>(getContext(), new URL("http://google.com"), 200) {
+    final AsyncHttpTask task = new AsyncHttpTask(getContext(), new URL("http://google.com"), 200) {
       @Override
       protected void onResponseCodeMatching(final InputStream in) {
         assertTrue(in != null);
       }
 
       @Override
-      protected void onResponseCodeNotMatching(final int responseCode) {
+      protected void onResponseCodeNotMatching(final Integer responseCode) {
         fail();
       }
     };
@@ -41,7 +41,7 @@ public class AsyncHttpTaskTest extends ApplicationTestCase<DataCollectionApplica
     final CountDownLatch latch = new CountDownLatch(1);
     final int expectedResponseCode = HttpURLConnection.HTTP_OK;
 
-    final AsyncHttpTask<Void, Void> task = new AsyncHttpTask<Void, Void>(getContext(), new URL("https://dev.local.element67.dk:8000/campaigns"), expectedResponseCode) {
+    final AsyncHttpTask task = new AsyncHttpTask(getContext(), new URL("https://dev.local.element67.dk:8000/campaigns"), expectedResponseCode) {
       @Override
       protected void onResponseCodeMatching(final InputStream in) {
         Log.e("DEBUG", "response code matching");
@@ -50,7 +50,7 @@ public class AsyncHttpTaskTest extends ApplicationTestCase<DataCollectionApplica
       }
 
       @Override
-      protected void onResponseCodeNotMatching(final int responseCode) {
+      protected void onResponseCodeNotMatching(final Integer responseCode) {
         Log.e("DEBUG", "response code not matching, response code was: " + responseCode);
         assertTrue(expectedResponseCode == responseCode);
         latch.countDown();
@@ -64,33 +64,45 @@ public class AsyncHttpTaskTest extends ApplicationTestCase<DataCollectionApplica
 
   public void testCanRequestCampaignsWithConnectionDrop() throws MalformedURLException, InterruptedException, ExecutionException {
 
-    WifiManager wifiManager = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);
+    final CountDownLatch latch = new CountDownLatch(1);
+
+    final WifiManager wifiManager = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);
 
     wifiManager.setWifiEnabled(false);
 
     Thread.sleep(1000);
 
-    final AsyncHttpTask<Void, Void> task = new AsyncHttpTask<Void, Void>(getContext(), new URL("http://dev.local.element67.dk:8000/campaigns"), 200) {
+    final AsyncHttpTask task = new AsyncHttpTask(getContext(), new URL("https://dev.local.element67.dk:8000/campaigns"), 200) {
       @Override
       protected void onResponseCodeMatching(final InputStream in) {
         Log.e("DEBUG", "response code matching");
+        latch.countDown();
         assertTrue(in != null);
       }
 
       @Override
-      protected void onResponseCodeNotMatching(final int responseCode) {
+      protected void onResponseCodeNotMatching(final Integer responseCode) {
         Log.e("DEBUG", "response code not matching, response code was: " + responseCode);
+        latch.countDown();
         fail();
       }
     };
 
-    task.execute(null, null);
+    task.execute();
 
     Thread.sleep(1000);
 
     wifiManager.setWifiEnabled(true);
 
-    task.get();
+    latch.await();
   }
 
+  @Override
+  protected void tearDown() throws Exception {
+
+    final WifiManager wifiManager = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);
+    wifiManager.setWifiEnabled(true);
+
+    super.tearDown();
+  }
 }
