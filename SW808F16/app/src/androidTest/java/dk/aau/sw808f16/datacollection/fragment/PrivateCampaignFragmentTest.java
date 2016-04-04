@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.test.ActivityUnitTestCase;
 import android.view.ContextThemeWrapper;
+import android.view.View;
 
 import junit.framework.Assert;
 
@@ -46,4 +47,11 @@ public class PrivateCampaignFragmentTest extends ActivityUnitTestCase<MainActivi
     Assert.assertEquals(fragment.getClass(), PrivateCampaignFragment.class);
   }
 
+  public void testIfComponentsArePresent() {
+    final View editText = getActivity().findViewById(R.id.private_campaign_edit_text);
+    final View joinButton = getActivity().findViewById(R.id.private_campaign_join_button);
+
+    Assert.assertNotNull(editText);
+    Assert.assertNotNull(joinButton);
+  }
 }
