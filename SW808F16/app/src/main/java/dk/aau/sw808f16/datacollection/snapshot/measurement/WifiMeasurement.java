@@ -2,12 +2,17 @@ package dk.aau.sw808f16.datacollection.snapshot.measurement;
 
 import android.net.wifi.ScanResult;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.List;
 
+import dk.aau.sw808f16.datacollection.snapshot.JsonValueAble;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 
-public class WifiMeasurement extends RealmObject {
+public class WifiMeasurement extends RealmObject implements JsonValueAble {
 
   private RealmList<ScanResultMeasurement> scanResultMeasurements = new RealmList<>();
 
@@ -57,5 +62,20 @@ public class WifiMeasurement extends RealmObject {
     }
 
     return true;
+  }
+
+  @Override
+  public String toJSONValue() throws JSONException {
+
+    final JSONObject jsonObject = new JSONObject();
+    final JSONArray scanResultMeasurementsJSONArray = new JSONArray();
+
+    for (final ScanResultMeasurement scanResultMeasurement : scanResultMeasurements) {
+      scanResultMeasurementsJSONArray.put(scanResultMeasurement.toJSONObject());
+    }
+
+    jsonObject.put("scanResultMeasurements", scanResultMeasurementsJSONArray);
+
+    return jsonObject.toString();
   }
 }

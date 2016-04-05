@@ -1,14 +1,18 @@
 package dk.aau.sw808f16.datacollection.snapshot;
 
 import android.test.ApplicationTestCase;
-import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.label.Label;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -161,4 +165,88 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
 
     assertTrue("The loaded snapshot was not equal to the original", equals);
   }
+
+  public void testCanBecomeJSON() throws JSONException {
+
+    final Sample accelerometerSample = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
+    final Sample gyroscopeSample = new Sample(new FloatTripleMeasurement(4f, 5f, 6f));
+    final Sample barometerSample = new Sample(new FloatMeasurement(4f));
+
+    final Sample largeCompassSample = new Sample(Arrays.asList(
+        new FloatMeasurement(4f),
+        new FloatMeasurement(42f),
+        new FloatMeasurement(130f),
+        new FloatMeasurement(222f),
+        new FloatMeasurement(99f),
+        new FloatMeasurement(100f),
+        new FloatMeasurement(329f)
+    ));
+
+    final Snapshot snapshot = new Snapshot();
+
+    snapshot.addSample(SensorType.ACCELEROMETER, accelerometerSample);
+    snapshot.addSample(SensorType.GYROSCOPE, gyroscopeSample);
+    snapshot.addSample(SensorType.BAROMETER, barometerSample);
+    snapshot.addSample(SensorType.COMPASS, largeCompassSample);
+
+
+    final JSONObject snapshotJSONObject = snapshot.toJSONObject();
+    final String snapshotJSONObjectStringRepresentation = snapshotJSONObject.toString();
+
+
+    assertNotNull(snapshotJSONObjectStringRepresentation);
+
+    assertTrue(snapshotJSONObjectStringRepresentation.contains("measurements"));
+    assertTrue(snapshotJSONObjectStringRepresentation.contains("compass"));
+    assertTrue(snapshotJSONObjectStringRepresentation.contains("gyroscope"));
+    assertTrue(snapshotJSONObjectStringRepresentation.contains("barometer"));
+    assertTrue(snapshotJSONObjectStringRepresentation.contains("accelerometer"));
+  }
+
+  public void testCanBecomeJSONAndRealmAndJSON() throws JSONException {
+
+    final Sample accelerometerSample = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
+    final Sample gyroscopeSample = new Sample(new FloatTripleMeasurement(4f, 5f, 6f));
+    final Sample barometerSample = new Sample(new FloatMeasurement(4f));
+
+    final Sample largeCompassSample = new Sample(Arrays.asList(
+        new FloatMeasurement(4f),
+        new FloatMeasurement(42f),
+        new FloatMeasurement(130f),
+        new FloatMeasurement(222f),
+        new FloatMeasurement(99f),
+        new FloatMeasurement(100f),
+        new FloatMeasurement(329f)
+    ));
+
+    final Snapshot originalSnapshot = new Snapshot();
+
+    originalSnapshot.addSample(SensorType.ACCELEROMETER, accelerometerSample);
+    originalSnapshot.addSample(SensorType.GYROSCOPE, gyroscopeSample);
+    originalSnapshot.addSample(SensorType.BAROMETER, barometerSample);
+    originalSnapshot.addSample(SensorType.COMPASS, largeCompassSample);
+
+    final JSONObject originalSnapshotJSONObject = originalSnapshot.toJSONObject();
+    final String originalSnapshotJSONObjectStringRepresentation = originalSnapshotJSONObject.toString();
+
+    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test_snapshot.realm").build();
+    final Realm realm = Realm.getInstance(realmConfiguration);
+
+    realm.beginTransaction();
+    realm.copyToRealm(originalSnapshot);
+    realm.commitTransaction();
+
+    final Snapshot loadedSnapshot = realm.where(Snapshot.class).findFirst();
+    final String loadedSnapShotStringRepresentation = loadedSnapshot.toJSONObject().toString();
+
+    final boolean equals = loadedSnapShotStringRepresentation.equals(originalSnapshotJSONObjectStringRepresentation);
+
+    realm.close();
+
+    Realm.deleteRealm(realmConfiguration);
+
+    assertTrue("The loaded snapshot JSON string was not equal to the original", equals);
+  }
+
+
 }

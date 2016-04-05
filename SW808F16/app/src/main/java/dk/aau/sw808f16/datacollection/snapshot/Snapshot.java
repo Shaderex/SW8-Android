@@ -2,6 +2,10 @@ package dk.aau.sw808f16.datacollection.snapshot;
 
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +16,7 @@ import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 
-public class Snapshot extends RealmObject {
+public class Snapshot extends RealmObject implements JsonObjectAble {
 
   private Label label;
   private RealmList<Sample> accelerometerSamples = new RealmList<>();
@@ -113,5 +117,47 @@ public class Snapshot extends RealmObject {
     sensorSampleMap.put(SensorType.LOCATION, locationSamples);
     sensorSampleMap.put(SensorType.PROXIMITY, proximitySamples);
     sensorSampleMap.put(SensorType.WIFI, wifiSamples);
+  }
+
+  @Override
+  public JSONObject toJSONObject() throws JSONException {
+
+    final JSONObject jsonObject = new JSONObject();
+
+    addSampleListToJSONObject(jsonObject, "accelerometerSamples", accelerometerSamples);
+    addSampleListToJSONObject(jsonObject, "ambientLightSamples", ambientLightSamples);
+    addSampleListToJSONObject(jsonObject, "barometerSamples", barometerSamples);
+    addSampleListToJSONObject(jsonObject, "cellularSamples", cellularSamples);
+    addSampleListToJSONObject(jsonObject, "compassSamples", compassSamples);
+    addSampleListToJSONObject(jsonObject, "gyroscopeSamples", gyroscopeSamples);
+    addSampleListToJSONObject(jsonObject, "locationSamples", locationSamples);
+    addSampleListToJSONObject(jsonObject, "proximitySamples", proximitySamples);
+    addSampleListToJSONObject(jsonObject, "wifiSamples", wifiSamples);
+
+    return jsonObject;
+  }
+
+  private void addSampleListToJSONObject(final JSONObject targetJSONObject, final String key, final RealmList<Sample> samples)
+  {
+    if(!samples.isEmpty())
+    {
+      final JSONArray samplesJSONArray = new JSONArray();
+
+      for (final Sample sample : samples)
+      {
+        try {
+          samplesJSONArray.put(sample.toJSONObject());
+        } catch (JSONException e) {
+          e.printStackTrace();
+        }
+      }
+
+      try {
+        targetJSONObject.put(key, samplesJSONArray);
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
+    }
+
   }
 }

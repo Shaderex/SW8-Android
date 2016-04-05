@@ -1,8 +1,9 @@
 package dk.aau.sw808f16.datacollection.snapshot.measurement;
 
+import dk.aau.sw808f16.datacollection.snapshot.JsonValueAble;
 import io.realm.RealmObject;
 
-public class FloatTripleMeasurement extends RealmObject {
+public class FloatTripleMeasurement extends RealmObject implements JsonValueAble {
 
   private static final byte FIRST_VALUE = 2;
   private static final byte SECOND_VALUE = 1;
@@ -112,5 +113,10 @@ public class FloatTripleMeasurement extends RealmObject {
   @Override
   public boolean equals(final Object object) {
     return super.equals(object) || (object instanceof FloatTripleMeasurement && ((FloatTripleMeasurement) object).compressedValues == this.compressedValues);
+  }
+
+  @Override
+  public String toJSONValue() {
+    return Long.toString(compressedValues);
   }
 }
