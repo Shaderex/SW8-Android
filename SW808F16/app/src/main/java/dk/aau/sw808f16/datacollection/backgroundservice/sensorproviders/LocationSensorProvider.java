@@ -13,7 +13,9 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
+import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.LocationMeasurement;
 
 public class LocationSensorProvider extends SensorProvider {
 
@@ -31,7 +33,7 @@ public class LocationSensorProvider extends SensorProvider {
     final LocationManager locationManager = (LocationManager) context.get().getSystemService(Context.LOCATION_SERVICE);
     final long endTime = System.currentTimeMillis() + sampleDuration;
     final CountDownLatch latch = new CountDownLatch(1);
-    final List<Location> locations = new ArrayList<>();
+    final List<LocationMeasurement> locations = new ArrayList<>();
 
     final TimerTask cellNetworkMeasurementTask = new TimerTask() {
       @Override
@@ -43,7 +45,7 @@ public class LocationSensorProvider extends SensorProvider {
         }
 
         // Do the measurements
-        locations.add(locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER));
+        locations.add(new LocationMeasurement(locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER)));
       }
     };
 

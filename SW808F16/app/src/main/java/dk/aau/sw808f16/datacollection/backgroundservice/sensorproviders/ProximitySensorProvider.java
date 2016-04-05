@@ -15,6 +15,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.R;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class ProximitySensorProvider extends SensorProvider {
@@ -31,7 +32,7 @@ public class ProximitySensorProvider extends SensorProvider {
 
     final long endTime = System.currentTimeMillis() + sampleDuration;
     final CountDownLatch latch = new CountDownLatch(1);
-    final List<Float> measurements = new ArrayList<>();
+    final List<FloatMeasurement> measurements = new ArrayList<>();
 
     final Sensor proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
@@ -56,7 +57,7 @@ public class ProximitySensorProvider extends SensorProvider {
                 return;
               }
 
-              measurements.add(proximitySensorOutput[0]);
+              measurements.add(new FloatMeasurement(proximitySensorOutput[0]));
             }
           };
 

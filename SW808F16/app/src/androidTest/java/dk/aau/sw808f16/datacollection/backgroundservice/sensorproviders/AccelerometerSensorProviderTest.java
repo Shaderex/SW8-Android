@@ -4,7 +4,7 @@ import android.hardware.Sensor;
 
 import java.util.concurrent.ExecutionException;
 
-import dk.aau.sw808f16.datacollection.snapshot.FloatTriple;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
 
 public class AccelerometerSensorProviderTest extends SensorProviderApplicationTestCase {
 
@@ -15,12 +15,12 @@ public class AccelerometerSensorProviderTest extends SensorProviderApplicationTe
 
   @Override
   protected void validateMeasurement(Object measurement, String sampleIdentifier) {
-    if (!(measurement instanceof FloatTriple)) {
-      assertEquals("[" + sampleIdentifier + "] Measurement in sample is of wrong type.", FloatTriple.class, measurement.getClass());
+    if (!(measurement instanceof FloatTripleMeasurement)) {
+      assertEquals("[" + sampleIdentifier + "] Measurement in sample is of wrong type.", FloatTripleMeasurement.class, measurement.getClass());
     }
 
     @SuppressWarnings("ConstantConditions")
-    FloatTriple accelerometerValues = (FloatTriple) measurement;
+    FloatTripleMeasurement accelerometerValues = (FloatTripleMeasurement) measurement;
 
     final Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
     final float maxValue = sensor.getMaximumRange();

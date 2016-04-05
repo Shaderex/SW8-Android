@@ -4,6 +4,8 @@ import android.hardware.Sensor;
 
 import java.util.concurrent.ExecutionException;
 
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
+
 public class BarometerSensorProviderTest extends SensorProviderApplicationTestCase {
 
   @Override
@@ -17,14 +19,14 @@ public class BarometerSensorProviderTest extends SensorProviderApplicationTestCa
     final float maxValue = barometerSensor.getMaximumRange();
     final float minValue = -barometerSensor.getMaximumRange();
 
-    if (!(measurement instanceof Float)) {
-      assertEquals("[" + sampleIdentifier + "] Barometer measurement is of wrong type.", Float.class, measurement.getClass());
+    if (!(measurement instanceof FloatMeasurement)) {
+      assertEquals("[" + sampleIdentifier + "] Barometer measurement is of wrong type.", FloatMeasurement.class, measurement.getClass());
     }
 
     @SuppressWarnings("ConstantConditions")
-    Float pressure = (Float) measurement;
-    assertTrue("[" + sampleIdentifier + "] Measurement value is below " + minValue, pressure > minValue);
-    assertTrue("[" + sampleIdentifier + "] Measurement value is above " + minValue, pressure < maxValue);
+    FloatMeasurement pressure = (FloatMeasurement) measurement;
+    assertTrue("[" + sampleIdentifier + "] Measurement value is below " + minValue, pressure.getValue() > minValue);
+    assertTrue("[" + sampleIdentifier + "] Measurement value is above " + minValue, pressure.getValue() < maxValue);
   }
 
   @Override
