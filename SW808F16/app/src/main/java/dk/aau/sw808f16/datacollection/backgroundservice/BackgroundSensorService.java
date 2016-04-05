@@ -13,9 +13,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.lang.reflect.Field;
-import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -104,24 +104,15 @@ public final class BackgroundSensorService extends Service {
   public int onStartCommand(final Intent intent, final int flags, final int startId) {
     Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
 
-    Runnable saveSnapshotRunnable = new Runnable() {
+    final Runnable saveSnapshotRunnable = new Runnable() {
       @Override
       public void run() {
         Snapshot snapshot = new Snapshot();
         List<Sample> accelerometerSamples = null;
         try {
-          accelerometerSamples = accelerometerSensorProvider.retrieveSamplesForDuration(2 * 60 * 1000, 500, 500, 500).get();
+          accelerometerSamples = accelerometerSensorProvider.retrieveSamplesForDuration(2 * 60 * 1000, 1000, 500, 500).get();
           snapshot.addSamples(SensorType.ACCELEROMETER, accelerometerSamples);
-          byte[] key = new byte[]{-92, -42, -86, 62, 15, 2, -92, 79,
-              31, 46, 76, 81, -25, -39, 50, 77,
-              30, -2, -54, 48, 107, -115, 56, 125,
-              -119, 90, 11, -108, -120, -103, -38, 126,
-              -92, 120, 15, 100, -74, 41, -108, -70,
-              -95, 83, -96, 64, -70, -98, -73, 89,
-              -62, 51, -25, 37, 119, 53, -59, 4,
-              0, -74, 47, 13, -124, 0, 117, 9};
-
-          // TODO Use the correct encryption key provided by the server
+          byte[] key = getSecretKey();
 
           final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(BackgroundSensorService.this)
               .name(BackgroundSensorService.SNAPSHOT_REALM_NAME)
@@ -133,16 +124,23 @@ public final class BackgroundSensorService extends Service {
           realm.copyToRealm(snapshot);
           realm.commitTransaction();
 
+          Log.d("Service-status", "Saved snapshot...");
+
           realm.close();
 
         } catch (InterruptedException | ExecutionException exception) {
           exception.printStackTrace();
-
         }
       }
     };
 
-    new Thread(saveSnapshotRunnable).start();
+    new Timer().scheduleAtFixedRate(new TimerTask() {
+      @Override
+      public void run() {
+        final Thread thread = new Thread(saveSnapshotRunnable);
+        thread.start();
+      }
+    }, 0, 5 * 60 * 1000);
 
     // For each start request, send a message to start a job and deliver the
     // start ID so we know which request we're stopping when we finish the job
@@ -152,6 +150,18 @@ public final class BackgroundSensorService extends Service {
 
     // If we get killed, after returning from here, restart
     return START_STICKY;
+  }
+
+  private byte[] getSecretKey() {
+    // TODO Use the correct encryption key provided by the server
+    return new byte[] {-92, -42, -86, 62, 15, 2, -92, 79,
+        31, 46, 76, 81, -25, -39, 50, 77,
+        30, -2, -54, 48, 107, -115, 56, 125,
+        -119, 90, 11, -108, -120, -103, -38, 126,
+        -92, 120, 15, 100, -74, 41, -108, -70,
+        -95, 83, -96, 64, -70, -98, -73, 89,
+        -62, 51, -25, 37, 119, 53, -59, 4,
+        0, -74, 47, 13, -124, 0, 117, 9};
   }
 
   @Override
