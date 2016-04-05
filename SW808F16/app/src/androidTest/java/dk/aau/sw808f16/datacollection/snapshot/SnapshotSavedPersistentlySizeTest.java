@@ -6,11 +6,7 @@ import android.hardware.SensorManager;
 import android.test.ApplicationTestCase;
 import android.util.Log;
 
-import com.sromku.simple.storage.SimpleStorage;
-import com.sromku.simple.storage.Storage;
-
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,15 +20,12 @@ import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AccelerometerSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AmbientLightSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.BarometerSensorProvider;
-import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.CellularNetworkSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.CompassSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.GyroscopeSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.LocationSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.ProximitySensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.SensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.WifiSensorProvider;
-import dk.aau.sw808f16.datacollection.snapshot.Sample;
-import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
@@ -84,7 +77,7 @@ public class SnapshotSavedPersistentlySizeTest extends ApplicationTestCase<DataC
     for (Map.Entry<SensorType, SensorProvider> entry : providers.entrySet()) {
       final SensorType key = entry.getKey();
       final SensorProvider value = entry.getValue();
-      if(value.isSensorAvailable()) {
+      if (value.isSensorAvailable()) {
         samplesRetrieved.put(key, value.retrieveSamplesForDuration(runTestForMinutes * 60 * 1000, 60 * 1000, 1000, 100));
       }
     }
