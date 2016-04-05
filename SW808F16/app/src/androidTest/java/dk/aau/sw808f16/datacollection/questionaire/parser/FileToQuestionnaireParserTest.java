@@ -1,6 +1,5 @@
 package dk.aau.sw808f16.datacollection.questionaire.parser;
 
-import android.content.Context;
 import android.test.ApplicationTestCase;
 
 import java.io.IOException;
@@ -14,14 +13,15 @@ import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
 
 public final class FileToQuestionnaireParserTest extends ApplicationTestCase<DataCollectionApplication> {
 
-  private Context context;
   private Questionnaire questionnaire;
 
   public FileToQuestionnaireParserTest() {
     super(DataCollectionApplication.class);
   }
 
-  public void setUp() throws URISyntaxException {
+  @Override
+  public void setUp() throws URISyntaxException, Exception {
+    super.setUp();
     Question question1 = new Question("How are you?");
     Question question2 = new Question("How are you feeling?");
 
@@ -43,7 +43,7 @@ public final class FileToQuestionnaireParserTest extends ApplicationTestCase<Dat
   }
 
   public void testFileParser() throws IOException {
-    Questionnaire actual = FileToQuestionnaireParser.parseFile(context, R.raw.questionnaire);
+    Questionnaire actual = FileToQuestionnaireParser.parseFile(getContext(), R.raw.questionnaire);
 
     assertEquals(questionnaire, actual);
   }

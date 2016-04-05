@@ -15,17 +15,18 @@ android {
 
     defaultConfig {
         applicationId "dk.aau.sw808f16.datacollection"
-        minSdkVersion 19
+        minSdkVersion 21
         //noinspection OldTargetApi
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
-        testInstrumentationRunner "com.android.test.runner.MultiDexTestRunner"
+        //testInstrumentationRunner "com.android.test.runner.MultiDexTestRunner"
     }
 
     buildTypes {
         release {
+            testCoverageEnabled = true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
