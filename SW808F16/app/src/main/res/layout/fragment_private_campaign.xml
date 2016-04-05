@@ -8,7 +8,7 @@
         android:layout_height="wrap_content"
         android:text="@string/private_campaign_id"/>
     <EditText
-        android:inputType="text"
+        android:inputType="number"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/private_campaign_edit_text"/>
