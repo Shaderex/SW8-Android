@@ -1,4 +1,4 @@
-package dk.aau.sw808f16.datacollection.backgroundservice;
+package dk.aau.sw808f16.datacollection.snapshot;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -43,7 +43,7 @@ public class SnapshotSavedPersistentlySizeTest extends ApplicationTestCase<DataC
   }
 
   public void testSnapshotSavedPersistentlySizeSmallEnough() throws ExecutionException, InterruptedException {
-    final int runTestForMinutes = 1; // Minutes
+    final int runTestForMinutes = 5; // Minutes
     final int maxSizePerMinute = 10000000 / (60 * 24); // Bytes (10 MB per 24 hours)
     final int numberOfSensors = 9; // # Sensors. Do not change this
 
@@ -100,7 +100,7 @@ public class SnapshotSavedPersistentlySizeTest extends ApplicationTestCase<DataC
       snapshot.addSamples(key, value);
     }
 
-    final String realmName = "test.realm";
+    final String realmName = "test_size.realm";
 
     final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name(realmName).build();
 
