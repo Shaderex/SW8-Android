@@ -2,7 +2,6 @@ package dk.aau.sw808f16.datacollection;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.test.ActivityUnitTestCase;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -175,7 +174,7 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
 
     latch.await();
 
-    assertTrue(questionnaireActivity.isFinishing());
+    assertTrue(isFinishCalled());
   }
 
   public void testActivityFinishedWithCorrectResultCompleted() throws InterruptedException {
@@ -195,7 +194,7 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
 
     latch.await();
 
-    final Intent resultIntent = getStartedActivityIntent();
+    final Intent resultIntent = getFinishedActivityIntent();
     assertNotNull(resultIntent);
 
     final Questionnaire resultQuestionnaire = resultIntent.getParcelableExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER);
@@ -220,13 +219,15 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
 
     latch.await();
 
-    final Intent resultIntent = this.getStartedActivityIntent();
+    final Intent resultIntent = this.getFinishedActivityIntent();
     assertNotNull(resultIntent);
 
     final Questionnaire resultQuestionnaire = resultIntent.getParcelableExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER);
 
-    assertNotNull(getStartedActivityRequest());
-    assertEquals(Activity.RESULT_CANCELED, getStartedActivityRequest());
+    final int finishedActivityRequest = getFinishedActivityRequest();
+
+    assertNotNull(finishedActivityRequest);
+    assertEquals(Activity.RESULT_CANCELED, finishedActivityRequest);
     assertNotNull(resultQuestionnaire);
     assertEquals(questionnaire, resultQuestionnaire);
   }
@@ -241,7 +242,7 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
 
     questionnaireActivity.onBackPressed();
 
-    final Intent resultIntent = getStartedActivityIntent();
+    final Intent resultIntent = getFinishedActivityIntent();
     assertNotNull(resultIntent);
 
     final Questionnaire resultQuestionnaire = resultIntent.getParcelableExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER);

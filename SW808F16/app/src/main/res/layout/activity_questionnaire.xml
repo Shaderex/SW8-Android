@@ -7,7 +7,7 @@
 
     <TextView
         android:id="@+id/questionnaire_question_text"
-        style="@style/Base.TextAppearance.AppCompat.Headline"
+        style="@style/TextAppearance.AppCompat.Widget.ActionMode.Title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
