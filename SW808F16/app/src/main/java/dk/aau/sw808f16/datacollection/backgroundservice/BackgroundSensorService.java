@@ -12,6 +12,11 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.goebl.david.Request;
+import com.goebl.david.Response;
+
+import org.json.JSONException;
+
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Timer;
@@ -21,6 +26,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import dk.aau.sw808f16.datacollection.SensorType;
+import dk.aau.sw808f16.datacollection.WebUtil.AsyncHttpTask;
+import dk.aau.sw808f16.datacollection.WebUtil.AsyncHttpWebbTask;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AccelerometerSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AmbientLightSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.ProximitySensorProvider;
@@ -107,7 +114,7 @@ public final class BackgroundSensorService extends Service {
     final Runnable saveSnapshotRunnable = new Runnable() {
       @Override
       public void run() {
-        Snapshot snapshot = new Snapshot();
+        final Snapshot snapshot = new Snapshot();
         List<Sample> accelerometerSamples = null;
         try {
           accelerometerSamples = accelerometerSensorProvider.retrieveSamplesForDuration(2 * 60 * 1000, 1000, 500, 500).get();
@@ -127,6 +134,36 @@ public final class BackgroundSensorService extends Service {
           Log.d("Service-status", "Saved snapshot...");
 
           realm.close();
+
+          final String host = "https://dev.local.element67.dk:8000/snapshots/";
+          AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, host, 200) {
+            @Override
+            protected Response<String> sendRequest(Request webb) {
+              try {
+                return webb.param("sensor_data_json", snapshot.toJSONObject().toString()).asString();
+              } catch (JSONException e) {
+                e.printStackTrace();
+              }
+              return null;
+            }
+
+            @Override
+            public void onResponseCodeMatching(Response<String> response) {
+              Log.d("Service-status", "onResponseCodeMatching");
+            }
+
+            @Override
+            public void onResponseCodeNotMatching(Response<String> response) {
+              Log.d("Service-status", "onResponseCodeNotMatching");
+            }
+
+            @Override
+            public void onConnectionFailure() {
+              Log.d("Service-status", "onConnectionFailure");
+            }
+          };
+
+          task.execute();
 
         } catch (InterruptedException | ExecutionException exception) {
           exception.printStackTrace();
