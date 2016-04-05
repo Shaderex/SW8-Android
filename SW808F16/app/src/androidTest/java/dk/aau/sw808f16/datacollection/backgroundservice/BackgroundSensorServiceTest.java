@@ -39,7 +39,7 @@ public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollect
   }
 
   public void testServiceStoresSnapshot() throws InterruptedException {
-    // Wait 1000 milliseconds in order to guarantee that the service have gathered sensor data
+    // Wait in order to guarantee that the service have gathered sensor data
     Thread.sleep(3 * 60 * 1000);
 
     final RealmConfiguration realmConfiguration =
@@ -47,7 +47,7 @@ public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollect
     final Realm realm = Realm.getInstance(realmConfiguration);
 
     try {
-      Snapshot snapshotFromService = realm.where(Snapshot.class).findFirst();
+      realm.where(Snapshot.class).findFirst();
       fail("Did not throw illegal argument exception");
     } catch (IllegalArgumentException exception) {
       // We want this exception since we expect realm to throw this when reading an encrypted realm file.
