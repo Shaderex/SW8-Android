@@ -14,7 +14,7 @@ public enum SensorType {
 
   private int identifier;
 
-  private SensorType(final int id) {
+  SensorType(final int id) {
     this.identifier = id;
   }
 

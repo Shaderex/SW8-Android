@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.test.ApplicationTestCase;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
+import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
 
 public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollectionApplication> {
   public BackgroundSensorServiceTest() {
@@ -34,5 +35,11 @@ public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollect
 
     getContext().stopService(backgroundServiceIntent);
     assertTrue("The service should be running", isRunning);
+  }
+
+  public void sendSnapshotToServer(final Snapshot snapshot)
+  {
+
+
   }
 }

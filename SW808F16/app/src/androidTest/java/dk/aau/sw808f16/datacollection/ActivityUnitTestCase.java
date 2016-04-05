@@ -354,7 +354,8 @@ public abstract class ActivityUnitTestCase<T extends Activity>
       mFinishedActivityIntent = getResultData(child);
     }
 
-    private Intent getResultData(Activity activity) {
+    private Intent getResultData(final Activity activity) {
+
       Field field = null;
       try {
         field = Activity.class.getDeclaredField("mResultData");

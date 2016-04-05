@@ -1,10 +1,7 @@
 package dk.aau.sw808f16.datacollection.backgroundservice;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Binder;
 import android.os.Handler;
@@ -14,25 +11,17 @@ import android.os.Looper;
 import android.os.Message;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.lang.reflect.Field;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
-import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AccelerometerSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AmbientLightSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.ProximitySensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.SensorProvider;
-import dk.aau.sw808f16.datacollection.snapshot.Sample;
-import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
 
 public final class BackgroundSensorService extends Service {
+
   public static final String SNAPSHOT_SHARED_PREFERENCE_NAME = "SNAPSHOT_SHARED_PREFERENCE_NAME";
   public static final String SNAPSHOT_SHARED_PREFERENCE_KEY = "SNAPSHOT_SHARED_PREFERENCE_KEY";
   private ServiceHandler serviceHandler;
