@@ -3,16 +3,9 @@ package dk.aau.sw808f16.datacollection.backgroundservice;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.hardware.Sensor;
 import android.test.ApplicationTestCase;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
-import dk.aau.sw808f16.datacollection.SensorType;
-import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
 
 public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollectionApplication> {
   public BackgroundSensorServiceTest() {
@@ -41,25 +34,5 @@ public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollect
 
     getContext().stopService(backgroundServiceIntent);
     assertTrue("The service should be running", isRunning);
-  }
-
-  // Before running this test, ensure that you have had launched the application previously
-  public void testSnapshotInSharedPreference() throws InterruptedException {
-
-    Thread.sleep(13000);
-
-    final SharedPreferences preferences =
-        getContext().getSharedPreferences(BackgroundSensorService.SNAPSHOT_SHARED_PREFERENCE_NAME, Context.MODE_MULTI_PROCESS);
-
-    final String serializedSnapshot = preferences.getString(BackgroundSensorService.SNAPSHOT_SHARED_PREFERENCE_KEY, null);
-
-    assertNotNull("Serialized snapshot string was null", serializedSnapshot);
-
-    final Gson gson = new GsonBuilder().create();
-    final Snapshot snapshot = gson.fromJson(serializedSnapshot, Snapshot.class);
-
-    assertFalse(snapshot.getSamples(SensorType.ACCELEROMETER).isEmpty());
-    assertFalse(snapshot.getSamples(SensorType.AMBIENT_LIGHT).isEmpty());
-    assertFalse(snapshot.getSamples(SensorType.PROXIMITY).isEmpty());
   }
 }
