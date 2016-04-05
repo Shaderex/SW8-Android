@@ -24,9 +24,9 @@ public class BarometerSensorProviderTest extends SensorProviderApplicationTestCa
     }
 
     @SuppressWarnings("ConstantConditions")
-    Float pressure = (Float) measurement;
-    assertTrue("[" + sampleIdentifier + "] Measurement value is below " + minValue, pressure > minValue);
-    assertTrue("[" + sampleIdentifier + "] Measurement value is above " + minValue, pressure < maxValue);
+    FloatMeasurement pressure = (FloatMeasurement) measurement;
+    assertTrue("[" + sampleIdentifier + "] Measurement value is below " + minValue, pressure.getValue() > minValue);
+    assertTrue("[" + sampleIdentifier + "] Measurement value is above " + minValue, pressure.getValue() < maxValue);
   }
 
   @Override
