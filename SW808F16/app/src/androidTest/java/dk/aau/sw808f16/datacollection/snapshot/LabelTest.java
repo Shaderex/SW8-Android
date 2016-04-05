@@ -52,6 +52,7 @@ public class LabelTest extends ApplicationTestCase<DataCollectionApplication> {
   }
 
   public void testSaveToRealm() {
+
     final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test_label.realm").build();
     final Realm realm = Realm.getInstance(realmConfiguration);
 
@@ -67,7 +68,11 @@ public class LabelTest extends ApplicationTestCase<DataCollectionApplication> {
 
     realm.close();
 
-    Realm.deleteRealm(realmConfiguration);
+    final String fileDir = getContext().getFilesDir().getPath();
+
+    //Realm.deleteRealm(realmConfiguration);
+
+    return;
   }
 
 
