@@ -2,9 +2,14 @@ package dk.aau.sw808f16.datacollection.snapshot.measurement;
 
 import android.location.Location;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import dk.aau.sw808f16.datacollection.snapshot.JsonValueAble;
 import io.realm.RealmObject;
 
-public class LocationMeasurement extends RealmObject {
+public class LocationMeasurement extends RealmObject implements JsonValueAble {
+
   private double longitude;
   private double latitude;
   private float accuracy;
@@ -15,7 +20,7 @@ public class LocationMeasurement extends RealmObject {
 
   }
 
-  public LocationMeasurement(Location location) {
+  public LocationMeasurement(final Location location) {
     setLongitude(location.getLongitude());
     setLatitude(location.getLatitude());
     setAccuracy(location.getAccuracy());
@@ -72,5 +77,19 @@ public class LocationMeasurement extends RealmObject {
         && ((LocationMeasurement) object).accuracy == this.accuracy
         && ((LocationMeasurement) object).speed == this.speed
         && ((LocationMeasurement) object).bearing == this.bearing);
+  }
+
+  @Override
+  public String toJSONValue() throws JSONException {
+
+    final JSONObject jsonObject = new JSONObject();
+
+    jsonObject.put("longitude", longitude);
+    jsonObject.put("latitude", latitude);
+    jsonObject.put("accuracy", accuracy);
+    jsonObject.put("speed", speed);
+    jsonObject.put("bearing", bearing);
+
+    return jsonObject.toString();
   }
 }

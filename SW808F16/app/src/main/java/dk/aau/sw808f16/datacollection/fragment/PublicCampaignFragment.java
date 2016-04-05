@@ -1,16 +1,20 @@
 package dk.aau.sw808f16.datacollection.fragment;
 
 import android.app.Fragment;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,11 +31,14 @@ import java.net.URL;
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.WebUtil.AsyncHttpTask;
 
-public class PublicCampaignFragment extends Fragment {
+public class PublicCampaignFragment extends Fragment implements ConfirmSaveSelectionFragment.SaveConfirmedCampaign {
 
+  private static final String CONFIRM_SAVE_SELECTION_FRAGMENT = "confirmSaveSelectionFragment";
+  private static final String CURRENTLY_CHECKED_CAMPAIGN_ID_KEY = "CURRENTLY_CHECKED_CAMPAIGN_ID_KEY";
   private static final String campaignListResourcePath = "https://dev.local.element67.dk:8000/campaigns";
 
   public Menu menu;
+  private long currentlyMarkedCampaign;
 
   public static PublicCampaignFragment newInstance() {
 
@@ -50,6 +57,9 @@ public class PublicCampaignFragment extends Fragment {
   public void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setHasOptionsMenu(true);
+
+    final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+    currentlyMarkedCampaign = preferences.getLong(CURRENTLY_CHECKED_CAMPAIGN_ID_KEY, -1);
   }
 
   @Override
@@ -60,7 +70,7 @@ public class PublicCampaignFragment extends Fragment {
 
       final AsyncHttpTask task = new AsyncHttpTask(getActivity(), new URL(campaignListResourcePath), HttpURLConnection.HTTP_OK) {
 
-        final JSONCampaingsAdapter adapter = new JSONCampaingsAdapter();
+        final JsonCampaingsAdapter adapter = new JsonCampaingsAdapter();
 
         @Override
         protected void onPreExecute() {
@@ -85,8 +95,8 @@ public class PublicCampaignFragment extends Fragment {
             listView.setAdapter(adapter);
             adapter.setData(data);
 
-          } catch (JSONException e) {
-            e.printStackTrace();
+          } catch (JSONException exception) {
+            exception.printStackTrace();
           }
 
         }
@@ -104,8 +114,8 @@ public class PublicCampaignFragment extends Fragment {
 
       task.execute();
 
-    } catch (MalformedURLException e) {
-      e.printStackTrace();
+    } catch (MalformedURLException exception) {
+      exception.printStackTrace();
     }
 
   }
@@ -123,20 +133,51 @@ public class PublicCampaignFragment extends Fragment {
   public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
 
     final View view = inflater.inflate(R.layout.fragment_public_campaign, container, false);
-    final ListView listView = (ListView) view.findViewById(R.id.campaigns_list_view);
+    //final ListView listView = (ListView) view.findViewById(R.id.campaigns_list_view);
 
+    final Button confirmButton = (Button) view.findViewById(R.id.confirm_button);
+    confirmButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(final View view) {
+
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        // Spawn dialog if there is already a marked campaign
+        if (currentlyMarkedCampaign == -1 && preferences.getLong(CURRENTLY_CHECKED_CAMPAIGN_ID_KEY, -1) != -1) {
+          Toast.makeText(getActivity(), R.string.select_campaign_first_message, Toast.LENGTH_SHORT).show();
+        } else if (currentlyMarkedCampaign == -1) {
+          // TODO: byt denne toast ud med en dialog der håndterer ting
+          Toast.makeText(getActivity(), R.string.unsubscribe_from_campaign_message, Toast.LENGTH_SHORT).show();
+        } else if (preferences.getLong(CURRENTLY_CHECKED_CAMPAIGN_ID_KEY, -1) != -1) {
+          ConfirmSaveSelectionFragment confirmSaveSelectionFragment = new ConfirmSaveSelectionFragment();
+          confirmSaveSelectionFragment.show(getChildFragmentManager(), CONFIRM_SAVE_SELECTION_FRAGMENT);
+          getFragmentManager().executePendingTransactions();
+        } else {
+          onConfirmedCampaignSave();
+        }
+      }
+    });
 
     return view;
   }
 
-  class JSONCampaingsAdapter extends BaseAdapter {
+  @Override
+  public void onConfirmedCampaignSave() {
+    final SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
+    editor.putLong(CURRENTLY_CHECKED_CAMPAIGN_ID_KEY, currentlyMarkedCampaign);
+    editor.apply();
+  }
+
+  class JsonCampaingsAdapter extends BaseAdapter {
 
     private JSONArray data;
 
-    JSONCampaingsAdapter() {
+    private CheckBox lastMarkedCheckBox;
+
+    JsonCampaingsAdapter() {
     }
 
-    JSONCampaingsAdapter(final JSONArray data) {
+    JsonCampaingsAdapter(final JSONArray data) {
       this.data = data;
     }
 
@@ -154,8 +195,8 @@ public class PublicCampaignFragment extends Fragment {
     public Object getItem(final int position) {
       try {
         return data.get(position);
-      } catch (JSONException e) {
-        e.printStackTrace();
+      } catch (JSONException exception) {
+        exception.printStackTrace();
       }
 
       return null;
@@ -165,8 +206,8 @@ public class PublicCampaignFragment extends Fragment {
     public long getItemId(final int position) {
       try {
         return data.getJSONObject(position).getLong("id");
-      } catch (JSONException e) {
-        e.printStackTrace();
+      } catch (JSONException exception) {
+        exception.printStackTrace();
       }
 
       return -1;
@@ -201,8 +242,7 @@ public class PublicCampaignFragment extends Fragment {
         holder.campaignCheckBox = (CheckBox) convertView.findViewById(R.id.campaign_check_box);
 
         convertView.setTag(holder);
-      }
-      else {
+      } else {
         holder = (ViewHolder) convertView.getTag();
       }
 
@@ -210,8 +250,44 @@ public class PublicCampaignFragment extends Fragment {
         holder.idTextView.setText("" + campaignObject.getLong("id"));
         holder.titleTextView.setText(campaignObject.getString("name"));
 
-      } catch (JSONException e) {
-        e.printStackTrace();
+        if (currentlyMarkedCampaign == campaignObject.getLong("id")) {
+          holder.campaignCheckBox.setChecked(true);
+          lastMarkedCheckBox = holder.campaignCheckBox;
+        } else {
+          holder.campaignCheckBox.setChecked(false);
+        }
+
+
+        holder.campaignCheckBox.setOnClickListener(new View.OnClickListener() {
+          @Override
+          public void onClick(final View clickedView) {
+
+            final CheckBox checkBox = (CheckBox) clickedView;
+
+            if (lastMarkedCheckBox != null && lastMarkedCheckBox != checkBox) {
+              lastMarkedCheckBox.setChecked(false);
+            }
+
+            if (checkBox.isChecked()) {
+              try {
+                lastMarkedCheckBox = checkBox;
+                currentlyMarkedCampaign = campaignObject.getLong("id");
+              } catch (JSONException exception) {
+                exception.printStackTrace();
+                currentlyMarkedCampaign = -1;
+                lastMarkedCheckBox = null;
+              }
+            } else {
+              currentlyMarkedCampaign = -1;
+              lastMarkedCheckBox = null;
+            }
+          }
+        });
+
+
+
+      } catch (JSONException exception) {
+        exception.printStackTrace();
       }
 
       return convertView;
@@ -230,8 +306,8 @@ public class PublicCampaignFragment extends Fragment {
       while ((line = r.readLine()) != null) {
         total.append(line);
       }
-    } catch (IOException e) {
-      e.printStackTrace();
+    } catch (IOException exception) {
+      exception.printStackTrace();
 
       return "";
     }
