@@ -72,8 +72,8 @@ public abstract class SensorProvider {
 
               final Sample sample = retrieveSampleForDuration(sampleDuration, measurementFrequency);
               samples.add(sample);
-            } catch (Exception exception) {
-              // Do absolutely nothing, yet
+            } catch (InterruptedException exception) {
+              // Do nothing
             }
           }
         }, 0, sampleFrequency); // Zero indicates start immediately

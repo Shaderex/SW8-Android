@@ -13,6 +13,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.R;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class CompassSensorProvider extends SensorProvider {
@@ -29,7 +30,7 @@ public class CompassSensorProvider extends SensorProvider {
     final long endTime = System.currentTimeMillis() + sampleDuration;
 
     final CountDownLatch latch = new CountDownLatch(1);
-    final List<Float> measurements = new ArrayList<>();
+    final List<FloatMeasurement> measurements = new ArrayList<>();
 
     final Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
     final Sensor magneticFieldSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
@@ -73,7 +74,7 @@ public class CompassSensorProvider extends SensorProvider {
                 SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, accelerometerOutput, magneticFieldOutput);
 
                 SensorManager.getOrientation(rotationMatrix, values);
-                measurements.add(sensorDataToOrientation(values));
+                measurements.add(new FloatMeasurement(sensorDataToOrientation(values)));
                 final long currentTime = System.currentTimeMillis();
                 lastUpdateTime = currentTime;
 
@@ -110,7 +111,7 @@ public class CompassSensorProvider extends SensorProvider {
                 SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, accelerometerOutput, magneticFieldOutput);
 
                 SensorManager.getOrientation(rotationMatrix, values);
-                measurements.add(sensorDataToOrientation(values));
+                measurements.add(new FloatMeasurement(sensorDataToOrientation(values)));
                 final long currentTime = System.currentTimeMillis();
                 lastUpdateTime = currentTime;
 
@@ -150,7 +151,7 @@ public class CompassSensorProvider extends SensorProvider {
                   return;
                 }
 
-                measurements.add(sensorDataToOrientation(values));
+                measurements.add(new FloatMeasurement(sensorDataToOrientation(values)));
 
                 lastUpdateTime = currentTime;
               }
@@ -182,7 +183,7 @@ public class CompassSensorProvider extends SensorProvider {
                   return;
                 }
 
-                measurements.add(sensorDataToOrientation(values));
+                measurements.add(new FloatMeasurement(sensorDataToOrientation(values)));
 
                 lastUpdateTime = currentTime;
               }

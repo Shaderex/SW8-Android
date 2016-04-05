@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-import dk.aau.sw808f16.datacollection.snapshot.FloatTriple;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public class GyroscopeSensorProvider extends SensorProvider {
@@ -25,7 +25,7 @@ public class GyroscopeSensorProvider extends SensorProvider {
   protected Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency) throws InterruptedException {
 
     final CountDownLatch latch = new CountDownLatch(1);
-    final List<FloatTriple> sensorValues = new ArrayList<>();
+    final List<FloatTripleMeasurement> sensorValues = new ArrayList<>();
     final long endTime = System.currentTimeMillis() + sampleDuration;
 
     final Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
@@ -43,7 +43,7 @@ public class GyroscopeSensorProvider extends SensorProvider {
           return;
         }
 
-        FloatTriple triple = new FloatTriple(event.values);
+        FloatTripleMeasurement triple = new FloatTripleMeasurement(event.values);
 
         sensorValues.add(triple);
 

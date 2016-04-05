@@ -58,7 +58,7 @@ public class PublicCampaignFragment extends Fragment {
 
     try {
 
-      final AsyncHttpTask<Void, Void> task = new AsyncHttpTask<Void, Void>(getActivity(), new URL(campaignListResourcePath), HttpURLConnection.HTTP_OK) {
+      final AsyncHttpTask task = new AsyncHttpTask(getActivity(), new URL(campaignListResourcePath), HttpURLConnection.HTTP_OK) {
 
         final JSONCampaingsAdapter adapter = new JSONCampaingsAdapter();
 
@@ -92,7 +92,7 @@ public class PublicCampaignFragment extends Fragment {
         }
 
         @Override
-        protected void onResponseCodeNotMatching(final int responseCode) {
+        protected void onResponseCodeNotMatching(final Integer responseCode) {
 
           final View activityIndicator = getView().findViewById(R.id.activity_indicator);
           activityIndicator.setVisibility(View.GONE);
@@ -102,7 +102,7 @@ public class PublicCampaignFragment extends Fragment {
         }
       };
 
-      task.execute(null, null);
+      task.execute();
 
     } catch (MalformedURLException e) {
       e.printStackTrace();

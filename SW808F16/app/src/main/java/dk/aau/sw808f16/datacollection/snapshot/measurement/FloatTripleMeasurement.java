@@ -1,6 +1,8 @@
-package dk.aau.sw808f16.datacollection.snapshot;
+package dk.aau.sw808f16.datacollection.snapshot.measurement;
 
-public class FloatTriple {
+import io.realm.RealmObject;
+
+public class FloatTripleMeasurement extends RealmObject {
 
   private static final byte FIRST_VALUE = 2;
   private static final byte SECOND_VALUE = 1;
@@ -13,11 +15,15 @@ public class FloatTriple {
 
   private long compressedValues;
 
-  public FloatTriple(final float v1, final float v2, final float v3) {
+  public FloatTripleMeasurement() {
+
+  }
+
+  public FloatTripleMeasurement(final float v1, final float v2, final float v3) {
     this(new float[] {v1, v2, v3});
   }
 
-  public FloatTriple(final float[] values) {
+  public FloatTripleMeasurement(final float[] values) {
     if (values.length != 3) {
       throw new IllegalArgumentException("Array must contain exactly 3 entries");
     }
@@ -101,5 +107,10 @@ public class FloatTriple {
     value /= Math.pow(10, precision);
 
     return value;
+  }
+
+  @Override
+  public boolean equals(final Object object) {
+    return super.equals(object) || (object instanceof FloatTripleMeasurement && ((FloatTripleMeasurement) object).compressedValues == this.compressedValues);
   }
 }
