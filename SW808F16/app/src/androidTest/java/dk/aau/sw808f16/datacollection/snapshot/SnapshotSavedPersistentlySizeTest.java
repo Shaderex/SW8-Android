@@ -36,7 +36,7 @@ public class SnapshotSavedPersistentlySizeTest extends ApplicationTestCase<DataC
   }
 
   public void testSnapshotSavedPersistentlySizeSmallEnough() throws ExecutionException, InterruptedException {
-    final int runTestForMinutes = 5; // Minutes
+    final int runTestForMinutes = 3; // Minutes
     final int maxSizePerMinute = 10000000 / (60 * 24); // Bytes (10 MB per 24 hours)
     final int numberOfSensors = 9; // # Sensors. Do not change this
 
