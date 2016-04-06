@@ -29,6 +29,7 @@ import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.WebUtil.AsyncHttpWebbTask;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AccelerometerSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.SensorProvider;
+import dk.aau.sw808f16.datacollection.campaign.Campaign;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
 import io.realm.Realm;
@@ -104,12 +105,16 @@ public final class BackgroundSensorService extends Service {
   public int onStartCommand(final Intent intent, final int flags, final int startId) {
     Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
 
-    final Runnable saveSnapshotRunnable = new Runnable() {
+    final Campaign campaign = new Campaign(1); // Todo: Acquire this campaign somewhere else!
+
+    final Runnable addSnapshotRunnable = new Runnable() {
       @Override
       public void run() {
-        final Snapshot snapshot = new Snapshot();
-        List<Sample> accelerometerSamples = null;
+        List<Sample> accelerometerSamples;
+
         try {
+          final Snapshot snapshot = new Snapshot();
+
           accelerometerSamples = accelerometerSensorProvider.retrieveSamplesForDuration(2 * 60 * 1000, 1000, 500, 500).get();
           snapshot.addSamples(SensorType.ACCELEROMETER, accelerometerSamples);
           byte[] key = getSecretKey();
@@ -128,49 +133,56 @@ public final class BackgroundSensorService extends Service {
 
           realm.close();
 
-          final String host = "https://dev.local.element67.dk:8000/snapshots/";
-          AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, host, 200) {
-            @Override
-            protected Response<String> sendRequest(Request webb) {
-              try {
-                return webb.param("sensor_data_json", snapshot.toJSONObject().toString()).asString();
-              } catch (JSONException e) {
-                e.printStackTrace();
-              }
-              return null;
-            }
-
-            @Override
-            public void onResponseCodeMatching(Response<String> response) {
-              Log.d("Service-status", "onResponseCodeMatching");
-            }
-
-            @Override
-            public void onResponseCodeNotMatching(Response<String> response) {
-              Log.d("Service-status", "onResponseCodeNotMatching");
-            }
-
-            @Override
-            public void onConnectionFailure() {
-              Log.d("Service-status", "onConnectionFailure");
-            }
-          };
-
-          task.execute();
-
+          campaign.addSnapshot(snapshot);
         } catch (InterruptedException | ExecutionException exception) {
           exception.printStackTrace();
         }
       }
     };
 
+    // Start collection of data every x minutes
     new Timer().scheduleAtFixedRate(new TimerTask() {
       @Override
       public void run() {
-        final Thread thread = new Thread(saveSnapshotRunnable);
+        final Thread thread = new Thread(addSnapshotRunnable);
         thread.start();
       }
     }, 0, 5 * 60 * 1000);
+
+    // Send the campaign to the server every x minutes
+    new Timer().scheduleAtFixedRate(new TimerTask() {
+      @Override
+      public void run() {
+        final String host = "https://dev.local.element67.dk:8000/campaigns/" + campaign.getIdentifier() + "/snapshots/";
+        AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, host, 200) {
+          @Override
+          protected Response<String> sendRequest(Request webb) {
+            try {
+              return webb.param("sensor_data_json", campaign.toJSONObject().toString()).asString();
+            } catch (JSONException e) {
+              e.printStackTrace();
+            }
+            return null;
+          }
+
+          @Override
+          public void onResponseCodeMatching(Response<String> response) {
+            Log.d("Service-status", "onResponseCodeMatching");
+          }
+
+          @Override
+          public void onResponseCodeNotMatching(Response<String> response) {
+            Log.d("Service-status", "onResponseCodeNotMatching");
+          }
+
+          @Override
+          public void onConnectionFailure() {
+            Log.d("Service-status", "onConnectionFailure");
+          }
+        };
+        task.execute();
+      }
+    }, 0, 10 * 60 * 1000);
 
     // For each start request, send a message to start a job and deliver the
     // start ID so we know which request we're stopping when we finish the job
