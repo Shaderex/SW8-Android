@@ -26,7 +26,7 @@ public class Campaign extends RealmObject implements JsonObjectAble {
     setIdentifier(identifier);
   }
 
-  public void addSnapshot(Snapshot snapshot) {
+  public void addSnapshot(final Snapshot snapshot) {
     snapshots.add(snapshot);
   }
 
@@ -56,7 +56,7 @@ public class Campaign extends RealmObject implements JsonObjectAble {
     }
   }
 
-  public void setIdentifier(int identifier) {
+  public void setIdentifier(final int identifier) {
     this.identifier = identifier;
   }
 
