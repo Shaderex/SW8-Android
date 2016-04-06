@@ -44,15 +44,17 @@ public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollect
 
     final RealmConfiguration realmConfiguration =
         new RealmConfiguration.Builder(getContext()).name(BackgroundSensorService.SNAPSHOT_REALM_NAME).build();
-    final Realm realm = Realm.getInstance(realmConfiguration);
 
     try {
+      final Realm realm = Realm.getInstance(realmConfiguration);
+
       realm.where(Snapshot.class).findFirst();
+      realm.close();
+
       fail("Did not throw illegal argument exception");
     } catch (IllegalArgumentException exception) {
       // We want this exception since we expect realm to throw this when reading an encrypted realm file.
     }
 
-    realm.close();
   }
 }
