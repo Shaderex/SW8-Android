@@ -1,9 +1,7 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.hardware.SensorManager;
-import android.location.Location;
 import android.location.LocationManager;
 
 import java.util.ArrayList;
@@ -13,7 +11,6 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.LocationMeasurement;
 
@@ -60,6 +57,15 @@ public class LocationSensorProvider extends SensorProvider {
 
   @Override
   public boolean isSensorAvailable() {
-    return context.get().getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS);
+    LocationManager lm = (LocationManager) context.get().getSystemService(Context.LOCATION_SERVICE);
+    boolean gpsEnabled = false;
+
+    try {
+      gpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    } catch (Exception exception) {
+      exception.printStackTrace();
+    }
+
+    return gpsEnabled;
   }
 }
