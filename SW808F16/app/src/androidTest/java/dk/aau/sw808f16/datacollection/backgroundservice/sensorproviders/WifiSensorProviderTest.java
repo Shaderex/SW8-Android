@@ -1,9 +1,9 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
-import android.net.wifi.ScanResult;
-
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import dk.aau.sw808f16.datacollection.snapshot.measurement.ScanResultMeasurement;
 
 public class WifiSensorProviderTest extends SensorProviderApplicationTestCase {
   @Override
@@ -18,7 +18,8 @@ public class WifiSensorProviderTest extends SensorProviderApplicationTestCase {
     List<?> list = (List<?>) measurement;
 
     for (final Object object : list) {
-      assertTrue("[" + sampleIdentifier + "] item in measurement is of wrong type", ScanResult.class.isAssignableFrom(object.getClass()));
+      assertTrue("[" + sampleIdentifier + "] item in measurement is of wrong type",
+          ScanResultMeasurement.class.isAssignableFrom(object.getClass()));
     }
   }
 

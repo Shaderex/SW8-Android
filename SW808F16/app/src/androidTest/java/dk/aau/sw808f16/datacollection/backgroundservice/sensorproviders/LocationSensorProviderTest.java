@@ -1,8 +1,8 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
-import android.location.Location;
-
 import java.util.concurrent.ExecutionException;
+
+import dk.aau.sw808f16.datacollection.snapshot.measurement.LocationMeasurement;
 
 public class LocationSensorProviderTest extends SensorProviderApplicationTestCase {
 
@@ -13,7 +13,8 @@ public class LocationSensorProviderTest extends SensorProviderApplicationTestCas
 
   @Override
   protected void validateMeasurement(Object measurement, String sampleIdentifier) {
-    assertTrue("[" + sampleIdentifier + "] measurement is not of type Location", Location.class.isAssignableFrom(measurement.getClass()));
+    assertTrue("[" + sampleIdentifier + "] measurement is not of type Location",
+        LocationMeasurement.class.isAssignableFrom(measurement.getClass()));
   }
 
   @Override
