@@ -9,27 +9,37 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.goebl.david.Request;
+import com.goebl.david.Response;
+
+import org.json.JSONException;
+
 import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import dk.aau.sw808f16.datacollection.SensorType;
+import dk.aau.sw808f16.datacollection.WebUtil.AsyncHttpWebbTask;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AccelerometerSensorProvider;
-import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AmbientLightSensorProvider;
-import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.ProximitySensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.SensorProvider;
+import dk.aau.sw808f16.datacollection.snapshot.Sample;
+import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
 public final class BackgroundSensorService extends Service {
-
-  public static final String SNAPSHOT_SHARED_PREFERENCE_NAME = "SNAPSHOT_SHARED_PREFERENCE_NAME";
-  public static final String SNAPSHOT_SHARED_PREFERENCE_KEY = "SNAPSHOT_SHARED_PREFERENCE_KEY";
+  public static final String SNAPSHOT_REALM_NAME = "snapshot.realm";
   private ServiceHandler serviceHandler;
 
   private final ExecutorService sensorThreadPool;
 
-  private ProximitySensorProvider proximitySensorProvider;
-  private AmbientLightSensorProvider ambientLightSensorProvider;
   private AccelerometerSensorProvider accelerometerSensorProvider;
 
   public BackgroundSensorService() {
@@ -75,8 +85,6 @@ public final class BackgroundSensorService extends Service {
     final SensorManager sensorManager = (SensorManager) getApplicationContext().getSystemService(SENSOR_SERVICE);
 
     // Initialize SensorProvider instances with the shared thread pool
-    ambientLightSensorProvider = new AmbientLightSensorProvider(this, sensorThreadPool, sensorManager);
-    proximitySensorProvider = new ProximitySensorProvider(this, sensorThreadPool, sensorManager);
     accelerometerSensorProvider = new AccelerometerSensorProvider(this, sensorThreadPool, sensorManager);
 
     // Start up the thread running the service.  Note that we create a
@@ -96,7 +104,73 @@ public final class BackgroundSensorService extends Service {
   public int onStartCommand(final Intent intent, final int flags, final int startId) {
     Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
 
-    // TODO Store a simple snapshot here (Consider removing the shared preference test)
+    final Runnable saveSnapshotRunnable = new Runnable() {
+      @Override
+      public void run() {
+        final Snapshot snapshot = new Snapshot();
+        List<Sample> accelerometerSamples = null;
+        try {
+          accelerometerSamples = accelerometerSensorProvider.retrieveSamplesForDuration(2 * 60 * 1000, 1000, 500, 500).get();
+          snapshot.addSamples(SensorType.ACCELEROMETER, accelerometerSamples);
+          byte[] key = getSecretKey();
+
+          final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(BackgroundSensorService.this)
+              .name(BackgroundSensorService.SNAPSHOT_REALM_NAME)
+              .encryptionKey(key)
+              .build();
+          final Realm realm = Realm.getInstance(realmConfiguration);
+
+          realm.beginTransaction();
+          realm.copyToRealm(snapshot);
+          realm.commitTransaction();
+
+          Log.d("Service-status", "Saved snapshot...");
+
+          realm.close();
+
+          final String host = "https://dev.local.element67.dk:8000/snapshots/";
+          AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, host, 200) {
+            @Override
+            protected Response<String> sendRequest(Request webb) {
+              try {
+                return webb.param("sensor_data_json", snapshot.toJSONObject().toString()).asString();
+              } catch (JSONException e) {
+                e.printStackTrace();
+              }
+              return null;
+            }
+
+            @Override
+            public void onResponseCodeMatching(Response<String> response) {
+              Log.d("Service-status", "onResponseCodeMatching");
+            }
+
+            @Override
+            public void onResponseCodeNotMatching(Response<String> response) {
+              Log.d("Service-status", "onResponseCodeNotMatching");
+            }
+
+            @Override
+            public void onConnectionFailure() {
+              Log.d("Service-status", "onConnectionFailure");
+            }
+          };
+
+          task.execute();
+
+        } catch (InterruptedException | ExecutionException exception) {
+          exception.printStackTrace();
+        }
+      }
+    };
+
+    new Timer().scheduleAtFixedRate(new TimerTask() {
+      @Override
+      public void run() {
+        final Thread thread = new Thread(saveSnapshotRunnable);
+        thread.start();
+      }
+    }, 0, 5 * 60 * 1000);
 
     // For each start request, send a message to start a job and deliver the
     // start ID so we know which request we're stopping when we finish the job
@@ -106,6 +180,18 @@ public final class BackgroundSensorService extends Service {
 
     // If we get killed, after returning from here, restart
     return START_STICKY;
+  }
+
+  private byte[] getSecretKey() {
+    // TODO Use the correct encryption key provided by the server
+    return new byte[] {-92, -42, -86, 62, 15, 2, -92, 79,
+        31, 46, 76, 81, -25, -39, 50, 77,
+        30, -2, -54, 48, 107, -115, 56, 125,
+        -119, 90, 11, -108, -120, -103, -38, 126,
+        -92, 120, 15, 100, -74, 41, -108, -70,
+        -95, 83, -96, 64, -70, -98, -73, 89,
+        -62, 51, -25, 37, 119, 53, -59, 4,
+        0, -74, 47, 13, -124, 0, 117, 9};
   }
 
   @Override

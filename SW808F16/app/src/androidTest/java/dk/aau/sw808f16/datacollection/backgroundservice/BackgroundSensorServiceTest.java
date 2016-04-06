@@ -7,6 +7,8 @@ import android.test.ApplicationTestCase;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
 public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollectionApplication> {
   public BackgroundSensorServiceTest() {
@@ -14,7 +16,6 @@ public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollect
   }
 
   public void testServiceRunning() {
-
     final Intent backgroundServiceIntent = new Intent(getContext(), BackgroundSensorService.class);
 
     // Start the BackgroundSensorService
@@ -37,9 +38,21 @@ public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollect
     assertTrue("The service should be running", isRunning);
   }
 
-  public void sendSnapshotToServer(final Snapshot snapshot)
-  {
+  public void testServiceStoresSnapshot() throws InterruptedException {
+    // Wait in order to guarantee that the service have gathered sensor data
+    Thread.sleep(3 * 60 * 1000);
 
+    final RealmConfiguration realmConfiguration =
+        new RealmConfiguration.Builder(getContext()).name(BackgroundSensorService.SNAPSHOT_REALM_NAME).build();
+    final Realm realm = Realm.getInstance(realmConfiguration);
 
+    try {
+      realm.where(Snapshot.class).findFirst();
+      fail("Did not throw illegal argument exception");
+    } catch (IllegalArgumentException exception) {
+      // We want this exception since we expect realm to throw this when reading an encrypted realm file.
+    }
+
+    realm.close();
   }
 }

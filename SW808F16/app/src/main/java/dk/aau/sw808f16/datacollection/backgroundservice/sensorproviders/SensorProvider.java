@@ -27,9 +27,11 @@ public abstract class SensorProvider {
     this.sensorManager = sensorManager;
   }
 
+  // Arguments are given in milliseconds
   protected abstract Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency)
       throws InterruptedException;
 
+  // Arguments are given in milliseconds
   public Future<List<Sample>> retrieveSamplesForDuration(final long totalDuration,
                                                          final long sampleFrequency,
                                                          final long sampleDuration,
