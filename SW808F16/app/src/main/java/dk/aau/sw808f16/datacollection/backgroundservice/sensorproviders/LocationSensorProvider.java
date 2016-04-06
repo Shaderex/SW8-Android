@@ -61,9 +61,13 @@ public class LocationSensorProvider extends SensorProvider {
     boolean gpsEnabled = false;
 
     try {
-      gpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+      gpsEnabled = lm.isProviderEnabled(LocationManager.PASSIVE_PROVIDER);
     } catch (Exception exception) {
       exception.printStackTrace();
+    }
+
+    if (gpsEnabled) {
+      return lm.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER) != null;
     }
 
     return gpsEnabled;
