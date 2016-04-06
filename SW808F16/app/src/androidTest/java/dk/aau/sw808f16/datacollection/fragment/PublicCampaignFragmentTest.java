@@ -90,7 +90,7 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
 
     final TextView emptyView = (TextView) fragment.getView().findViewById(android.R.id.empty);
 
-    assertEquals(emptyView.getVisibility(), View.VISIBLE);
+    assertEquals(View.VISIBLE, emptyView.getVisibility());
 
     wifiManager.setWifiEnabled(true);
 
