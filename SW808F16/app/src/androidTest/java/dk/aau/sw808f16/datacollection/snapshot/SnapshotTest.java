@@ -187,11 +187,9 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
     snapshot.addSample(SensorType.GYROSCOPE, gyroscopeSample);
     snapshot.addSample(SensorType.BAROMETER, barometerSample);
     snapshot.addSample(SensorType.COMPASS, largeCompassSample);
-
-
+    
     final JSONObject snapshotJsonObject = snapshot.toJSONObject();
     final String snapshotJsonObjectStringRepresentation = snapshotJsonObject.toString();
-
 
     assertNotNull(snapshotJsonObjectStringRepresentation);
 
