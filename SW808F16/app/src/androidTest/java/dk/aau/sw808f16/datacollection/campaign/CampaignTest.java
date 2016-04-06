@@ -2,6 +2,9 @@ package dk.aau.sw808f16.datacollection.campaign;
 
 import android.test.ApplicationTestCase;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
 import io.realm.Realm;
@@ -96,6 +99,20 @@ public class CampaignTest extends ApplicationTestCase<DataCollectionApplication>
     assertEquals(campaign, loadedCampaign);
 
     realm.close();
+  }
+
+  public void testCanBecomeJson() throws JSONException {
+    final int identifier = 2;
+
+    final Campaign campaign = new Campaign(identifier);
+
+    final JSONObject campaignJsonObject = campaign.toJSONObject();
+    final String campaignJsonObjectString = campaignJsonObject.toString();
+
+    assertNotNull(campaignJsonObjectString);
+
+    assertTrue(campaignJsonObjectString.contains("identifier"));
+    assertTrue(campaignJsonObjectString.contains("snapshots"));
   }
 
 }

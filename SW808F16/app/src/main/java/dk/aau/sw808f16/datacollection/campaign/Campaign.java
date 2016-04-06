@@ -1,12 +1,16 @@
 package dk.aau.sw808f16.datacollection.campaign;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.List;
 
+import dk.aau.sw808f16.datacollection.snapshot.JsonObjectAble;
 import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 
-public class Campaign extends RealmObject {
+public class Campaign extends RealmObject implements JsonObjectAble {
 
   private int identifier;
   private RealmList<Snapshot> snapshots;
@@ -59,4 +63,15 @@ public class Campaign extends RealmObject {
   public int getIdentifier() {
     return identifier;
   }
+
+  @Override
+  public JSONObject toJSONObject() throws JSONException {
+    final JSONObject jsonObject = new JSONObject();
+
+    jsonObject.put("identifier", getIdentifier());
+    jsonObject.put("snapshots", getSnapshots());
+
+    return jsonObject;
+  }
+
 }

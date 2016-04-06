@@ -1,7 +1,5 @@
 package dk.aau.sw808f16.datacollection.snapshot;
 
-import android.util.Log;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -137,14 +135,11 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
     return jsonObject;
   }
 
-  private void addSampleListToJSONObject(final JSONObject targetJSONObject, final String key, final RealmList<Sample> samples)
-  {
-    if(!samples.isEmpty())
-    {
+  private void addSampleListToJSONObject(final JSONObject targetJSONObject, final String key, final RealmList<Sample> samples) {
+    if (!samples.isEmpty()) {
       final JSONArray samplesJSONArray = new JSONArray();
 
-      for (final Sample sample : samples)
-      {
+      for (final Sample sample : samples) {
         try {
           samplesJSONArray.put(sample.toJSONObject());
         } catch (JSONException e) {
