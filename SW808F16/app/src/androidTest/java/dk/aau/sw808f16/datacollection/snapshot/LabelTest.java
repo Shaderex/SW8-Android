@@ -67,12 +67,6 @@ public class LabelTest extends ApplicationTestCase<DataCollectionApplication> {
     assertEquals(label, loadedLabel);
 
     realm.close();
-
-    final String fileDir = getContext().getFilesDir().getPath();
-
-    //Realm.deleteRealm(realmConfiguration);
-
-    return;
   }
 
 

@@ -26,11 +26,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import dk.aau.sw808f16.datacollection.SensorType;
-import dk.aau.sw808f16.datacollection.WebUtil.AsyncHttpTask;
 import dk.aau.sw808f16.datacollection.WebUtil.AsyncHttpWebbTask;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AccelerometerSensorProvider;
-import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AmbientLightSensorProvider;
-import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.ProximitySensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.SensorProvider;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
@@ -43,8 +40,6 @@ public final class BackgroundSensorService extends Service {
 
   private final ExecutorService sensorThreadPool;
 
-  private ProximitySensorProvider proximitySensorProvider;
-  private AmbientLightSensorProvider ambientLightSensorProvider;
   private AccelerometerSensorProvider accelerometerSensorProvider;
 
   public BackgroundSensorService() {
@@ -90,8 +85,6 @@ public final class BackgroundSensorService extends Service {
     final SensorManager sensorManager = (SensorManager) getApplicationContext().getSystemService(SENSOR_SERVICE);
 
     // Initialize SensorProvider instances with the shared thread pool
-    ambientLightSensorProvider = new AmbientLightSensorProvider(this, sensorThreadPool, sensorManager);
-    proximitySensorProvider = new ProximitySensorProvider(this, sensorThreadPool, sensorManager);
     accelerometerSensorProvider = new AccelerometerSensorProvider(this, sensorThreadPool, sensorManager);
 
     // Start up the thread running the service.  Note that we create a

@@ -56,12 +56,7 @@ public class WifiMeasurement extends RealmObject implements JsonValueAble {
       return false;
     }
 
-
-    if (!this.getScanResultMeasurements().equals(that.getScanResultMeasurements())) {
-      return false;
-    }
-
-    return true;
+    return this.getScanResultMeasurements().equals(that.getScanResultMeasurements());
   }
 
   @Override
