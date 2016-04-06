@@ -111,7 +111,6 @@ public class CampaignTest extends ApplicationTestCase<DataCollectionApplication>
 
     assertNotNull(campaignJsonObjectString);
 
-    assertTrue(campaignJsonObjectString.contains("identifier"));
     assertTrue(campaignJsonObjectString.contains("snapshots"));
   }
 

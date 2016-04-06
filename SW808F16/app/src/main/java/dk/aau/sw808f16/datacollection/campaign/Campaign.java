@@ -68,7 +68,6 @@ public class Campaign extends RealmObject implements JsonObjectAble {
   public JSONObject toJSONObject() throws JSONException {
     final JSONObject jsonObject = new JSONObject();
 
-    jsonObject.put("identifier", getIdentifier());
     jsonObject.put("snapshots", getSnapshots());
 
     return jsonObject;
