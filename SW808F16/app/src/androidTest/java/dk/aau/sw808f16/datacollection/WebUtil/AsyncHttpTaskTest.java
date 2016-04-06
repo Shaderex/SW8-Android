@@ -5,6 +5,8 @@ import android.net.wifi.WifiManager;
 import android.test.ApplicationTestCase;
 import android.util.Log;
 
+import junit.framework.Assert;
+
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -29,7 +31,7 @@ public class AsyncHttpTaskTest extends ApplicationTestCase<DataCollectionApplica
 
       @Override
       protected void onResponseCodeNotMatching(final Integer responseCode) {
-        fail();
+        Assert.fail("response code not matching, response code was: " + responseCode == null ? "null" : responseCode + "expected was: " + 200);
       }
     };
 
@@ -84,7 +86,7 @@ public class AsyncHttpTaskTest extends ApplicationTestCase<DataCollectionApplica
       protected void onResponseCodeNotMatching(final Integer responseCode) {
         Log.e("DEBUG", "response code not matching, response code was: " + responseCode);
         latch.countDown();
-        fail();
+        Assert.fail("response code not matching, response code was: " + responseCode + "expected was: " + 200);
       }
     };
 
