@@ -21,6 +21,10 @@ public class LocationMeasurement extends RealmObject implements JsonValueAble {
   }
 
   public LocationMeasurement(final Location location) {
+    if (location == null) {
+      return;
+    }
+
     setLongitude(location.getLongitude());
     setLatitude(location.getLatitude());
     setAccuracy(location.getAccuracy());
