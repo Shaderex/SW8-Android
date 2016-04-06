@@ -21,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.WebUtil.AsyncHttpWebbTask;
@@ -56,12 +57,12 @@ public class PrivateCampaignFragment extends Fragment {
   }
 
   @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
+  public boolean onOptionsItemSelected(final MenuItem item) {
     return super.onOptionsItemSelected(item);
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+  public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
 
     final View view = inflater.inflate(R.layout.fragment_private_campaign, container, false);
     final Button submitBtn = (Button) view.findViewById(R.id.private_campaign_join_button);
@@ -72,7 +73,7 @@ public class PrivateCampaignFragment extends Fragment {
       public void onClick(View v) {
         Toast.makeText(getActivity(), "Starter", Toast.LENGTH_SHORT).show();
 
-        AsyncHttpWebbTask<JSONObject> task = new AsyncHttpWebbTask<JSONObject>(AsyncHttpWebbTask.Method.POST, "https://dev.local.element67.dk:8000/campaigns/join", 200) {
+        AsyncHttpWebbTask<JSONObject> task = new AsyncHttpWebbTask<JSONObject>(AsyncHttpWebbTask.Method.POST, "https://dev.local.element67.dk:8000/campaigns/join", HttpURLConnection.HTTP_OK) {
           @Override
           protected Response<JSONObject> sendRequest(Request request) {
 
@@ -89,23 +90,23 @@ public class PrivateCampaignFragment extends Fragment {
                   .retry(2, false)
                   .asJsonObject();
 
-            } catch (IOException e) {
-              e.printStackTrace();
+            } catch (IOException exception) {
+              exception.printStackTrace();
               return null;
             }
           }
 
           @Override
-          public void onResponseCodeMatching(Response<JSONObject> response) {
+          public void onResponseCodeMatching(final Response<JSONObject> response) {
             try {
               Toast.makeText(getActivity(), response.getBody().getString("message"), Toast.LENGTH_SHORT).show();
-            } catch (JSONException e) {
-              e.printStackTrace();
+            } catch (JSONException exception) {
+              exception.printStackTrace();
             }
           }
 
           @Override
-          public void onResponseCodeNotMatching(Response<JSONObject> response) {
+          public void onResponseCodeNotMatching(final Response<JSONObject> response) {
             Toast.makeText(getActivity(), response.getErrorBody().toString(), Toast.LENGTH_SHORT).show();
           }
 

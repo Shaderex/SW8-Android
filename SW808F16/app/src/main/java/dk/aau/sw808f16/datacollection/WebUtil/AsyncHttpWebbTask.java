@@ -34,7 +34,7 @@ public abstract class AsyncHttpWebbTask<Result> extends AsyncTask<Void, Void, Re
   @Override
   protected Response<Result> doInBackground(Void... params) {
 
-    TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
+    final TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
       public X509Certificate[] getAcceptedIssuers() {
         return null;
       }
@@ -48,18 +48,22 @@ public abstract class AsyncHttpWebbTask<Result> extends AsyncTask<Void, Void, Re
       public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
         // Not implemented
       }
-    }};
+    }
+    };
 
     try {
       final SSLContext sc = SSLContext.getInstance("TLS");
       sc.init(null, trustAllCerts, new java.security.SecureRandom());
       webb.setSSLSocketFactory(sc.getSocketFactory());
-    } catch (KeyManagementException e) {
-      e.printStackTrace();
-    } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace();
+    } catch (KeyManagementException | NoSuchAlgorithmException exception) {
+      exception.printStackTrace();
     }
+
     webb.setRetryManager(new RetryManager());
+
+    if (isCancelled()) {
+      return null;
+    }
 
     try {
       switch (method) {
@@ -71,9 +75,11 @@ public abstract class AsyncHttpWebbTask<Result> extends AsyncTask<Void, Void, Re
           return sendRequest(webb.put(url));
         case DELETE:
           return sendRequest(webb.delete(url));
+        default:
+          return null;
       }
-    } catch (WebbException e) {
-      e.printStackTrace();
+    } catch (WebbException exception) {
+      exception.printStackTrace();
     }
     return null;
   }

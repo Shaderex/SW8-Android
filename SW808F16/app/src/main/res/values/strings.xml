@@ -11,4 +11,8 @@
     <string name="no">No</string>
     <string name="select_campaign_first_message">You must select a campaign before pressing submit.</string>
     <string name="unsubscribe_from_campaign_message">Are you certain that you wish to unsubscribe from your current campaign</string>
+    <string name="unable_to_connect">Unable to connect to server</string>
+    <string name="no_campaigns_available">No campaigns available</string>
+    <string name="confirm">Confirm</string>
+    <string name="unexpected_response_from_server">Unexpected response from server</string>
 </resources>

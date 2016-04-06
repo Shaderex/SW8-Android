@@ -86,8 +86,7 @@ public abstract class AsyncHttpTask extends AsyncTask<Void, Void, BufferedInputS
 
           if (result) {
             return inputStream;
-          }
-          else
+          } else
           {
             continue;
           }
