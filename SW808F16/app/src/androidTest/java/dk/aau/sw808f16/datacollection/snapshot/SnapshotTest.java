@@ -167,7 +167,6 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
   }
 
   public void testCanBecomeJSON() throws JSONException {
-
     final Sample accelerometerSample = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
     final Sample gyroscopeSample = new Sample(new FloatTripleMeasurement(4f, 5f, 6f));
     final Sample barometerSample = new Sample(new FloatMeasurement(4f));
@@ -204,7 +203,6 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
   }
 
   public void testCanBecomeJSONAndRealmAndJSON() throws JSONException {
-
     final Sample accelerometerSample = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
     final Sample gyroscopeSample = new Sample(new FloatTripleMeasurement(4f, 5f, 6f));
     final Sample barometerSample = new Sample(new FloatMeasurement(4f));
@@ -247,6 +245,5 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
 
     assertTrue("The loaded snapshot JSON string was not equal to the original", equals);
   }
-
 
 }
