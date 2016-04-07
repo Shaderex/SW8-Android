@@ -104,7 +104,7 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
     wifiManager.setWifiEnabled(true);
 
     // Wait for wifi to be enabled
-    Thread.sleep(1000);
+    Thread.sleep(2000);
 
     final FragmentManager fragmentManager = getActivity().getFragmentManager();
     fragmentManager.beginTransaction().add(R.id.content_frame_layout, PublicCampaignFragment.newInstance(), TEST_KEY).commit();
@@ -114,15 +114,15 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
     fragment.onResume();
 
     // Wait for http request in AsyncHttpTask to complete
-    Thread.sleep(6000);
+    Thread.sleep(8000);
 
     final TextView no_data_emptyView = (TextView) fragment.getView().findViewById(R.id.empty_no_data);
     final TextView no_connection_emptyView = (TextView) fragment.getView().findViewById(R.id.empty_no_connection);
     final TextView unexpected_response_emptyView = (TextView) fragment.getView().findViewById(R.id.empty_unexpected_response);
 
-    assertTrue(no_data_emptyView.getVisibility() == View.INVISIBLE || no_data_emptyView.getVisibility() == View.GONE);
-    assertTrue(no_connection_emptyView.getVisibility() == View.INVISIBLE || no_connection_emptyView.getVisibility() == View.GONE);
-    assertTrue(unexpected_response_emptyView.getVisibility() == View.INVISIBLE || unexpected_response_emptyView.getVisibility() == View.GONE);
+    assertTrue("no_data_emptyView was visible", no_data_emptyView.getVisibility() == View.INVISIBLE || no_data_emptyView.getVisibility() == View.GONE);
+    assertTrue("no_connection_emptyView was visible", no_connection_emptyView.getVisibility() == View.INVISIBLE || no_connection_emptyView.getVisibility() == View.GONE);
+    assertTrue("unexpected_response_emptyView was visible", unexpected_response_emptyView.getVisibility() == View.INVISIBLE || unexpected_response_emptyView.getVisibility() == View.GONE);
   }
 
   public void testPublicCampaignFragmentIsListViewPopulatable() {
