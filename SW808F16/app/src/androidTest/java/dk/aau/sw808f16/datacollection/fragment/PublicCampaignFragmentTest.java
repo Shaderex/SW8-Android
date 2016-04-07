@@ -105,7 +105,7 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
     wifiManager.setWifiEnabled(true);
 
     // Wait for wifi to be enabled
-    Thread.sleep(10000);
+    Thread.sleep(30000);
 
 
     ConnectivityManager manager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -121,7 +121,7 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
     fragment.onResume();
 
     // Wait for http request in AsyncHttpTask to complete
-    Thread.sleep(8000);
+    Thread.sleep(30000);
 
     final TextView no_data_emptyView = (TextView) fragment.getView().findViewById(R.id.empty_no_data);
     final TextView no_connection_emptyView = (TextView) fragment.getView().findViewById(R.id.empty_no_connection);
