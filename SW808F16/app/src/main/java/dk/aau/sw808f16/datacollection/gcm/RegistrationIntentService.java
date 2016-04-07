@@ -32,6 +32,7 @@ import org.apache.http.protocol.HTTP;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 
 import dk.aau.sw808f16.datacollection.R;
@@ -102,7 +103,7 @@ public class RegistrationIntentService extends IntentService {
 
     final String request = RequestHostResolver.resolveHostForRequest(this, "/gcm/registerDevice");
 
-    final AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, request, 200) {
+    final AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, request, HttpURLConnection.HTTP_OK) {
       @Override
       protected Response<String> sendRequest(final Request webb) {
         try {

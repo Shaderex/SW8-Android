@@ -29,13 +29,13 @@ import java.net.HttpURLConnection;
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.campaign.AsyncHttpCampaignJoinTask;
 import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
+import dk.aau.sw808f16.datacollection.webutil.RequestHostResolver;
 
 public class PublicCampaignFragment extends Fragment
     implements ConfirmSaveSelectionFragment.SaveConfirmedCampaign, SwipeRefreshLayout.OnRefreshListener {
 
   private static final String CONFIRM_SAVE_SELECTION_FRAGMENT = "confirmSaveSelectionFragment";
   private static final String CURRENTLY_CHECKED_CAMPAIGN_ID_KEY = "CURRENTLY_CHECKED_CAMPAIGN_ID_KEY";
-  private static final String campaignListResourcePath = "https://dev.local.element67.dk:8000/campaigns";
 
   public Menu menu;
   private long currentlyMarkedCampaign;
@@ -132,6 +132,8 @@ public class PublicCampaignFragment extends Fragment
     if (currentGetCampaignsTask != null) {
       currentGetCampaignsTask.cancel(true);
     }
+
+    final String campaignListResourcePath = RequestHostResolver.resolveHostForRequest(getActivity(), "/campaigns");
 
     currentGetCampaignsTask = new AsyncHttpWebbTask<JSONArray>(AsyncHttpWebbTask.Method.GET, campaignListResourcePath, HttpURLConnection.HTTP_OK) {
 

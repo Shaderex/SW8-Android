@@ -157,7 +157,7 @@ public final class BackgroundSensorService extends Service {
         final String requestURL = RequestHostResolver.resolveHostForRequest(BackgroundSensorService.this,
             "/campaigns/" + campaign.getIdentifier() + "/snapshots");
 
-        AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, requestURL, 200) {
+        final AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, requestURL, 200) {
           @Override
           protected Response<String> sendRequest(Request webb) {
             try {

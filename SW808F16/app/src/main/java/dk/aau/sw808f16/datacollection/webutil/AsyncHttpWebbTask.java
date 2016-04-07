@@ -24,7 +24,7 @@ public abstract class AsyncHttpWebbTask<ResultT> extends AsyncTask<Void, Void, R
   private Webb webb;
   private int expectedResponseCode;
 
-  public AsyncHttpWebbTask(Method method, String url, int expectedResponseCode) {
+  public AsyncHttpWebbTask(final Method method, final String url, final int expectedResponseCode) {
     this.url = url;
     this.webb = Webb.create();
     this.expectedResponseCode = expectedResponseCode;
@@ -35,17 +35,18 @@ public abstract class AsyncHttpWebbTask<ResultT> extends AsyncTask<Void, Void, R
   protected Response<ResultT> doInBackground(Void... params) {
 
     final TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
+
       public X509Certificate[] getAcceptedIssuers() {
         return null;
       }
 
       @Override
-      public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+      public void checkClientTrusted(final X509Certificate[] arg0, final String arg1) throws CertificateException {
         // Not implemented
       }
 
       @Override
-      public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+      public void checkServerTrusted(final X509Certificate[] arg0, final String arg1) throws CertificateException {
         // Not implemented
       }
     }
@@ -85,7 +86,7 @@ public abstract class AsyncHttpWebbTask<ResultT> extends AsyncTask<Void, Void, R
   }
 
   @Override
-  protected final void onPostExecute(Response<ResultT> response) {
+  protected final void onPostExecute(final Response<ResultT> response) {
 
     if (response == null) {
       onConnectionFailure();
