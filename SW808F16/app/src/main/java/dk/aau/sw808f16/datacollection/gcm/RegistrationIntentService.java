@@ -10,6 +10,8 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.goebl.david.Request;
+import com.goebl.david.Response;
 import com.google.android.gms.gcm.GcmPubSub;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
@@ -34,6 +36,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
+import org.json.JSONException;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -43,6 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dk.aau.sw808f16.datacollection.R;
+import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
 
 public class RegistrationIntentService extends IntentService {
   private static final String TAG = "RegIntentService";
@@ -116,41 +120,35 @@ public class RegistrationIntentService extends IntentService {
     }
     request += "/gcm/registerDevice";
 
-    final HttpPost httpPost = new HttpPost(request);
-
-    final List<NameValuePair> urlParameters = new ArrayList<>();
-    try {
-      urlParameters.add(new BasicNameValuePair("deviceID", URLEncoder.encode(token, "utf-8")));
-    } catch (UnsupportedEncodingException exception) {
-      exception.printStackTrace();
-    }
-
-    try {
-      httpPost.setEntity(new UrlEncodedFormEntity(urlParameters));
-    } catch (UnsupportedEncodingException exception) {
-      exception.printStackTrace();
-    }
-
-    try {
-      // Execute HTTP Post Request
-      final HttpResponse response = httpclient.execute(httpPost);
-      final StatusLine statusLine = response.getStatusLine();
-      final int statusCode = statusLine.getStatusCode();
-
-      switch (statusCode) {
-        case HttpURLConnection.HTTP_OK: {
-          return;
+    AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, request, 200) {
+      @Override
+      protected Response<String> sendRequest(Request webb) {
+        try {
+          final String deviceID = URLEncoder.encode(token, "utf-8");
+          final Response<String> deviceIdString = webb.param("device_id", deviceID).asString();
+          return deviceIdString;
+        } catch (UnsupportedEncodingException exception) {
+          exception.printStackTrace();
         }
-        default: {
-          throw new IOException("Unable post registration to server");
-        }
+        return null;
       }
 
-    } catch (ClientProtocolException exception) {
-      exception.printStackTrace();
-    } catch (IOException exception) {
-      exception.printStackTrace();
-    }
+      @Override
+      public void onResponseCodeMatching(Response<String> response) {
+        Log.d("Register-Device", "onResponseCodeMatching");
+      }
+
+      @Override
+      public void onResponseCodeNotMatching(Response<String> response) {
+        Log.d("Register-Device", "onResponseCodeNotMatching: " + response.getResponseMessage());
+      }
+
+      @Override
+      public void onConnectionFailure() {
+        Log.d("Register-Device", "onConnectionFailure");
+      }
+    };
+    task.execute();
   }
 
   /**
