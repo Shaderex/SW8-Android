@@ -15,26 +15,44 @@
             android:id="@+id/confirm_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Confirm"/>
+            android:text="@string/confirm"/>
     </LinearLayout>
 
-    <ListView
-        android:id="@+id/campaigns_list_view"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/confirm_button_container"
-        android:layout_alignParentTop="true"/>
+        android:layout_alignParentTop="true">
+
+        <ListView
+            android:id="@+id/campaigns_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </android.support.v4.widget.SwipeRefreshLayout>
 
     <TextView
-        android:id="@android:id/empty"
+        android:id="@+id/empty_no_data"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:text="No campaigns available"
+        android:text="@string/no_campaigns_available"
         android:visibility="gone"/>
 
-    <include
-        android:id="@+id/activity_indicator"
-        layout="@layout/activity_indicator_with_message"/>
+    <TextView
+        android:id="@+id/empty_unexpected_response"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/unexpected_response_from_server"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/empty_no_connection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/unable_to_connect"
+        android:visibility="gone"/>
 
 </RelativeLayout>

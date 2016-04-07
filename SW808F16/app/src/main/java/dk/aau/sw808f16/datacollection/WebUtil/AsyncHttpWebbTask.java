@@ -17,7 +17,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-public abstract class AsyncHttpWebbTask<Result> extends AsyncTask<Void, Void, Response<Result>> {
+public abstract class AsyncHttpWebbTask<ResultT> extends AsyncTask<Void, Void, Response<ResultT>> {
 
   private final Method method;
   private final String url;
@@ -32,9 +32,9 @@ public abstract class AsyncHttpWebbTask<Result> extends AsyncTask<Void, Void, Re
   }
 
   @Override
-  protected Response<Result> doInBackground(Void... params) {
+  protected Response<ResultT> doInBackground(Void... params) {
 
-    TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
+    final TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
       public X509Certificate[] getAcceptedIssuers() {
         return null;
       }
@@ -48,18 +48,22 @@ public abstract class AsyncHttpWebbTask<Result> extends AsyncTask<Void, Void, Re
       public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
         // Not implemented
       }
-    }};
+    }
+    };
 
     try {
       final SSLContext sc = SSLContext.getInstance("TLS");
       sc.init(null, trustAllCerts, new java.security.SecureRandom());
       webb.setSSLSocketFactory(sc.getSocketFactory());
-    } catch (KeyManagementException e) {
-      e.printStackTrace();
-    } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace();
+    } catch (KeyManagementException | NoSuchAlgorithmException exception) {
+      exception.printStackTrace();
     }
+
     webb.setRetryManager(new RetryManager());
+
+    if (isCancelled()) {
+      return null;
+    }
 
     try {
       switch (method) {
@@ -71,15 +75,17 @@ public abstract class AsyncHttpWebbTask<Result> extends AsyncTask<Void, Void, Re
           return sendRequest(webb.put(url));
         case DELETE:
           return sendRequest(webb.delete(url));
+        default:
+          return null;
       }
-    } catch (WebbException e) {
-      e.printStackTrace();
+    } catch (WebbException exception) {
+      exception.printStackTrace();
     }
     return null;
   }
 
   @Override
-  protected final void onPostExecute(Response<Result> response) {
+  protected final void onPostExecute(Response<ResultT> response) {
 
     if (response == null) {
       onConnectionFailure();
@@ -92,11 +98,11 @@ public abstract class AsyncHttpWebbTask<Result> extends AsyncTask<Void, Void, Re
     super.onPostExecute(response);
   }
 
-  protected abstract Response<Result> sendRequest(Request webb);
+  protected abstract Response<ResultT> sendRequest(Request webb);
 
-  public abstract void onResponseCodeMatching(Response<Result> response);
+  public abstract void onResponseCodeMatching(Response<ResultT> response);
 
-  public abstract void onResponseCodeNotMatching(Response<Result> response);
+  public abstract void onResponseCodeNotMatching(Response<ResultT> response);
 
   public abstract void onConnectionFailure();
 

@@ -116,9 +116,13 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
     // Wait for http request in AsyncHttpTask to complete
     Thread.sleep(3000);
 
-    final TextView emptyView = (TextView) fragment.getView().findViewById(android.R.id.empty);
+    final TextView no_data_emptyView = (TextView) fragment.getView().findViewById(R.id.empty_no_data);
+    final TextView no_connection_emptyView = (TextView) fragment.getView().findViewById(R.id.empty_no_connection);
+    final TextView unexpected_response_emptyView = (TextView) fragment.getView().findViewById(R.id.empty_unexpected_response);
 
-    assertTrue(emptyView.getVisibility() == View.INVISIBLE || emptyView.getVisibility() == View.GONE);
+    assertTrue(no_data_emptyView.getVisibility() == View.INVISIBLE || no_data_emptyView.getVisibility() == View.GONE);
+    assertTrue(no_connection_emptyView.getVisibility() == View.INVISIBLE || no_connection_emptyView.getVisibility() == View.GONE);
+    assertTrue(unexpected_response_emptyView.getVisibility() == View.INVISIBLE || unexpected_response_emptyView.getVisibility() == View.GONE);
   }
 
   public void testPublicCampaignFragmentIsListViewPopulatable() {

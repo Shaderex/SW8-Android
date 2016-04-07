@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -16,22 +17,24 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.goebl.david.Request;
+import com.goebl.david.Response;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.iid.InstanceID;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 import dk.aau.sw808f16.datacollection.R;
-import dk.aau.sw808f16.datacollection.WebUtil.AsyncHttpTask;
+import dk.aau.sw808f16.datacollection.WebUtil.AsyncHttpWebbTask;
+import dk.aau.sw808f16.datacollection.campaign.AsyncHttpCampaignJoinTask;
 
-public class PublicCampaignFragment extends Fragment implements ConfirmSaveSelectionFragment.SaveConfirmedCampaign {
+public class PublicCampaignFragment extends Fragment
+    implements ConfirmSaveSelectionFragment.SaveConfirmedCampaign, SwipeRefreshLayout.OnRefreshListener {
 
   private static final String CONFIRM_SAVE_SELECTION_FRAGMENT = "confirmSaveSelectionFragment";
   private static final String CURRENTLY_CHECKED_CAMPAIGN_ID_KEY = "CURRENTLY_CHECKED_CAMPAIGN_ID_KEY";
@@ -39,6 +42,7 @@ public class PublicCampaignFragment extends Fragment implements ConfirmSaveSelec
 
   public Menu menu;
   private long currentlyMarkedCampaign;
+  private AsyncHttpWebbTask<JSONArray> currentGetCampaignsTask;
 
   public static PublicCampaignFragment newInstance() {
 
@@ -66,58 +70,7 @@ public class PublicCampaignFragment extends Fragment implements ConfirmSaveSelec
   public void onResume() {
     super.onResume();
 
-    try {
-
-      final AsyncHttpTask task = new AsyncHttpTask(getActivity(), new URL(campaignListResourcePath), HttpURLConnection.HTTP_OK) {
-
-        final JsonCampaingsAdapter adapter = new JsonCampaingsAdapter();
-
-        @Override
-        protected void onPreExecute() {
-          super.onPreExecute();
-
-          final View activityIndicator = getView().findViewById(R.id.activity_indicator);
-          final TextView activityIndicatorTextView = (TextView) activityIndicator.findViewById(R.id.activity_indicator_message_text_view);
-          activityIndicatorTextView.setText(R.string.loading_campaigns_message);
-          activityIndicator.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected void onResponseCodeMatching(final InputStream in) {
-
-          final View activityIndicator = getView().findViewById(R.id.activity_indicator);
-          activityIndicator.setVisibility(View.GONE);
-
-          try {
-            final JSONArray data = new JSONArray(convertInputStreamToString(in));
-            final ListView listView = (ListView) getView().findViewById(R.id.campaigns_list_view);
-            listView.setEmptyView(getView().findViewById(android.R.id.empty));
-            listView.setAdapter(adapter);
-            adapter.setData(data);
-
-          } catch (JSONException exception) {
-            exception.printStackTrace();
-          }
-
-        }
-
-        @Override
-        protected void onResponseCodeNotMatching(final Integer responseCode) {
-
-          final View activityIndicator = getView().findViewById(R.id.activity_indicator);
-          activityIndicator.setVisibility(View.GONE);
-          final ListView listView = (ListView) getView().findViewById(R.id.campaigns_list_view);
-          listView.setEmptyView(getView().findViewById(android.R.id.empty));
-          listView.setAdapter(adapter);
-        }
-      };
-
-      task.execute();
-
-    } catch (MalformedURLException exception) {
-      exception.printStackTrace();
-    }
-
+    onRefresh();
   }
 
   @Override
@@ -133,7 +86,9 @@ public class PublicCampaignFragment extends Fragment implements ConfirmSaveSelec
   public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
 
     final View view = inflater.inflate(R.layout.fragment_public_campaign, container, false);
-    //final ListView listView = (ListView) view.findViewById(R.id.campaigns_list_view);
+
+    final SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_container);
+    swipeRefreshLayout.setOnRefreshListener(this);
 
     final Button confirmButton = (Button) view.findViewById(R.id.confirm_button);
     confirmButton.setOnClickListener(new View.OnClickListener() {
@@ -163,9 +118,85 @@ public class PublicCampaignFragment extends Fragment implements ConfirmSaveSelec
 
   @Override
   public void onConfirmedCampaignSave() {
+
     final SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
     editor.putLong(CURRENTLY_CHECKED_CAMPAIGN_ID_KEY, currentlyMarkedCampaign);
     editor.apply();
+
+    final AsyncHttpCampaignJoinTask joinCampaignTask = new AsyncHttpCampaignJoinTask(getActivity(), currentlyMarkedCampaign);
+    joinCampaignTask.execute();
+  }
+
+  @Override
+  public void onRefresh() {
+
+    final SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) getView().findViewById(R.id.swipe_refresh_container);
+
+    if (currentGetCampaignsTask != null) {
+      currentGetCampaignsTask.cancel(true);
+    }
+
+    currentGetCampaignsTask = new AsyncHttpWebbTask<JSONArray>(AsyncHttpWebbTask.Method.GET, campaignListResourcePath, HttpURLConnection.HTTP_OK) {
+
+      final JsonCampaingsAdapter adapter = new JsonCampaingsAdapter();
+
+      @Override
+      protected void onPreExecute() {
+        super.onPreExecute();
+      }
+
+      @Override
+      protected Response<JSONArray> sendRequest(final Request webb) {
+        return webb.retry(10, true).asJsonArray();
+      }
+
+      @Override
+      public void onResponseCodeMatching(final Response<JSONArray> response) {
+
+        final JSONArray data = response.getBody();
+        final ListView listView = (ListView) getView().findViewById(R.id.campaigns_list_view);
+
+        if (listView.getEmptyView() != null) {
+          listView.getEmptyView().setVisibility(View.GONE);
+        }
+
+        listView.setEmptyView(getView().findViewById(R.id.empty_no_data));
+
+        listView.setAdapter(adapter);
+        adapter.setData(data);
+        refreshLayout.setRefreshing(false);
+      }
+
+      @Override
+      public void onResponseCodeNotMatching(final Response<JSONArray> response) {
+
+        final ListView listView = (ListView) getView().findViewById(R.id.campaigns_list_view);
+
+        if (listView.getEmptyView() != null) {
+          listView.getEmptyView().setVisibility(View.GONE);
+        }
+
+        listView.setEmptyView(getView().findViewById(R.id.empty_unexpected_response));
+        listView.setAdapter(adapter);
+        refreshLayout.setRefreshing(false);
+      }
+
+      @Override
+      public void onConnectionFailure() {
+
+        final ListView listView = (ListView) getView().findViewById(R.id.campaigns_list_view);
+
+        if (listView.getEmptyView() != null) {
+          listView.getEmptyView().setVisibility(View.GONE);
+        }
+
+        listView.setEmptyView(getView().findViewById(R.id.empty_no_connection));
+        listView.setAdapter(adapter);
+        refreshLayout.setRefreshing(false);
+      }
+    };
+
+    currentGetCampaignsTask.execute();
   }
 
   class JsonCampaingsAdapter extends BaseAdapter {
@@ -257,7 +288,6 @@ public class PublicCampaignFragment extends Fragment implements ConfirmSaveSelec
           holder.campaignCheckBox.setChecked(false);
         }
 
-
         holder.campaignCheckBox.setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(final View clickedView) {
@@ -284,34 +314,11 @@ public class PublicCampaignFragment extends Fragment implements ConfirmSaveSelec
           }
         });
 
-
-
       } catch (JSONException exception) {
         exception.printStackTrace();
       }
 
       return convertView;
     }
-  }
-
-  // Convert inputstream to string
-  private String convertInputStreamToString(final InputStream in) {
-
-    final BufferedReader r = new BufferedReader(new InputStreamReader(in));
-    final StringBuilder total = new StringBuilder();
-
-    String line;
-
-    try {
-      while ((line = r.readLine()) != null) {
-        total.append(line);
-      }
-    } catch (IOException exception) {
-      exception.printStackTrace();
-
-      return "";
-    }
-
-    return total.toString();
   }
 }
