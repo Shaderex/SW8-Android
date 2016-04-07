@@ -19,15 +19,19 @@ import android.widget.Toast;
 
 import com.goebl.david.Request;
 import com.goebl.david.Response;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.iid.InstanceID;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
 
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.WebUtil.AsyncHttpWebbTask;
+import dk.aau.sw808f16.datacollection.campaign.AsyncHttpCampaignJoinTask;
 
 public class PublicCampaignFragment extends Fragment
     implements ConfirmSaveSelectionFragment.SaveConfirmedCampaign, SwipeRefreshLayout.OnRefreshListener {
@@ -114,13 +118,19 @@ public class PublicCampaignFragment extends Fragment
 
   @Override
   public void onConfirmedCampaignSave() {
+
     final SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
     editor.putLong(CURRENTLY_CHECKED_CAMPAIGN_ID_KEY, currentlyMarkedCampaign);
     editor.apply();
+
+    final AsyncHttpCampaignJoinTask joinCampaignTask = new AsyncHttpCampaignJoinTask(getActivity(), currentlyMarkedCampaign);
+    joinCampaignTask.execute();
   }
 
   @Override
   public void onRefresh() {
+
+    final SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) getView().findViewById(R.id.swipe_refresh_container);
 
     if (currentGetCampaignsTask != null) {
       currentGetCampaignsTask.cancel(true);
@@ -133,11 +143,6 @@ public class PublicCampaignFragment extends Fragment
       @Override
       protected void onPreExecute() {
         super.onPreExecute();
-
-        final View activityIndicator = getView().findViewById(R.id.activity_indicator);
-        final TextView activityIndicatorTextView = (TextView) activityIndicator.findViewById(R.id.activity_indicator_message_text_view);
-        activityIndicatorTextView.setText(R.string.loading_campaigns_message);
-        activityIndicator.setVisibility(View.VISIBLE);
       }
 
       @Override
@@ -147,9 +152,6 @@ public class PublicCampaignFragment extends Fragment
 
       @Override
       public void onResponseCodeMatching(final Response<JSONArray> response) {
-
-        final View activityIndicator = getView().findViewById(R.id.activity_indicator);
-        activityIndicator.setVisibility(View.GONE);
 
         final JSONArray data = response.getBody();
         final ListView listView = (ListView) getView().findViewById(R.id.campaigns_list_view);
@@ -162,13 +164,12 @@ public class PublicCampaignFragment extends Fragment
 
         listView.setAdapter(adapter);
         adapter.setData(data);
+        refreshLayout.setRefreshing(false);
       }
 
       @Override
       public void onResponseCodeNotMatching(final Response<JSONArray> response) {
 
-        final View activityIndicator = getView().findViewById(R.id.activity_indicator);
-        activityIndicator.setVisibility(View.GONE);
         final ListView listView = (ListView) getView().findViewById(R.id.campaigns_list_view);
 
         if (listView.getEmptyView() != null) {
@@ -177,13 +178,11 @@ public class PublicCampaignFragment extends Fragment
 
         listView.setEmptyView(getView().findViewById(R.id.empty_unexpected_response));
         listView.setAdapter(adapter);
+        refreshLayout.setRefreshing(false);
       }
 
       @Override
       public void onConnectionFailure() {
-
-        final View activityIndicator = getView().findViewById(R.id.activity_indicator);
-        activityIndicator.setVisibility(View.GONE);
 
         final ListView listView = (ListView) getView().findViewById(R.id.campaigns_list_view);
 
@@ -193,8 +192,8 @@ public class PublicCampaignFragment extends Fragment
 
         listView.setEmptyView(getView().findViewById(R.id.empty_no_connection));
         listView.setAdapter(adapter);
+        refreshLayout.setRefreshing(false);
       }
-
     };
 
     currentGetCampaignsTask.execute();
@@ -288,7 +287,6 @@ public class PublicCampaignFragment extends Fragment
         } else {
           holder.campaignCheckBox.setChecked(false);
         }
-
 
         holder.campaignCheckBox.setOnClickListener(new View.OnClickListener() {
           @Override

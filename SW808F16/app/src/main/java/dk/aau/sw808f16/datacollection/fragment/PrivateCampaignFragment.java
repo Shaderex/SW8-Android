@@ -25,6 +25,7 @@ import java.net.HttpURLConnection;
 
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.WebUtil.AsyncHttpWebbTask;
+import dk.aau.sw808f16.datacollection.campaign.AsyncHttpCampaignJoinTask;
 
 public class PrivateCampaignFragment extends Fragment {
 
@@ -73,50 +74,10 @@ public class PrivateCampaignFragment extends Fragment {
       public void onClick(View v) {
         Toast.makeText(getActivity(), "Starter", Toast.LENGTH_SHORT).show();
 
-        AsyncHttpWebbTask<JSONObject> task = new AsyncHttpWebbTask<JSONObject>(AsyncHttpWebbTask.Method.POST, "https://dev.local.element67.dk:8000/campaigns/join", HttpURLConnection.HTTP_OK) {
-          @Override
-          protected Response<JSONObject> sendRequest(Request request) {
+        final long enteredCampaignId = Long.getLong(campaignIdField.getText().toString(), -1);
+        final AsyncHttpCampaignJoinTask joinCampaignTask = new AsyncHttpCampaignJoinTask(getActivity(), enteredCampaignId);
+        joinCampaignTask.execute();
 
-            try {
-              final InstanceID instanceID = InstanceID.getInstance(getActivity());
-              final String token = instanceID.getToken(
-                  getString(R.string.defaultSenderID),
-                  GoogleCloudMessaging.INSTANCE_ID_SCOPE,
-                  null
-              );
-              return request
-                  .param("device_id", token)
-                  .param("campaign_id", campaignIdField.getText().toString())
-                  .retry(2, false)
-                  .asJsonObject();
-
-            } catch (IOException exception) {
-              exception.printStackTrace();
-              return null;
-            }
-          }
-
-          @Override
-          public void onResponseCodeMatching(final Response<JSONObject> response) {
-            try {
-              Toast.makeText(getActivity(), response.getBody().getString("message"), Toast.LENGTH_SHORT).show();
-            } catch (JSONException exception) {
-              exception.printStackTrace();
-            }
-          }
-
-          @Override
-          public void onResponseCodeNotMatching(final Response<JSONObject> response) {
-            Toast.makeText(getActivity(), response.getErrorBody().toString(), Toast.LENGTH_SHORT).show();
-          }
-
-          @Override
-          public void onConnectionFailure() {
-            Toast.makeText(getActivity(), "Could not connect", Toast.LENGTH_SHORT).show();
-          }
-        };
-
-        task.execute();
       }
     });
 
