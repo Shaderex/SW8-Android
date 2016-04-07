@@ -98,6 +98,7 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
   }
   */
 
+  /*
   public void testPublicCampaignFragmentListViewEmptyViewHiddenOrGone() throws InterruptedException {
 
     final WifiManager wifiManager = (WifiManager) getActivity().getSystemService(Context.WIFI_SERVICE);
@@ -117,7 +118,7 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
     fragmentManager.beginTransaction().add(R.id.content_frame_layout, PublicCampaignFragment.newInstance(), TEST_KEY).commit();
     fragmentManager.executePendingTransactions();
 
-    final Fragment fragment = fragmentManager.findFragmentById(R.id.content_frame_layout);
+    final PublicCampaignFragment fragment = (PublicCampaignFragment) fragmentManager.findFragmentById(R.id.content_frame_layout);
     fragment.onResume();
 
     // Wait for http request in AsyncHttpTask to complete
@@ -131,6 +132,7 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
     assertTrue("no_connection_emptyView was visible", no_connection_emptyView.getVisibility() == View.INVISIBLE || no_connection_emptyView.getVisibility() == View.GONE);
     assertTrue("unexpected_response_emptyView was visible", unexpected_response_emptyView.getVisibility() == View.INVISIBLE || unexpected_response_emptyView.getVisibility() == View.GONE);
   }
+  */
 
   public void testPublicCampaignFragmentIsListViewPopulatable() {
 
