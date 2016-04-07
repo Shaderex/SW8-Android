@@ -51,9 +51,6 @@ public class SnapshotSavedPersistentlySizeTest extends ApplicationTestCase<DataC
     providers.put(SensorType.GYROSCOPE, new GyroscopeSensorProvider(getContext(), sensorThreadPool, sensorManager));
     providers.put(SensorType.AMBIENT_LIGHT, new AmbientLightSensorProvider(getContext(), sensorThreadPool, sensorManager));
     providers.put(SensorType.BAROMETER, new BarometerSensorProvider(getContext(), sensorThreadPool, sensorManager));
-
-    // TODO Consider removing this
-    // providers.put(SensorType.CELLULAR, new CellularNetworkSensorProvider(getContext(), sensorThreadPool, sensorManager));
     providers.put(SensorType.COMPASS, new CompassSensorProvider(getContext(), sensorThreadPool, sensorManager));
     providers.put(SensorType.LOCATION, new LocationSensorProvider(getContext(), sensorThreadPool, sensorManager));
     providers.put(SensorType.PROXIMITY, new ProximitySensorProvider(getContext(), sensorThreadPool, sensorManager));

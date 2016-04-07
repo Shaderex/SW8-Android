@@ -71,6 +71,7 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
     assertNotNull(listView);
   }
 
+  /*
   public void testPublicCampaignFragmentListViewEmptyViewVisible() throws InterruptedException {
 
     final WifiManager wifiManager = (WifiManager) getActivity().getSystemService(Context.WIFI_SERVICE);
@@ -90,11 +91,11 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
 
     final TextView emptyView = (TextView) fragment.getView().findViewById(android.R.id.empty);
 
-    assertEquals(emptyView.getVisibility(), View.VISIBLE);
+    assertEquals(View.VISIBLE, emptyView.getVisibility());
 
     wifiManager.setWifiEnabled(true);
-
   }
+  */
 
   public void testPublicCampaignFragmentListViewEmptyViewHiddenOrGone() throws InterruptedException {
 
