@@ -29,7 +29,8 @@ import java.net.HttpURLConnection;
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.WebUtil.AsyncHttpWebbTask;
 
-public class PublicCampaignFragment extends Fragment implements ConfirmSaveSelectionFragment.SaveConfirmedCampaign, SwipeRefreshLayout.OnRefreshListener {
+public class PublicCampaignFragment extends Fragment
+    implements ConfirmSaveSelectionFragment.SaveConfirmedCampaign, SwipeRefreshLayout.OnRefreshListener {
 
   private static final String CONFIRM_SAVE_SELECTION_FRAGMENT = "confirmSaveSelectionFragment";
   private static final String CURRENTLY_CHECKED_CAMPAIGN_ID_KEY = "CURRENTLY_CHECKED_CAMPAIGN_ID_KEY";
@@ -314,7 +315,6 @@ public class PublicCampaignFragment extends Fragment implements ConfirmSaveSelec
             }
           }
         });
-
 
       } catch (JSONException exception) {
         exception.printStackTrace();
