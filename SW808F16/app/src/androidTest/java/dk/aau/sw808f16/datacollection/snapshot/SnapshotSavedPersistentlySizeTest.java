@@ -7,6 +7,9 @@ import android.test.ApplicationTestCase;
 import android.util.Log;
 
 import java.io.File;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,11 +39,18 @@ public class SnapshotSavedPersistentlySizeTest extends ApplicationTestCase<DataC
   }
 
   public void testSnapshotSavedPersistentlySizeSmallEnough() throws ExecutionException, InterruptedException {
-    final int runTestForMinutes = 3; // Minutes
+    final int runTestForMinutes = 60; // Minutes
     final int maxSizePerMinute = 10000000 / (60 * 24); // Bytes (10 MB per 24 hours)
     final int numberOfSensors = 9; // # Sensors. Do not change this
 
-    assertTrue("Test must run for at least 1 minute", runTestForMinutes >= 1);
+    Date date = new Date();
+    Calendar calendar = GregorianCalendar.getInstance();
+    calendar.setTime(date);
+    final int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY); // gets hour in 24h format
+
+    if (!(hourOfDay >= 22)) {
+      return; // Only run the test at night
+    }
 
     final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(numberOfSensors);
     final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
@@ -110,7 +120,6 @@ public class SnapshotSavedPersistentlySizeTest extends ApplicationTestCase<DataC
     final Thread thread = new Thread(realmRunnable);
     thread.start();
     thread.join();
-
 
     @SuppressLint("SdCardPath")
     final File file = new File("/data/data/dk.aau.sw808f16.datacollection/files/" + realmName);
