@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="aau_wifi_ssid">AAU-1x</string>
+    
+    <string name="backendURL_AAU">https://dev.local.element67.dk:8000</string>
+    <string name="backendURL">https://dev.global.element67.dk:8000</string>
+</resources>
