@@ -84,7 +84,7 @@ public class LocationMeasurement extends RealmObject implements JsonValueAble {
   }
 
   @Override
-  public String toJSONValue() throws JSONException {
+  public String toJsonValue() throws JSONException {
 
     final JSONObject jsonObject = new JSONObject();
 

@@ -17,8 +17,7 @@ public class Question implements Parcelable {
 
     if (byteAnswer == -1) {
       answer = null;
-    }
-    else {
+    } else {
       answer = byteAnswer == 1;
     }
 
@@ -45,8 +44,7 @@ public class Question implements Parcelable {
 
     if (question == null) {
       throw new NullPointerException("Question cannot be null");
-    }
-    else if (question.isEmpty()) {
+    } else if (question.isEmpty()) {
       throw new IllegalArgumentException("Question cannot be empty");
     }
 
@@ -88,11 +86,9 @@ public class Question implements Parcelable {
 
     if (answer == null) {
       byteAnswer = -1;
-    }
-    else if (answer) {
+    } else if (answer) {
       byteAnswer = 1;
-    }
-    else {
+    } else {
       byteAnswer = 0;
     }
 

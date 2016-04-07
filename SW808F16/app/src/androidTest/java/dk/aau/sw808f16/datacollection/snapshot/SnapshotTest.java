@@ -190,7 +190,7 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
     snapshot.addSample(SensorType.COMPASS, largeCompassSample);
 
 
-    final JSONObject snapshotJSONObject = snapshot.toJSONObject();
+    final JSONObject snapshotJSONObject = snapshot.toJsonObject();
     final String snapshotJSONObjectStringRepresentation = snapshotJSONObject.toString();
 
 
@@ -226,7 +226,7 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
     originalSnapshot.addSample(SensorType.BAROMETER, barometerSample);
     originalSnapshot.addSample(SensorType.COMPASS, largeCompassSample);
 
-    final JSONObject originalSnapshotJSONObject = originalSnapshot.toJSONObject();
+    final JSONObject originalSnapshotJSONObject = originalSnapshot.toJsonObject();
     final String originalSnapshotJSONObjectStringRepresentation = originalSnapshotJSONObject.toString();
 
     final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test_snapshot.realm").build();
@@ -237,7 +237,7 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
     realm.commitTransaction();
 
     final Snapshot loadedSnapshot = realm.where(Snapshot.class).findFirst();
-    final String loadedSnapShotStringRepresentation = loadedSnapshot.toJSONObject().toString();
+    final String loadedSnapShotStringRepresentation = loadedSnapshot.toJsonObject().toString();
 
     final boolean equals = loadedSnapShotStringRepresentation.equals(originalSnapshotJSONObjectStringRepresentation);
 

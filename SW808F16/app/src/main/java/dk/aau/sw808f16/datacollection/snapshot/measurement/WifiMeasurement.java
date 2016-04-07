@@ -60,16 +60,16 @@ public class WifiMeasurement extends RealmObject implements JsonValueAble {
   }
 
   @Override
-  public String toJSONValue() throws JSONException {
+  public String toJsonValue() throws JSONException {
 
     final JSONObject jsonObject = new JSONObject();
-    final JSONArray scanResultMeasurementsJSONArray = new JSONArray();
+    final JSONArray scanResultMeasurementsJsonArray = new JSONArray();
 
     for (final ScanResultMeasurement scanResultMeasurement : scanResultMeasurements) {
-      scanResultMeasurementsJSONArray.put(scanResultMeasurement.toJSONObject());
+      scanResultMeasurementsJsonArray.put(scanResultMeasurement.toJsonObject());
     }
 
-    jsonObject.put("scanResultMeasurements", scanResultMeasurementsJSONArray);
+    jsonObject.put("scanResultMeasurements", scanResultMeasurementsJsonArray);
 
     return jsonObject.toString();
   }

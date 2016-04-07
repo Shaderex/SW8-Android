@@ -125,14 +125,14 @@ public class RegistrationIntentService extends IntentService {
     final List<NameValuePair> urlParameters = new ArrayList<>();
     try {
       urlParameters.add(new BasicNameValuePair("deviceID", URLEncoder.encode(token, "utf-8")));
-    } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
+    } catch (UnsupportedEncodingException exception) {
+      exception.printStackTrace();
     }
 
     try {
       httpPost.setEntity(new UrlEncodedFormEntity(urlParameters));
-    } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
+    } catch (UnsupportedEncodingException exception) {
+      exception.printStackTrace();
     }
 
     try {
@@ -150,10 +150,10 @@ public class RegistrationIntentService extends IntentService {
         }
       }
 
-    } catch (ClientProtocolException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
+    } catch (ClientProtocolException exception) {
+      exception.printStackTrace();
+    } catch (IOException exception) {
+      exception.printStackTrace();
     }
   }
 

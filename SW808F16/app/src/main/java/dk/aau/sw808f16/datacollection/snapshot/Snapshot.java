@@ -118,39 +118,40 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
   }
 
   @Override
-  public JSONObject toJSONObject() throws JSONException {
+  public JSONObject toJsonObject() throws JSONException {
 
     final JSONObject jsonObject = new JSONObject();
 
-    addSampleListToJSONObject(jsonObject, "accelerometerSamples", accelerometerSamples);
-    addSampleListToJSONObject(jsonObject, "ambientLightSamples", ambientLightSamples);
-    addSampleListToJSONObject(jsonObject, "barometerSamples", barometerSamples);
-    addSampleListToJSONObject(jsonObject, "cellularSamples", cellularSamples);
-    addSampleListToJSONObject(jsonObject, "compassSamples", compassSamples);
-    addSampleListToJSONObject(jsonObject, "gyroscopeSamples", gyroscopeSamples);
-    addSampleListToJSONObject(jsonObject, "locationSamples", locationSamples);
-    addSampleListToJSONObject(jsonObject, "proximitySamples", proximitySamples);
-    addSampleListToJSONObject(jsonObject, "wifiSamples", wifiSamples);
+    addSampleListToJsonObject(jsonObject, "accelerometerSamples", accelerometerSamples);
+    addSampleListToJsonObject(jsonObject, "ambientLightSamples", ambientLightSamples);
+    addSampleListToJsonObject(jsonObject, "barometerSamples", barometerSamples);
+    addSampleListToJsonObject(jsonObject, "cellularSamples", cellularSamples);
+    addSampleListToJsonObject(jsonObject, "compassSamples", compassSamples);
+    addSampleListToJsonObject(jsonObject, "gyroscopeSamples", gyroscopeSamples);
+    addSampleListToJsonObject(jsonObject, "locationSamples", locationSamples);
+    addSampleListToJsonObject(jsonObject, "proximitySamples", proximitySamples);
+    addSampleListToJsonObject(jsonObject, "wifiSamples", wifiSamples);
 
     return jsonObject;
   }
 
-  private void addSampleListToJSONObject(final JSONObject targetJSONObject, final String key, final RealmList<Sample> samples) {
+  private void addSampleListToJsonObject(final JSONObject targetJsonObject, final String key, final RealmList<Sample> samples) {
     if (!samples.isEmpty()) {
-      final JSONArray samplesJSONArray = new JSONArray();
+
+      final JSONArray samplesJsonArray = new JSONArray();
 
       for (final Sample sample : samples) {
         try {
-          samplesJSONArray.put(sample.toJSONObject());
-        } catch (JSONException e) {
-          e.printStackTrace();
+          samplesJsonArray.put(sample.toJsonObject());
+        } catch (JSONException exception) {
+          exception.printStackTrace();
         }
       }
 
       try {
-        targetJSONObject.put(key, samplesJSONArray);
-      } catch (JSONException e) {
-        e.printStackTrace();
+        targetJsonObject.put(key, samplesJsonArray);
+      } catch (JSONException exception) {
+        exception.printStackTrace();
       }
     }
 

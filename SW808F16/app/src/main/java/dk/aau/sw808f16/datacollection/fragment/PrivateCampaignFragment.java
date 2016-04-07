@@ -12,19 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.goebl.david.Request;
-import com.goebl.david.Response;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.android.gms.iid.InstanceID;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
-
 import dk.aau.sw808f16.datacollection.R;
-import dk.aau.sw808f16.datacollection.WebUtil.AsyncHttpWebbTask;
 import dk.aau.sw808f16.datacollection.campaign.AsyncHttpCampaignJoinTask;
 
 public class PrivateCampaignFragment extends Fragment {
@@ -74,7 +62,7 @@ public class PrivateCampaignFragment extends Fragment {
       public void onClick(View v) {
         Toast.makeText(getActivity(), "Starter", Toast.LENGTH_SHORT).show();
 
-        final long enteredCampaignId = Long.getLong(campaignIdField.getText().toString(), -1);
+        final long enteredCampaignId = Long.parseLong(campaignIdField.getText().toString());
         final AsyncHttpCampaignJoinTask joinCampaignTask = new AsyncHttpCampaignJoinTask(getActivity(), enteredCampaignId);
         joinCampaignTask.execute();
 

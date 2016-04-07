@@ -15,8 +15,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.R;
-import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 
 public class ProximitySensorProvider extends SensorProvider {
 
@@ -62,8 +62,7 @@ public class ProximitySensorProvider extends SensorProvider {
           };
 
           proximitySamplingTimer.scheduleAtFixedRate(proximitySamplingTask, 0, measurementFrequency);
-        }
-        else {
+        } else {
           proximitySensorOutput = event.values;
         }
       }

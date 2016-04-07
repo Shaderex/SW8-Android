@@ -34,8 +34,7 @@ public class GoogleCloudService extends GcmListenerService {
 
     if (from.startsWith("/topics/")) {
       // message received from some topic.
-    }
-    else {
+    } else {
       // normal downstream message.
     }
 

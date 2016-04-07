@@ -4,5 +4,5 @@ import org.json.JSONException;
 
 public interface JsonValueAble {
 
-  String toJSONValue() throws JSONException;
+  String toJsonValue() throws JSONException;
 }

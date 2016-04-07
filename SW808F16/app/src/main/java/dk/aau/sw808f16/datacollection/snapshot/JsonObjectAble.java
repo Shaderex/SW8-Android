@@ -5,7 +5,7 @@ import org.json.JSONObject;
 
 public interface JsonObjectAble {
 
-  JSONObject toJSONObject() throws JSONException;
+  JSONObject toJsonObject() throws JSONException;
 }
 
 

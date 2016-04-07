@@ -16,11 +16,8 @@ import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 
 import dk.aau.sw808f16.datacollection.R;
-import dk.aau.sw808f16.datacollection.WebUtil.AsyncHttpWebbTask;
+import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
 
-/**
- * Created by Marhlder on 07-Apr-16.
- */
 public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
 
   final WeakReference<Context> weakContextReference;
@@ -40,8 +37,8 @@ public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
 
     if (context != null) {
       try {
-        final InstanceID instanceID = InstanceID.getInstance(context);
-        final String token = instanceID.getToken(
+        final InstanceID instanceId = InstanceID.getInstance(context);
+        final String token = instanceId.getToken(
             context.getString(R.string.defaultSenderID),
             GoogleCloudMessaging.INSTANCE_ID_SCOPE,
             null

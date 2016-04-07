@@ -48,7 +48,7 @@ public class ScanResultMeasurement extends RealmObject implements JsonObjectAble
 
 
   @Override
-  public JSONObject toJSONObject() throws JSONException {
+  public JSONObject toJsonObject() throws JSONException {
 
     final JSONObject jsonObject = new JSONObject();
 

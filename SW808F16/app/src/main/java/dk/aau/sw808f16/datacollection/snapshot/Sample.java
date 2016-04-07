@@ -42,25 +42,20 @@ public class Sample extends RealmObject implements JsonObjectAble {
   public void addMeasurement(final Object measurement) {
     if (clazz == null) {
       clazz = measurement.getClass();
-    }
-    else if (!clazz.equals(measurement.getClass())) {
+    } else if (!clazz.equals(measurement.getClass())) {
       throw new IllegalArgumentException("The sample contains measurements of type " + clazz.getName()
           + " you cannot add measurements of type " + measurement.getClass().getName());
     }
 
     if (measurement instanceof FloatTripleMeasurement) {
       floatTripleMeasurements.add((FloatTripleMeasurement) measurement);
-    }
-    else if (measurement instanceof FloatMeasurement) {
+    } else if (measurement instanceof FloatMeasurement) {
       floatMeasurements.add((FloatMeasurement) measurement);
-    }
-    else if (measurement instanceof WifiMeasurement) {
+    } else if (measurement instanceof WifiMeasurement) {
       wifiMeasurements.add((WifiMeasurement) measurement);
-    }
-    else if (measurement instanceof LocationMeasurement) {
+    } else if (measurement instanceof LocationMeasurement) {
       locationMeasurements.add((LocationMeasurement) measurement);
-    }
-    else {
+    } else {
       throw new IllegalArgumentException("Type " + measurement.getClass().getName() + " is not a supported measurement type");
     }
   }
@@ -101,8 +96,7 @@ public class Sample extends RealmObject implements JsonObjectAble {
 
     if (ourMeasurements.size() != theirMeasurements.size()) {
       return false;
-    }
-    else {
+    } else {
       for (int i = 0; i < ourMeasurements.size(); i++) {
         if (!ourMeasurements.get(i).equals(theirMeasurements.get(i))) {
           return false;
@@ -114,18 +108,17 @@ public class Sample extends RealmObject implements JsonObjectAble {
   }
 
   @Override
-  public JSONObject toJSONObject() throws JSONException {
+  public JSONObject toJsonObject() throws JSONException {
 
-    final JSONObject sampleJSONObject = new JSONObject();
+    final JSONObject sampleJsonObject = new JSONObject();
     final JSONArray jsonMeasurements = new JSONArray();
 
-    for (JsonValueAble object : getMeasurements())
-    {
-      jsonMeasurements.put(object.toJSONValue());
+    for (JsonValueAble object : getMeasurements()) {
+      jsonMeasurements.put(object.toJsonValue());
     }
 
-    sampleJSONObject.put("measurements", jsonMeasurements);
+    sampleJsonObject.put("measurements", jsonMeasurements);
 
-    return sampleJSONObject;
+    return sampleJsonObject;
   }
 }

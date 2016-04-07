@@ -26,7 +26,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import dk.aau.sw808f16.datacollection.SensorType;
-import dk.aau.sw808f16.datacollection.WebUtil.AsyncHttpWebbTask;
+import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AccelerometerSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.SensorProvider;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
@@ -133,9 +133,9 @@ public final class BackgroundSensorService extends Service {
             @Override
             protected Response<String> sendRequest(Request webb) {
               try {
-                return webb.param("sensor_data_json", snapshot.toJSONObject().toString()).asString();
-              } catch (JSONException e) {
-                e.printStackTrace();
+                return webb.param("sensor_data_json", snapshot.toJsonObject().toString()).asString();
+              } catch (JSONException exception) {
+                exception.printStackTrace();
               }
               return null;
             }
