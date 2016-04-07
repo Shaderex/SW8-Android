@@ -104,7 +104,7 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
     wifiManager.setWifiEnabled(true);
 
     // Wait for wifi to be enabled
-    Thread.sleep(2000);
+    Thread.sleep(10000);
 
     final FragmentManager fragmentManager = getActivity().getFragmentManager();
     fragmentManager.beginTransaction().add(R.id.content_frame_layout, PublicCampaignFragment.newInstance(), TEST_KEY).commit();
