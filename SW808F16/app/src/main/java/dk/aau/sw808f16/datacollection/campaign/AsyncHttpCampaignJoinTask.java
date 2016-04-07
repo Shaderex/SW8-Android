@@ -16,7 +16,7 @@ import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 
 import dk.aau.sw808f16.datacollection.R;
-import dk.aau.sw808f16.datacollection.webutil_temp.AsyncHttpWebbTask;
+import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
 
 public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
 

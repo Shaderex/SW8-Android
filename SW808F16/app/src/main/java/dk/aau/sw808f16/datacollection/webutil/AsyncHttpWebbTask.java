@@ -1,4 +1,4 @@
-package dk.aau.sw808f16.datacollection.webutil_temp;
+package dk.aau.sw808f16.datacollection.webutil;
 
 import android.os.AsyncTask;
 
