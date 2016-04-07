@@ -166,8 +166,7 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
     assertTrue("The loaded snapshot was not equal to the original", equals);
   }
 
-  public void testCanBecomeJSON() throws JSONException {
-
+  public void testCanBecomeJson() throws JSONException {
     final Sample accelerometerSample = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
     final Sample gyroscopeSample = new Sample(new FloatTripleMeasurement(4f, 5f, 6f));
     final Sample barometerSample = new Sample(new FloatMeasurement(4f));
@@ -189,22 +188,19 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
     snapshot.addSample(SensorType.BAROMETER, barometerSample);
     snapshot.addSample(SensorType.COMPASS, largeCompassSample);
 
+    final JSONObject snapshotJsonObject = snapshot.toJsonObject();
+    final String snapshotJsonObjectStringRepresentation = snapshotJsonObject.toString();
 
-    final JSONObject snapshotJSONObject = snapshot.toJsonObject();
-    final String snapshotJSONObjectStringRepresentation = snapshotJSONObject.toString();
+    assertNotNull(snapshotJsonObjectStringRepresentation);
 
-
-    assertNotNull(snapshotJSONObjectStringRepresentation);
-
-    assertTrue(snapshotJSONObjectStringRepresentation.contains("measurements"));
-    assertTrue(snapshotJSONObjectStringRepresentation.contains("compass"));
-    assertTrue(snapshotJSONObjectStringRepresentation.contains("gyroscope"));
-    assertTrue(snapshotJSONObjectStringRepresentation.contains("barometer"));
-    assertTrue(snapshotJSONObjectStringRepresentation.contains("accelerometer"));
+    assertTrue(snapshotJsonObjectStringRepresentation.contains("measurements"));
+    assertTrue(snapshotJsonObjectStringRepresentation.contains("compass"));
+    assertTrue(snapshotJsonObjectStringRepresentation.contains("gyroscope"));
+    assertTrue(snapshotJsonObjectStringRepresentation.contains("barometer"));
+    assertTrue(snapshotJsonObjectStringRepresentation.contains("accelerometer"));
   }
 
-  public void testCanBecomeJSONAndRealmAndJSON() throws JSONException {
-
+  public void testCanBecomeJsonAndRealmAndJson() throws JSONException {
     final Sample accelerometerSample = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
     final Sample gyroscopeSample = new Sample(new FloatTripleMeasurement(4f, 5f, 6f));
     final Sample barometerSample = new Sample(new FloatMeasurement(4f));
@@ -226,8 +222,8 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
     originalSnapshot.addSample(SensorType.BAROMETER, barometerSample);
     originalSnapshot.addSample(SensorType.COMPASS, largeCompassSample);
 
-    final JSONObject originalSnapshotJSONObject = originalSnapshot.toJsonObject();
-    final String originalSnapshotJSONObjectStringRepresentation = originalSnapshotJSONObject.toString();
+    final JSONObject originalSnapshotJsonObject = originalSnapshot.toJsonObject();
+    final String originalSnapshotJsonObjectStringRepresentation = originalSnapshotJsonObject.toString();
 
     final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test_snapshot.realm").build();
     final Realm realm = Realm.getInstance(realmConfiguration);
@@ -239,7 +235,7 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
     final Snapshot loadedSnapshot = realm.where(Snapshot.class).findFirst();
     final String loadedSnapShotStringRepresentation = loadedSnapshot.toJsonObject().toString();
 
-    final boolean equals = loadedSnapShotStringRepresentation.equals(originalSnapshotJSONObjectStringRepresentation);
+    final boolean equals = loadedSnapShotStringRepresentation.equals(originalSnapshotJsonObjectStringRepresentation);
 
     realm.close();
 
@@ -247,6 +243,5 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
 
     assertTrue("The loaded snapshot JSON string was not equal to the original", equals);
   }
-
 
 }

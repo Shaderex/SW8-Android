@@ -38,7 +38,7 @@ public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollect
     assertTrue("The service should be running", isRunning);
   }
 
-  public void testServiceStoresSnapshot() throws InterruptedException {
+  public void testServiceStoresSnapshotEncrypted() throws InterruptedException {
     // Wait in order to guarantee that the service have gathered sensor data
     Thread.sleep(3 * 60 * 1000);
 
@@ -55,6 +55,6 @@ public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollect
     } catch (IllegalArgumentException exception) {
       // We want this exception since we expect realm to throw this when reading an encrypted realm file.
     }
-
   }
+  
 }

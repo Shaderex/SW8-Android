@@ -107,18 +107,14 @@ public class RegistrationIntentService extends IntentService {
   private void sendRegistrationToServer(final String token) {
     final HttpClient httpclient = createHttpClient();
 
-    // TODO: INSERT LOGIC THAT DETERMINES NETWORK STUFF (AAU vs. PUBLIC INTERNET)
-
     final String wifiSSID = findWifiSSID(this);
-
-    final String request;
-
+    String request;
     if (wifiSSID != null && wifiSSID.contains(getString(R.string.aau_wifi_ssid))) {
-      request = getString(R.string.gcmRegisterBackendURL_AAU);
+      request = getString(R.string.backendURL_AAU);
+    } else {
+      request = getString(R.string.backendURL);
     }
-    else {
-      request = getString(R.string.gcmRegisterBackendURL);
-    }
+    request += "/gcm/registerDevice";
 
     final HttpPost httpPost = new HttpPost(request);
 
