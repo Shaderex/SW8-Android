@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="defaultSenderID">369415405893</string>
+    <string name="gcm_register_success">GCM Registration Success</string>
+    <string name="gcm_register_failed">GCM Registration Failed!</string>
 </resources>
