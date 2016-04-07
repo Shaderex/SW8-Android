@@ -4,6 +4,8 @@ import android.hardware.Sensor;
 
 import java.util.concurrent.ExecutionException;
 
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
+
 public class ProximitySensorProviderTest extends SensorProviderApplicationTestCase {
   @Override
   protected SensorProvider getSensorProvider() {
@@ -12,8 +14,8 @@ public class ProximitySensorProviderTest extends SensorProviderApplicationTestCa
 
   @Override
   protected void validateMeasurement(Object measurement, String sampleIdentifier) {
-    if (!(measurement instanceof Float)) {
-      assertEquals("[" + sampleIdentifier + "] measurement is of wrong type.", Float.class, measurement.getClass());
+    if (!(measurement instanceof FloatMeasurement)) {
+      assertEquals("[" + sampleIdentifier + "] measurement is of wrong type.", FloatMeasurement.class, measurement.getClass());
     }
 
     final Sensor proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
@@ -21,9 +23,9 @@ public class ProximitySensorProviderTest extends SensorProviderApplicationTestCa
     final float minValue = 0;
 
     @SuppressWarnings("ConstantConditions")
-    Float proximityValue = (Float) measurement;
-    assertTrue("[" + sampleIdentifier + "] value of measurement must be below or equal to " + maxValue, proximityValue <= maxValue);
-    assertTrue("[" + sampleIdentifier + "] value of measurement must be larger or equal to " + maxValue, proximityValue >= minValue);
+    FloatMeasurement proximityValue = (FloatMeasurement) measurement;
+    assertTrue("[" + sampleIdentifier + "] value of measurement must be below or equal to " + maxValue, proximityValue.getValue() <= maxValue);
+    assertTrue("[" + sampleIdentifier + "] value of measurement must be larger or equal to " + maxValue, proximityValue.getValue() >= minValue);
   }
 
   @Override
