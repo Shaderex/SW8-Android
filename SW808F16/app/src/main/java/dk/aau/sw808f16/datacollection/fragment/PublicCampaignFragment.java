@@ -28,7 +28,7 @@ import java.net.HttpURLConnection;
 
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.campaign.AsyncHttpCampaignJoinTask;
-import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
+import dk.aau.sw808f16.datacollection.webutil_temp.AsyncHttpWebbTask;
 
 public class PublicCampaignFragment extends Fragment
     implements ConfirmSaveSelectionFragment.SaveConfirmedCampaign, SwipeRefreshLayout.OnRefreshListener {

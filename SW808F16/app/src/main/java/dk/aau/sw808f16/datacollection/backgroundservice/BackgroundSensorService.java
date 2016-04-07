@@ -27,7 +27,7 @@ import java.util.concurrent.Executors;
 
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.SensorType;
-import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
+import dk.aau.sw808f16.datacollection.webutil_temp.AsyncHttpWebbTask;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AccelerometerSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.SensorProvider;
 import dk.aau.sw808f16.datacollection.campaign.Campaign;
