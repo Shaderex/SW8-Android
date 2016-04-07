@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.database.DataSetObserver;
+import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.test.ActivityUnitTestCase;
 import android.view.ContextThemeWrapper;
@@ -105,6 +106,12 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
 
     // Wait for wifi to be enabled
     Thread.sleep(10000);
+
+
+    ConnectivityManager manager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+    assertTrue("device does not have wifi connection", manager.isDefaultNetworkActive());
+
 
     final FragmentManager fragmentManager = getActivity().getFragmentManager();
     fragmentManager.beginTransaction().add(R.id.content_frame_layout, PublicCampaignFragment.newInstance(), TEST_KEY).commit();

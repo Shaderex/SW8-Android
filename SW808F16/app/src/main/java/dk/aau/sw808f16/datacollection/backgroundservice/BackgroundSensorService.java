@@ -135,38 +135,7 @@ public final class BackgroundSensorService extends Service {
 
           realm.close();
 
-          final String host = "https://dev.local.element67.dk:8000/snapshots/";
-          AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, host, 200) {
-            @Override
-            protected Response<String> sendRequest(Request webb) {
-              try {
-                return webb.param("sensor_data_json", snapshot.toJsonObject().toString()).asString();
-              } catch (JSONException exception) {
-                exception.printStackTrace();
-              }
-              return null;
-            }
-
-            @Override
-            public void onResponseCodeMatching(Response<String> response) {
-              Log.d("Service-status", "onResponseCodeMatching");
-            }
-
-            @Override
-            public void onResponseCodeNotMatching(Response<String> response) {
-              Log.d("Service-status", "onResponseCodeNotMatching");
-            }
-
-            @Override
-            public void onConnectionFailure() {
-              Log.d("Service-status", "onConnectionFailure");
-            }
-          };
-
-          task.execute();
-
           campaign.addSnapshot(snapshot);
-
         } catch (InterruptedException | ExecutionException exception) {
           exception.printStackTrace();
         }
@@ -203,8 +172,8 @@ public final class BackgroundSensorService extends Service {
               final Response<String> jsonString = webb.param("snapshots", campaignString).asString();
               Log.d("Service-status", campaignString);
               return jsonString;
-            } catch (JSONException exception) {
-              exception.printStackTrace();
+            } catch (JSONException e) {
+              e.printStackTrace();
             }
             return null;
           }
