@@ -114,7 +114,7 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
     fragment.onResume();
 
     // Wait for http request in AsyncHttpTask to complete
-    Thread.sleep(3000);
+    Thread.sleep(6000);
 
     final TextView no_data_emptyView = (TextView) fragment.getView().findViewById(R.id.empty_no_data);
     final TextView no_connection_emptyView = (TextView) fragment.getView().findViewById(R.id.empty_no_connection);
