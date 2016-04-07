@@ -158,7 +158,10 @@ public final class BackgroundSensorService extends Service {
           @Override
           protected Response<String> sendRequest(Request webb) {
             try {
-              return webb.param("sensor_data_json", campaign.toJSONObject().toString()).asString();
+              final String campaignString = campaign.toJSONObject().toString();
+              final Response<String> jsonString = webb.param("snapshots", campaignString).asString();
+              Log.d("Service-status", campaignString);
+              return jsonString;
             } catch (JSONException e) {
               e.printStackTrace();
             }
@@ -172,7 +175,7 @@ public final class BackgroundSensorService extends Service {
 
           @Override
           public void onResponseCodeNotMatching(Response<String> response) {
-            Log.d("Service-status", "onResponseCodeNotMatching");
+            Log.d("Service-status", "onResponseCodeNotMatching: " + response.getResponseMessage());
           }
 
           @Override

@@ -1,5 +1,6 @@
 package dk.aau.sw808f16.datacollection.campaign;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -68,7 +69,12 @@ public class Campaign extends RealmObject implements JsonObjectAble {
   public JSONObject toJSONObject() throws JSONException {
     final JSONObject jsonObject = new JSONObject();
 
-    jsonObject.put("snapshots", getSnapshots());
+    JSONArray snapshotArray = new JSONArray();
+    for (Snapshot snapshot : getSnapshots()) {
+      snapshotArray.put(snapshot.toJSONObject());
+    }
+
+    jsonObject.put("snapshots", snapshotArray);
 
     return jsonObject;
   }
