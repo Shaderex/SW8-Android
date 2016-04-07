@@ -115,8 +115,7 @@ public class RegistrationIntentService extends IntentService {
 
     if (wifiSSID != null && wifiSSID.contains(getString(R.string.aau_wifi_ssid))) {
       request = getString(R.string.gcmRegisterBackendURL_AAU);
-    }
-    else {
+    } else {
       request = getString(R.string.gcmRegisterBackendURL);
     }
 
