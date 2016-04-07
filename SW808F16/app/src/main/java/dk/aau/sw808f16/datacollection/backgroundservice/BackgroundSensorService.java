@@ -25,15 +25,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.SensorType;
-import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AccelerometerSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.SensorProvider;
 import dk.aau.sw808f16.datacollection.campaign.Campaign;
-import dk.aau.sw808f16.datacollection.gcm.RegistrationIntentService;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
+import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
+import dk.aau.sw808f16.datacollection.webutil.RequestHostResolver;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
@@ -155,14 +154,8 @@ public final class BackgroundSensorService extends Service {
     new Timer().scheduleAtFixedRate(new TimerTask() {
       @Override
       public void run() {
-        final String wifiSSID = RegistrationIntentService.findWifiSSID(BackgroundSensorService.this);
-        String requestURL;
-        if (wifiSSID != null && wifiSSID.contains(getString(R.string.aau_wifi_ssid))) {
-          requestURL = getString(R.string.backendURL_AAU);
-        } else {
-          requestURL = getString(R.string.backendURL);
-        }
-        requestURL += "/campaigns/" + campaign.getIdentifier() + "/snapshots";
+        final String requestURL = RequestHostResolver.resolveHostForRequest(BackgroundSensorService.this,
+            "/campaigns/" + campaign.getIdentifier() + "/snapshots");
 
         AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, requestURL, 200) {
           @Override

@@ -17,6 +17,7 @@ import java.net.HttpURLConnection;
 
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
+import dk.aau.sw808f16.datacollection.webutil.RequestHostResolver;
 
 public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
 
@@ -24,7 +25,7 @@ public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
   final long campaignIdToRegister;
 
   public AsyncHttpCampaignJoinTask(final Context context, final long campaignIdToRegister) {
-    super(AsyncHttpWebbTask.Method.POST, "https://dev.local.element67.dk:8000/campaigns/join", HttpURLConnection.HTTP_OK);
+    super(AsyncHttpWebbTask.Method.POST, RequestHostResolver.resolveHostForRequest(context, "/campaigns/join"), HttpURLConnection.HTTP_OK);
 
     weakContextReference = new WeakReference<>(context);
     this.campaignIdToRegister = campaignIdToRegister;

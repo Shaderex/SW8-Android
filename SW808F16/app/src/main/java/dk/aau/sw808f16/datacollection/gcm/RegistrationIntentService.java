@@ -16,14 +16,8 @@ import com.google.android.gms.gcm.GcmPubSub;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
-import org.apache.http.NameValuePair;
-import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
@@ -31,22 +25,18 @@ import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
-import org.json.JSONException;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
 
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
+import dk.aau.sw808f16.datacollection.webutil.RequestHostResolver;
 
 public class RegistrationIntentService extends IntentService {
   private static final String TAG = "RegIntentService";
@@ -109,20 +99,12 @@ public class RegistrationIntentService extends IntentService {
    * @param token The new token.
    */
   private void sendRegistrationToServer(final String token) {
-    final HttpClient httpclient = createHttpClient();
 
-    final String wifiSSID = findWifiSSID(this);
-    String request;
-    if (wifiSSID != null && wifiSSID.contains(getString(R.string.aau_wifi_ssid))) {
-      request = getString(R.string.backendURL_AAU);
-    } else {
-      request = getString(R.string.backendURL);
-    }
-    request += "/gcm/registerDevice";
+    final String request = RequestHostResolver.resolveHostForRequest(this, "/gcm/registerDevice");
 
-    AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, request, 200) {
+    final AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, request, 200) {
       @Override
-      protected Response<String> sendRequest(Request webb) {
+      protected Response<String> sendRequest(final Request webb) {
         try {
           final String deviceID = URLEncoder.encode(token, "utf-8");
           final Response<String> deviceIdString = webb.param("device_id", deviceID).asString();
@@ -134,12 +116,12 @@ public class RegistrationIntentService extends IntentService {
       }
 
       @Override
-      public void onResponseCodeMatching(Response<String> response) {
+      public void onResponseCodeMatching(final Response<String> response) {
         Log.d("Register-Device", "onResponseCodeMatching");
       }
 
       @Override
-      public void onResponseCodeNotMatching(Response<String> response) {
+      public void onResponseCodeNotMatching(final Response<String> response) {
         Log.d("Register-Device", "onResponseCodeNotMatching: " + response.getResponseMessage());
       }
 
