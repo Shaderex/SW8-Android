@@ -17,7 +17,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-public abstract class AsyncHttpWebbTask<Result> extends AsyncTask<Void, Void, Response<Result>> {
+public abstract class AsyncHttpWebbTask<ResultT> extends AsyncTask<Void, Void, Response<ResultT>> {
 
   private final Method method;
   private final String url;
@@ -32,7 +32,7 @@ public abstract class AsyncHttpWebbTask<Result> extends AsyncTask<Void, Void, Re
   }
 
   @Override
-  protected Response<Result> doInBackground(Void... params) {
+  protected Response<ResultT> doInBackground(Void... params) {
 
     final TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
       public X509Certificate[] getAcceptedIssuers() {
@@ -85,7 +85,7 @@ public abstract class AsyncHttpWebbTask<Result> extends AsyncTask<Void, Void, Re
   }
 
   @Override
-  protected final void onPostExecute(Response<Result> response) {
+  protected final void onPostExecute(Response<ResultT> response) {
 
     if (response == null) {
       onConnectionFailure();
@@ -98,11 +98,11 @@ public abstract class AsyncHttpWebbTask<Result> extends AsyncTask<Void, Void, Re
     super.onPostExecute(response);
   }
 
-  protected abstract Response<Result> sendRequest(Request webb);
+  protected abstract Response<ResultT> sendRequest(Request webb);
 
-  public abstract void onResponseCodeMatching(Response<Result> response);
+  public abstract void onResponseCodeMatching(Response<ResultT> response);
 
-  public abstract void onResponseCodeNotMatching(Response<Result> response);
+  public abstract void onResponseCodeNotMatching(Response<ResultT> response);
 
   public abstract void onConnectionFailure();
 
