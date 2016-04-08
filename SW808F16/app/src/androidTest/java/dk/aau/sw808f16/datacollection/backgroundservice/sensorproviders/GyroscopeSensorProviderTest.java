@@ -1,80 +1,45 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
-import android.content.Context;
 import android.hardware.Sensor;
-import android.hardware.SensorManager;
-import android.test.ApplicationTestCase;
 
-import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import dk.aau.sw808f16.datacollection.DataCollectionApplication;
-import dk.aau.sw808f16.datacollection.R;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
 
-public class GyroscopeSensorProviderTest extends ApplicationTestCase<DataCollectionApplication> {
-
-  private static final long sampleDuration = 10000; // In milliseconds
-  private static final int measurementFrequency = 2000000; // In microseconds
-
-  // Because of real time issues the size may differ +/- 1
-  private int minSize;
-  private int maxSize;
-
-  public GyroscopeSensorProviderTest() {
-    super(DataCollectionApplication.class);
+public class GyroscopeSensorProviderTest extends SensorProviderApplicationTestCase {
+  @Override
+  protected SensorProvider getSensorProvider() {
+    return new GyroscopeSensorProvider(getContext(), sensorThreadPool, sensorManager);
   }
 
   @Override
-  protected void setUp() throws Exception {
-    final int microPerMilli = this.getContext().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
-    final int expectedSize = (int) (microPerMilli * sampleDuration / measurementFrequency);
-    minSize = expectedSize - 1;
-    maxSize = expectedSize + 1;
-  }
-
-  public void testAccelerometerSensorProviderData() throws ExecutionException, InterruptedException {
-
-    final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
-    final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
-    final GyroscopeSensorProvider gyroscopeSensorProvider = new GyroscopeSensorProvider(getContext(), sensorThreadPool, sensorManager);
-
-    final List<float[]> data1 = gyroscopeSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
-
-    final List<float[]> data2 = gyroscopeSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
-
-    assertNotNull("Sensor data is null", data1);
-    assertFalse("Sensor data is empty", data1.isEmpty());
-
-    assertNotNull("Sensor data (second measure) is null", data2);
-    assertFalse("Sensor data (second measure) is empty", data2.isEmpty());
+  protected void validateMeasurement(Object measurement, String sampleIdentifier) {
+    if (!(measurement instanceof FloatTripleMeasurement)) {
+      assertEquals("Compass sensor data is of wrong type.", FloatTripleMeasurement.class, measurement.getClass());
+    }
 
     final Sensor gyroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
     final float maxValue = gyroscopeSensor.getMaximumRange();
     final float minValue = -gyroscopeSensor.getMaximumRange();
 
-    for (final float[] values : data1) {
-      assertTrue("Data for index 0 value must be between " + minValue + " and " + maxValue,
-          values[0] <= maxValue && values[0] >= minValue);
-      assertTrue("Data for index 1 value must be between " + minValue + " and " + maxValue,
-          values[1] <= maxValue && values[1] >= minValue);
-      assertTrue("Data for index 2 value must be between " + minValue + " and " + maxValue,
-          values[2] <= maxValue && values[2] >= minValue);
-    }
+    @SuppressWarnings("ConstantConditions")
+    FloatTripleMeasurement gyroscopeValues = (FloatTripleMeasurement) measurement;
 
-    for (final float[] values : data2) {
-      assertTrue("Data for index 0 value must be between " + minValue + " and " + maxValue,
-          values[0] <= maxValue && values[0] >= minValue);
-      assertTrue("Data for index 1 value must be between " + minValue + " and " + maxValue,
-          values[1] <= maxValue && values[1] >= minValue);
-      assertTrue("Data for index 2 value must be between " + minValue + " and " + maxValue,
-          values[2] <= maxValue && values[2] >= minValue);
-    }
+    assertTrue("Data for index 0 value must be between " + minValue + " and " + maxValue,
+        gyroscopeValues.getFirstValue() <= maxValue && gyroscopeValues.getFirstValue() >= minValue);
+    assertTrue("Data for index 1 value must be between " + minValue + " and " + maxValue,
+        gyroscopeValues.getSecondValue() <= maxValue && gyroscopeValues.getSecondValue() >= minValue);
+    assertTrue("Data for index 2 value must be between " + minValue + " and " + maxValue,
+        gyroscopeValues.getThirdValue() <= maxValue && gyroscopeValues.getThirdValue() >= minValue);
+  }
 
-    assertTrue("The amount of data and sampling period do not match, not enough data", data1.size() >= minSize);
-    assertTrue("The amount of data and sampling period do not match, too much data", data1.size() <= maxSize);
-    assertTrue("The amount of data and sampling period do not match, not enough data (second measure)", data2.size() >= minSize);
-    assertTrue("The amount of data and sampling period do not match, too much data (second measure)", data2.size() <= maxSize);
+  @Override
+  public void testGetSample() throws ExecutionException, InterruptedException, ClassCastException {
+    super.testGetSample();
+  }
+
+  @Override
+  public void testGetSamples() throws ExecutionException, InterruptedException {
+    super.testGetSamples();
   }
 }

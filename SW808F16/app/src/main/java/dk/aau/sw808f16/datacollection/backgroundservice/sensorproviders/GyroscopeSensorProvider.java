@@ -1,6 +1,7 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -11,19 +12,20 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-import dk.aau.sw808f16.datacollection.R;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
+import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
-public class GyroscopeSensorProvider extends SensorProvider<List<float[]>> {
+public class GyroscopeSensorProvider extends SensorProvider {
 
   public GyroscopeSensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
   }
 
   @Override
-  protected List<float[]> retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
+  protected Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency) throws InterruptedException {
 
     final CountDownLatch latch = new CountDownLatch(1);
-    final List<float[]> sensorValues = new ArrayList<>();
+    final List<FloatTripleMeasurement> sensorValues = new ArrayList<>();
     final long endTime = System.currentTimeMillis() + sampleDuration;
 
     final Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
@@ -35,23 +37,20 @@ public class GyroscopeSensorProvider extends SensorProvider<List<float[]>> {
 
       @Override
       public void onSensorChanged(final SensorEvent event) {
+        final long currentTime = System.currentTimeMillis();
 
-        synchronized (GyroscopeSensorProvider.this) {
+        if (lastUpdateTime + measurementFrequency >= currentTime) {
+          return;
+        }
 
-          final long currentTime = System.currentTimeMillis();
-          final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
+        FloatTripleMeasurement triple = new FloatTripleMeasurement(event.values);
 
-          if (lastUpdateTime + measurementFrequency / micro_per_milli >= currentTime) {
-            return;
-          }
+        sensorValues.add(triple);
 
-          sensorValues.add(event.values);
+        lastUpdateTime = currentTime;
 
-          lastUpdateTime = currentTime;
-
-          if (endTime <= currentTime) {
-            latch.countDown();
-          }
+        if (endTime <= currentTime) {
+          latch.countDown();
         }
       }
 
@@ -74,6 +73,11 @@ public class GyroscopeSensorProvider extends SensorProvider<List<float[]>> {
 
     sensorManager.unregisterListener(gyroscopeListener);
 
-    return sensorValues;
+    return new Sample(sensorValues);
+  }
+
+  @Override
+  public boolean isSensorAvailable() {
+    return context.get().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_GYROSCOPE);
   }
 }

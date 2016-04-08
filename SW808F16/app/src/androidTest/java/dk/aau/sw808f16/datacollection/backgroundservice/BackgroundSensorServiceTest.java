@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.test.ApplicationTestCase;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
+import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
 public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollectionApplication> {
   public BackgroundSensorServiceTest() {
@@ -13,7 +16,7 @@ public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollect
   }
 
   public void testServiceRunning() {
-    Intent backgroundServiceIntent = new Intent(getContext(), BackgroundSensorService.class);
+    final Intent backgroundServiceIntent = new Intent(getContext(), BackgroundSensorService.class);
 
     // Start the BackgroundSensorService
     getContext().startService(backgroundServiceIntent);
@@ -21,7 +24,7 @@ public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollect
     boolean isRunning = false;
 
     // Get the activity manager
-    ActivityManager manager = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
+    final ActivityManager manager = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
 
     // Run through all running services and check if one of them is the BackgroundSensorService
     for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
@@ -34,4 +37,24 @@ public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollect
     getContext().stopService(backgroundServiceIntent);
     assertTrue("The service should be running", isRunning);
   }
+
+  public void testServiceStoresSnapshotEncrypted() throws InterruptedException {
+    // Wait in order to guarantee that the service have gathered sensor data
+    Thread.sleep(3 * 60 * 1000);
+
+    final RealmConfiguration realmConfiguration =
+        new RealmConfiguration.Builder(getContext()).name(BackgroundSensorService.SNAPSHOT_REALM_NAME).build();
+
+    try {
+      final Realm realm = Realm.getInstance(realmConfiguration);
+
+      realm.where(Snapshot.class).findFirst();
+      realm.close();
+
+      fail("Did not throw illegal argument exception");
+    } catch (IllegalArgumentException exception) {
+      // We want this exception since we expect realm to throw this when reading an encrypted realm file.
+    }
+  }
+  
 }

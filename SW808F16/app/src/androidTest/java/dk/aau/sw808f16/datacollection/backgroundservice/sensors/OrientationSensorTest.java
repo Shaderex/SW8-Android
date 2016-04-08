@@ -19,7 +19,7 @@ import java.util.concurrent.CountDownLatch;
 public class OrientationSensorTest extends ApplicationTestCase<Application> {
 
   // Increase this to increase the amount of time logging
-  private static final int logTime = 300000 * 4;
+  private static final int logTime = 0;
 
   private float[] accelerometerOutput;
   private float[] magneticFieldOutput;
@@ -133,7 +133,7 @@ public class OrientationSensorTest extends ApplicationTestCase<Application> {
 
           if (accelerometerOutput != null) {
             SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerOutput, magneticFieldOutput);
-            
+
             getSensorManager().unregisterListener(initialAccelerometerListener);
             getSensorManager().unregisterListener(initialMagneticFieldListener);
 

@@ -3,4 +3,16 @@
     <string name="questionnaire_question_yes_answer">Yes</string>
     <string name="questionnaire_question_no_answer">No</string>
     <string name="start_questionnaire_button_text">Start Questionnaire</string>
+    <string name="private_campaign_id">Private Campaign Identifier</string>
+    <string name="private_campaign_join">Join</string>
+    <string name="loading_campaigns_message">Please wait - Loading Campaigns</string>
+    <string name="confirm_save_selection">You previously joined a campaign. Do you wish to abandon your previous selection and join the currently selected campaign?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="select_campaign_first_message">You must select a campaign before pressing submit.</string>
+    <string name="unsubscribe_from_campaign_message">Are you certain that you wish to unsubscribe from your current campaign</string>
+    <string name="unable_to_connect">Unable to connect to server</string>
+    <string name="no_campaigns_available">No campaigns available</string>
+    <string name="confirm">Confirm</string>
+    <string name="unexpected_response_from_server">Unexpected response from server</string>
 </resources>

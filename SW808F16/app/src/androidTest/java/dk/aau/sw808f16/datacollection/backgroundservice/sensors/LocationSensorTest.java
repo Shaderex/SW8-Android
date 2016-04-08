@@ -6,7 +6,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.test.ApplicationTestCase;
 
-import junit.framework.Assert;
 
 @SuppressWarnings("unused")
 public class LocationSensorTest extends ApplicationTestCase<Application> {
@@ -23,8 +22,10 @@ public class LocationSensorTest extends ApplicationTestCase<Application> {
     final LocationManager locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
     final Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
 
-    if (lastKnownLocation.getTime() <= System.currentTimeMillis()) {
-      Assert.assertTrue(true);
+    if (lastKnownLocation != null) {
+      if (lastKnownLocation.getTime() <= System.currentTimeMillis()) {
+        assertTrue(true);
+      }
     }
   }
 

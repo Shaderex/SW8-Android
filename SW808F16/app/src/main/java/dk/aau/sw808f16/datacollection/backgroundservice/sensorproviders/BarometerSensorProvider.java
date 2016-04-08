@@ -1,6 +1,7 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -11,47 +12,44 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-import dk.aau.sw808f16.datacollection.R;
+import dk.aau.sw808f16.datacollection.SensorType;
+import dk.aau.sw808f16.datacollection.snapshot.Sample;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 
-public class BarometerSensorProvider extends SensorProvider<List<Float>> {
+public class BarometerSensorProvider extends SensorProvider {
 
   public BarometerSensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
   }
 
   @Override
-  protected List<Float> retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
+  protected Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency) throws InterruptedException {
 
     final CountDownLatch latch = new CountDownLatch(1);
-    final List<Float> sensorValues = new ArrayList<>();
+    final List<FloatMeasurement> sensorValues = new ArrayList<>();
     final long endTime = System.currentTimeMillis() + sampleDuration;
 
     final Sensor barometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
 
     // Listeners used when we have one measurement from each sensor
-    final SensorEventListener  barometerEventListener = new SensorEventListener() {
+    final SensorEventListener barometerEventListener = new SensorEventListener() {
 
       private long lastUpdateTime;
 
       @Override
       public void onSensorChanged(final SensorEvent event) {
+        final long currentTime = System.currentTimeMillis();
 
-        synchronized (BarometerSensorProvider.this) {
+        if (lastUpdateTime + measurementFrequency >= currentTime) {
+          return;
+        }
 
-          final long currentTime = System.currentTimeMillis();
+        sensorValues.add(new FloatMeasurement(event.values[0]));
 
-          final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
-          if (lastUpdateTime + measurementFrequency / micro_per_milli >= currentTime) {
-            return;
-          }
+        lastUpdateTime = currentTime;
 
-          sensorValues.add(event.values[0]);
-
-          lastUpdateTime = currentTime;
-
-          if (endTime <= currentTime) {
-            latch.countDown();
-          }
+        if (endTime <= currentTime) {
+          latch.countDown();
         }
       }
 
@@ -70,6 +68,11 @@ public class BarometerSensorProvider extends SensorProvider<List<Float>> {
 
     sensorManager.unregisterListener(barometerEventListener);
 
-    return sensorValues;
+    return new Sample(sensorValues);
+  }
+
+  @Override
+  public boolean isSensorAvailable() {
+    return context.get().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_BAROMETER);
   }
 }

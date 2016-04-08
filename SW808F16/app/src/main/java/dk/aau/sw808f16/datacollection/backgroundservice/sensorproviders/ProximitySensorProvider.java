@@ -1,6 +1,7 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -14,8 +15,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.R;
+import dk.aau.sw808f16.datacollection.snapshot.Sample;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 
-public class ProximitySensorProvider extends SensorProvider<List<Float>> {
+public class ProximitySensorProvider extends SensorProvider {
 
   private final Timer proximitySamplingTimer;
 
@@ -25,11 +28,11 @@ public class ProximitySensorProvider extends SensorProvider<List<Float>> {
   }
 
   @Override
-  protected List<Float> retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
+  protected Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency) throws InterruptedException {
 
     final long endTime = System.currentTimeMillis() + sampleDuration;
     final CountDownLatch latch = new CountDownLatch(1);
-    final List<Float> sensorValues = new ArrayList<>();
+    final List<FloatMeasurement> measurements = new ArrayList<>();
 
     final Sensor proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
@@ -54,12 +57,11 @@ public class ProximitySensorProvider extends SensorProvider<List<Float>> {
                 return;
               }
 
-              sensorValues.add(proximitySensorOutput[0]);
+              measurements.add(new FloatMeasurement(proximitySensorOutput[0]));
             }
           };
 
-          final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
-          proximitySamplingTimer.scheduleAtFixedRate(proximitySamplingTask, 0, measurementFrequency / micro_per_milli);
+          proximitySamplingTimer.scheduleAtFixedRate(proximitySamplingTask, 0, measurementFrequency);
         } else {
           proximitySensorOutput = event.values;
         }
@@ -69,8 +71,11 @@ public class ProximitySensorProvider extends SensorProvider<List<Float>> {
       public void onAccuracyChanged(final Sensor sensor, final int accuracy) {
       }
     };
+    // Convert measurement frequency to micro seconds for the Android API
+    final int microPerMilli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
+    final int measurementFrequencyInMicroSeconds = (int) (measurementFrequency * microPerMilli);
 
-    if (!sensorManager.registerListener(proximityListener, proximitySensor, measurementFrequency)) {
+    if (!sensorManager.registerListener(proximityListener, proximitySensor, measurementFrequencyInMicroSeconds)) {
 
       sensorManager.unregisterListener(proximityListener);
       return null;
@@ -80,6 +85,11 @@ public class ProximitySensorProvider extends SensorProvider<List<Float>> {
 
     sensorManager.unregisterListener(proximityListener);
 
-    return sensorValues;
+    return new Sample(measurements);
+  }
+
+  @Override
+  public boolean isSensorAvailable() {
+    return context.get().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_PROXIMITY);
   }
 }

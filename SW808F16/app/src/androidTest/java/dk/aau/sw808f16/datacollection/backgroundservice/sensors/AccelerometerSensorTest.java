@@ -19,7 +19,7 @@ import java.util.concurrent.CountDownLatch;
 public class AccelerometerSensorTest extends ApplicationTestCase<Application> {
 
   // Increase this to increase the amount of time logging
-  private static final int logTime = 300000 * 4;
+  private static final int logTime = 0;
 
   public AccelerometerSensorTest() {
     super(Application.class);
@@ -83,7 +83,7 @@ public class AccelerometerSensorTest extends ApplicationTestCase<Application> {
   @Override
   protected void tearDown() throws Exception {
 
-    Log.i("Accelerometer data: ", data.size() * 4 * 3 + " Bytes" );
+    Log.i("Accelerometer data: ", data.size() * 4 * 3 + " Bytes");
 
     super.tearDown();
   }

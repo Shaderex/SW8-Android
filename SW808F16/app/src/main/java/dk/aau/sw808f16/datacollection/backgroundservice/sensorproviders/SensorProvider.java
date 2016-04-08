@@ -13,7 +13,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-public abstract class SensorProvider<T> {
+import dk.aau.sw808f16.datacollection.snapshot.Sample;
+
+public abstract class SensorProvider {
 
   final WeakReference<Context> context;
   private final ExecutorService sensorThreadPool;
@@ -25,12 +27,15 @@ public abstract class SensorProvider<T> {
     this.sensorManager = sensorManager;
   }
 
-  protected abstract T retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException;
+  // Arguments are given in milliseconds
+  protected abstract Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency)
+      throws InterruptedException;
 
-  public Future<List<T>> retrieveSamplesForDuration(final long totalDuration,
-                                                    final long sampleFrequency,
-                                                    final long sampleDuration,
-                                                    final int measurementFrequency) {
+  // Arguments are given in milliseconds
+  public Future<List<Sample>> retrieveSamplesForDuration(final long totalDuration,
+                                                         final long sampleFrequency,
+                                                         final long sampleDuration,
+                                                         final long measurementFrequency) {
 
     if (!(totalDuration >= sampleFrequency)) {
       throw new IllegalArgumentException("Total duration must be greater than or equal to sample frequency");
@@ -42,14 +47,14 @@ public abstract class SensorProvider<T> {
       throw new IllegalArgumentException("Sample duration must be greater than or equal to measurement frequency");
     }
 
-    final Timer timer = new Timer(true);
+    return sensorThreadPool.submit(new Callable<List<Sample>>() {
 
-    return sensorThreadPool.submit(new Callable<List<T>>() {
+      final Timer timer = new Timer(true);
 
       @Override
-      public List<T> call() throws InterruptedException {
+      public List<Sample> call() throws InterruptedException {
 
-        final List<T> samples = new ArrayList<>();
+        final List<Sample> samples = new ArrayList<>();
 
         final long startTime = System.currentTimeMillis();
         final long endTime = startTime + totalDuration;
@@ -59,7 +64,6 @@ public abstract class SensorProvider<T> {
         timer.scheduleAtFixedRate(new TimerTask() {
           @Override
           public void run() {
-
             try {
               final long currentTime = System.currentTimeMillis();
 
@@ -68,10 +72,10 @@ public abstract class SensorProvider<T> {
                 latch.countDown();
               }
 
-              final T sample = retrieveSampleForDuration(sampleDuration, measurementFrequency);
+              final Sample sample = retrieveSampleForDuration(sampleDuration, measurementFrequency);
               samples.add(sample);
-            } catch (Exception exception) {
-              // Do absolutely nothing, yet
+            } catch (InterruptedException exception) {
+              // Do nothing
             }
           }
         }, 0, sampleFrequency); // Zero indicates start immediately
@@ -82,4 +86,6 @@ public abstract class SensorProvider<T> {
       }
     });
   }
+
+  public abstract boolean isSensorAvailable();
 }

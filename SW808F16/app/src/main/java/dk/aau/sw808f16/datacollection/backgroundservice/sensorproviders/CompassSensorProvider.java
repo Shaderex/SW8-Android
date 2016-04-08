@@ -1,6 +1,7 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -12,8 +13,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.R;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
+import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
-public class CompassSensorProvider extends SensorProvider<List<Float>> {
+public class CompassSensorProvider extends SensorProvider {
 
   private static final int maxArcDegrees = 360;
 
@@ -22,12 +25,12 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
   }
 
   @Override
-  protected List<Float> retrieveSampleForDuration(final long sampleDuration, final int measurementFrequency) throws InterruptedException {
+  protected Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency) throws InterruptedException {
 
     final long endTime = System.currentTimeMillis() + sampleDuration;
 
     final CountDownLatch latch = new CountDownLatch(1);
-    final List<Float> sensorValues = new ArrayList<>();
+    final List<FloatMeasurement> measurements = new ArrayList<>();
 
     final Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
     final Sensor magneticFieldSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
@@ -54,6 +57,10 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
 
       @Override
       public void run() {
+        // Convert measurement frequency to micro seconds for the Android API
+        final int microPerMilli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
+        final int measurementFrequencyInMicroSeconds = (int) (measurementFrequency * microPerMilli);
+
         initialAccelerometerListener = new SensorEventListener() {
           @Override
           public void onSensorChanged(final SensorEvent event) {
@@ -66,11 +73,22 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
 
                 SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, accelerometerOutput, magneticFieldOutput);
 
+                SensorManager.getOrientation(rotationMatrix, values);
+                measurements.add(new FloatMeasurement(sensorDataToOrientation(values)));
+                final long currentTime = System.currentTimeMillis();
+                lastUpdateTime = currentTime;
+
                 sensorManager.unregisterListener(initialAccelerometerListener);
                 sensorManager.unregisterListener(initialMagneticFieldListener);
 
-                sensorManager.registerListener(accelerometerListener, accelerometerSensor, measurementFrequency, measurementFrequency);
-                sensorManager.registerListener(magneticFieldListener, magneticFieldSensor, measurementFrequency, measurementFrequency);
+                sensorManager.registerListener(accelerometerListener,
+                    accelerometerSensor,
+                    measurementFrequencyInMicroSeconds,
+                    measurementFrequencyInMicroSeconds);
+                sensorManager.registerListener(magneticFieldListener,
+                    magneticFieldSensor,
+                    measurementFrequencyInMicroSeconds,
+                    measurementFrequencyInMicroSeconds);
               }
             }
           }
@@ -92,11 +110,22 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
 
                 SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, accelerometerOutput, magneticFieldOutput);
 
+                SensorManager.getOrientation(rotationMatrix, values);
+                measurements.add(new FloatMeasurement(sensorDataToOrientation(values)));
+                final long currentTime = System.currentTimeMillis();
+                lastUpdateTime = currentTime;
+
                 sensorManager.unregisterListener(initialAccelerometerListener);
                 sensorManager.unregisterListener(initialMagneticFieldListener);
 
-                sensorManager.registerListener(accelerometerListener, accelerometerSensor, measurementFrequency, measurementFrequency);
-                sensorManager.registerListener(magneticFieldListener, magneticFieldSensor, measurementFrequency, measurementFrequency);
+                sensorManager.registerListener(accelerometerListener,
+                    accelerometerSensor,
+                    measurementFrequencyInMicroSeconds,
+                    measurementFrequencyInMicroSeconds);
+                sensorManager.registerListener(magneticFieldListener,
+                    magneticFieldSensor,
+                    measurementFrequencyInMicroSeconds,
+                    measurementFrequencyInMicroSeconds);
               }
             }
           }
@@ -118,12 +147,11 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
               if (SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, accelerometerOutput, magneticFieldOutput)) {
                 SensorManager.getOrientation(rotationMatrix, values);
 
-                final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
-                if (lastUpdateTime + measurementFrequency / micro_per_milli >= currentTime) {
+                if (lastUpdateTime + measurementFrequency >= currentTime) {
                   return;
                 }
 
-                sensorValues.add(sensorDataToOrientation(values));
+                measurements.add(new FloatMeasurement(sensorDataToOrientation(values)));
 
                 lastUpdateTime = currentTime;
               }
@@ -151,12 +179,11 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
               if (SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, accelerometerOutput, magneticFieldOutput)) {
                 SensorManager.getOrientation(rotationMatrix, values);
 
-                final int micro_per_milli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
-                if (lastUpdateTime + measurementFrequency / micro_per_milli >= currentTime) {
+                if (lastUpdateTime + measurementFrequency >= currentTime) {
                   return;
                 }
 
-                sensorValues.add(sensorDataToOrientation(values));
+                measurements.add(new FloatMeasurement(sensorDataToOrientation(values)));
 
                 lastUpdateTime = currentTime;
               }
@@ -198,7 +225,12 @@ public class CompassSensorProvider extends SensorProvider<List<Float>> {
 
     fetchData.run();
 
-    return sensorValues;
+    return new Sample(measurements);
+  }
+
+  @Override
+  public boolean isSensorAvailable() {
+    return context.get().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_COMPASS);
   }
 
   private static float sensorDataToOrientation(final float[] sensorData) {

@@ -1,44 +1,29 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
-import android.content.Context;
-import android.hardware.SensorManager;
-import android.location.Location;
-import android.test.ApplicationTestCase;
+import java.util.concurrent.ExecutionException;
 
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.LocationMeasurement;
 
-import dk.aau.sw808f16.datacollection.DataCollectionApplication;
+public class LocationSensorProviderTest extends SensorProviderApplicationTestCase {
 
-public class LocationSensorProviderTest extends ApplicationTestCase<DataCollectionApplication> {
-
-  private static final long sampleDuration = 0; // In milliseconds
-  private static final int measurementFrequency = 0; // In microseconds
-
-  // GPS will always return exactly one GPS
-  private static final int expectedSize = 1;
-
-  public LocationSensorProviderTest() {
-    super(DataCollectionApplication.class);
+  @Override
+  protected SensorProvider getSensorProvider() {
+    return new LocationSensorProvider(getContext(), sensorThreadPool, sensorManager);
   }
 
-  public void testGpsSensorProviderData() throws Exception {
-    final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
-    final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
-    final LocationSensorProvider locationSensorProvider = new LocationSensorProvider(getContext(), sensorThreadPool, sensorManager);
+  @Override
+  protected void validateMeasurement(Object measurement, String sampleIdentifier) {
+    assertTrue("[" + sampleIdentifier + "] measurement is not of type Location",
+        LocationMeasurement.class.isAssignableFrom(measurement.getClass()));
+  }
 
-    final List<Location> data1 = locationSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
+  @Override
+  public void testGetSample() throws ExecutionException, InterruptedException, ClassCastException {
+    super.testGetSample();
+  }
 
-    final List<Location> data2 = locationSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
-
-    assertNotNull("Sensor data is null", data1);
-    assertFalse("Sensor data is empty", data1.isEmpty());
-
-    assertNotNull("Sensor data (second measure) is null", data2);
-    assertFalse("Sensor data (second measure) is empty", data2.isEmpty());
-
-    assertTrue("The amount of data and sampling period do not match, they are not exactly one", data1.size() == expectedSize);
-    assertTrue("The amount of data and sampling period do not match, they are not exactly one", data2.size() == expectedSize);
+  @Override
+  public void testGetSamples() throws ExecutionException, InterruptedException {
+    super.testGetSamples();
   }
 }

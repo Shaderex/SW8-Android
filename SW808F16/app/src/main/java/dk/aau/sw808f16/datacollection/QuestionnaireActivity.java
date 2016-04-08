@@ -70,19 +70,25 @@ public class QuestionnaireActivity extends Activity {
 
       setResult(Activity.RESULT_OK, resultIntent);
 
+      finishActivity(Activity.RESULT_OK);
       finish();
     }
   }
 
   @Override
   public final void onBackPressed() {
-    super.onBackPressed();
 
     final Intent resultIntent = new Intent();
     resultIntent.putExtra(QUESTIONNAIRE_PARCEL_IDENTIFIER, questionnaire);
 
     setResult(Activity.RESULT_CANCELED, resultIntent);
 
+    super.onBackPressed();
+    finishActivity(Activity.RESULT_CANCELED);
     finish();
+  }
+
+  public Questionnaire getQuestionnaire() {
+    return questionnaire;
   }
 }

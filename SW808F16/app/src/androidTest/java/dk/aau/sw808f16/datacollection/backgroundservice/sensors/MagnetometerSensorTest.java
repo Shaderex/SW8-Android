@@ -19,7 +19,7 @@ import java.util.concurrent.CountDownLatch;
 public class MagnetometerSensorTest extends ApplicationTestCase<Application> {
 
   // Increase this to increase the amount of time logging
-  private static final int logTime = 300000 * 4;
+  private static final int logTime = 0;
 
   public MagnetometerSensorTest() {
     super(Application.class);
@@ -46,9 +46,9 @@ public class MagnetometerSensorTest extends ApplicationTestCase<Application> {
         final float yFieldStrength = event.values[1];
         final float zFieldStrength = event.values[2];
 
-        Log.i("Gemagnetic field str ", xFieldStrength + " μT / " + accelerometerSensor.getMaximumRange() + " μT");
-        Log.i("Gemagnetic field str ", yFieldStrength + " μT / " + accelerometerSensor.getMaximumRange() + " μT");
-        Log.i("Gemagnetic field str ", zFieldStrength + " μT / " + accelerometerSensor.getMaximumRange() + " μT");
+        Log.i("Geomagnetic field str ", xFieldStrength + " μT / " + accelerometerSensor.getMaximumRange() + " μT");
+        Log.i("Geomagnetic field str ", yFieldStrength + " μT / " + accelerometerSensor.getMaximumRange() + " μT");
+        Log.i("Geomagnetic field str ", zFieldStrength + " μT / " + accelerometerSensor.getMaximumRange() + " μT");
 
         data.add(event.values);
       }
@@ -83,7 +83,7 @@ public class MagnetometerSensorTest extends ApplicationTestCase<Application> {
   @Override
   protected void tearDown() throws Exception {
 
-    Log.i("Magnetometer data: ", data.size() * 4 * 3 + " Bytes" );
+    Log.i("Magnetometer data: ", data.size() * 4 * 3 + " Bytes");
 
     super.tearDown();
   }

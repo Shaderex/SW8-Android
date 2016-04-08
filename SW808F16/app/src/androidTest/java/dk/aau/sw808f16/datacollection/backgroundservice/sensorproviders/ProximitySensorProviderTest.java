@@ -1,71 +1,40 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
-import android.content.Context;
 import android.hardware.Sensor;
-import android.hardware.SensorManager;
-import android.test.ApplicationTestCase;
 
-import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import dk.aau.sw808f16.datacollection.DataCollectionApplication;
-import dk.aau.sw808f16.datacollection.R;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 
-public class ProximitySensorProviderTest extends ApplicationTestCase<DataCollectionApplication> {
-
-  private static final long sampleDuration = 10000; // In milliseconds
-  private static final int measurementFrequency = 2000000; // In microseconds
-
-  // Because of real time issues the size may differ +/- 1
-  private int minSize;
-  private int maxSize;
-
-  public ProximitySensorProviderTest() {
-    super(DataCollectionApplication.class);
+public class ProximitySensorProviderTest extends SensorProviderApplicationTestCase {
+  @Override
+  protected SensorProvider getSensorProvider() {
+    return new ProximitySensorProvider(getContext(), sensorThreadPool, sensorManager);
   }
 
   @Override
-  protected void setUp() throws Exception {
-    final int microPerMilli = this.getContext().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
-    final int expectedSize = (int) (microPerMilli * sampleDuration / measurementFrequency);
-    minSize = expectedSize - 1;
-    maxSize = expectedSize + 1;
-  }
-
-  public void testProximitySensorProviderData() throws ExecutionException, InterruptedException {
-
-    final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
-    final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
-    final ProximitySensorProvider proximitySensorProvider = new ProximitySensorProvider(getContext(), sensorThreadPool, sensorManager);
-
-    final List<Float> data1 = proximitySensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
-    final List<Float> data2 = proximitySensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
-
-    assertNotNull("Sensor data is null", data1);
-    assertFalse("Sensor data is empty", data1.isEmpty());
-
-    assertNotNull("Sensor data is null (second measure)", data2);
-    assertFalse("Sensor data is empty (second measure)", data2.isEmpty());
+  protected void validateMeasurement(Object measurement, String sampleIdentifier) {
+    if (!(measurement instanceof FloatMeasurement)) {
+      assertEquals("[" + sampleIdentifier + "] measurement is of wrong type.", FloatMeasurement.class, measurement.getClass());
+    }
 
     final Sensor proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
     final float maxValue = proximitySensor.getMaximumRange();
     final float minValue = 0;
 
-    for (final Float proximityValue : data1) {
-      assertTrue("Value must be below or equal to " + maxValue, proximityValue <= maxValue);
-      assertTrue("Value must be larger or equal to " + maxValue, proximityValue >= minValue);
-    }
+    @SuppressWarnings("ConstantConditions")
+    FloatMeasurement proximityValue = (FloatMeasurement) measurement;
+    assertTrue("[" + sampleIdentifier + "] value of measurement must be below or equal to " + maxValue, proximityValue.getValue() <= maxValue);
+    assertTrue("[" + sampleIdentifier + "] value of measurement must be larger or equal to " + maxValue, proximityValue.getValue() >= minValue);
+  }
 
-    for (final Float proximityValue : data2) {
-      assertTrue("Value must be below or equal to " + maxValue, proximityValue <= maxValue);
-      assertTrue("Value must be larger or equal to " + maxValue, proximityValue >= minValue);
-    }
+  @Override
+  public void testGetSample() throws ExecutionException, InterruptedException, ClassCastException {
+    super.testGetSample();
+  }
 
-    assertTrue("The amount of data and sampling period do not match, not enough data", data1.size() >= minSize);
-    assertTrue("The amount of data and sampling period do not match, too much data", data1.size() <= maxSize);
-    assertTrue("The amount of data and sampling period do not match, not enough data (second measure)", data2.size() >= minSize);
-    assertTrue("The amount of data and sampling period do not match, too much data (second measure)", data2.size() <= maxSize);
+  @Override
+  public void testGetSamples() throws ExecutionException, InterruptedException {
+    super.testGetSamples();
   }
 }

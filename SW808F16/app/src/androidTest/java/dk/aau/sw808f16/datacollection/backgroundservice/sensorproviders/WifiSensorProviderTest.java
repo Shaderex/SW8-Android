@@ -1,44 +1,29 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
-import android.content.Context;
-import android.hardware.SensorManager;
-import android.net.wifi.ScanResult;
-import android.test.ApplicationTestCase;
+import java.util.concurrent.ExecutionException;
 
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.WifiMeasurement;
 
-import dk.aau.sw808f16.datacollection.DataCollectionApplication;
-
-public class WifiSensorProviderTest extends ApplicationTestCase<DataCollectionApplication> {
-
-  private static final long sampleDuration = 0; // In milliseconds
-  private static final int measurementFrequency = 0; // In microseconds
-
-  // GPS will always return exactly one GPS
-  private static final int expectedSize = 1;
-
-  public WifiSensorProviderTest() {
-    super(DataCollectionApplication.class);
+public class WifiSensorProviderTest extends SensorProviderApplicationTestCase {
+  @Override
+  protected SensorProvider getSensorProvider() {
+    return new WifiSensorProvider(getContext(), sensorThreadPool, sensorManager);
   }
 
-  public void testGpsSensorProviderData() throws Exception {
-    final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(1);
-    final SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
-    final WifiSensorProvider wifiSensorProvider = new WifiSensorProvider(getContext(), sensorThreadPool, sensorManager);
+  @Override
+  protected void validateMeasurement(Object measurement, String sampleIdentifier) {
+    if (!(measurement instanceof WifiMeasurement)) {
+      assertEquals("[" + sampleIdentifier + "] measurement is of wrong type.", WifiMeasurement.class, measurement.getClass());
+    }
+  }
 
-    final List<List<ScanResult>> data1 = wifiSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
+  @Override
+  public void testGetSample() throws ExecutionException, InterruptedException, ClassCastException {
+    super.testGetSample();
+  }
 
-    final List<List<ScanResult>> data2 = wifiSensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
-
-    assertNotNull("Sensor data is null", data1);
-    assertFalse("Sensor data is empty", data1.isEmpty());
-
-    assertNotNull("Sensor data (second measure) is null", data2);
-    assertFalse("Sensor data (second measure) is empty", data2.isEmpty());
-
-    assertTrue("The amount of data and sampling period do not match, they are not exactly one", data1.size() == expectedSize);
-    assertTrue("The amount of data and sampling period do not match, they are not exactly one", data2.size() == expectedSize);
+  @Override
+  public void testGetSamples() throws ExecutionException, InterruptedException {
+    super.testGetSamples();
   }
 }
