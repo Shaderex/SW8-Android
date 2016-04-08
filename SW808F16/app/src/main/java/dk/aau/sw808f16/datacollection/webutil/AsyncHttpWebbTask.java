@@ -1,6 +1,7 @@
 package dk.aau.sw808f16.datacollection.webutil;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.goebl.david.Request;
 import com.goebl.david.Response;
@@ -13,7 +14,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
@@ -59,6 +62,29 @@ public abstract class AsyncHttpWebbTask<ResultT> extends AsyncTask<Void, Void, R
     } catch (KeyManagementException | NoSuchAlgorithmException exception) {
       exception.printStackTrace();
     }
+
+    webb.setHostnameVerifier(new HostnameVerifier() {
+      @Override
+      public boolean verify(String hostname, SSLSession session) {
+        Log.e("HOSTNAME", hostname);
+
+
+        String[] domains = {
+            "dev.local.element67.dk",
+            "dev.global.element67.dk",
+            "prod.local.element67.dk",
+            "prod.global.element67.dk"
+        };
+
+        for (String domain : domains) {
+          if (domain.equals(hostname)) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+    });
 
     webb.setRetryManager(new RetryManager());
 
