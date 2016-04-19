@@ -16,6 +16,7 @@ package dk.aau.sw808f16.datacollection;
  * limitations under the License.
  */
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.ComponentName;
@@ -76,17 +77,17 @@ import java.lang.reflect.Field;
 public abstract class ActivityUnitTestCase<T extends Activity>
     extends ActivityTestCase {
 
-  private Class<T> mActivityClass;
+  private Class<T> activityClass;
 
-  private Context mActivityContext;
-  private Application mApplication;
-  private MockParent mMockParent;
+  private Context activityContext;
+  private Application application;
+  private MockParent mockParent;
 
-  private boolean mAttached = false;
-  private boolean mCreated = false;
+  private boolean attached = false;
+  private boolean created = false;
 
   public ActivityUnitTestCase(Class<T> activityClass) {
-    mActivityClass = activityClass;
+    this.activityClass = activityClass;
   }
 
   @Override
@@ -99,7 +100,7 @@ public abstract class ActivityUnitTestCase<T extends Activity>
     super.setUp();
 
     // default value for target context, as a default
-    mActivityContext = getInstrumentation().getTargetContext();
+    activityContext = getInstrumentation().getTargetContext();
   }
 
   /**
@@ -124,27 +125,27 @@ public abstract class ActivityUnitTestCase<T extends Activity>
    */
   protected T startActivity(Intent intent, Bundle savedInstanceState,
                             Object lastNonConfigurationInstance) {
-    assertFalse("Activity already created", mCreated);
+    assertFalse("Activity already created", created);
 
-    if (!mAttached) {
-      assertNotNull(mActivityClass);
+    if (!attached) {
+      assertNotNull(activityClass);
       setActivity(null);
       T newActivity = null;
       try {
         IBinder token = null;
-        if (mApplication == null) {
+        if (application == null) {
           setApplication(new MockApplication());
         }
-        ComponentName cn = new ComponentName(mActivityClass.getPackage().getName(),
-            mActivityClass.getName());
+        ComponentName cn = new ComponentName(activityClass.getPackage().getName(),
+            activityClass.getName());
         intent.setComponent(cn);
         ActivityInfo info = new ActivityInfo();
-        CharSequence title = mActivityClass.getName();
-        mMockParent = new MockParent();
+        CharSequence title = activityClass.getName();
+        mockParent = new MockParent();
         String id = null;
 
-        newActivity = (T) getInstrumentation().newActivity(mActivityClass, mActivityContext,
-            token, mApplication, intent, info, title, mMockParent, id,
+        newActivity = (T) getInstrumentation().newActivity(activityClass, activityContext,
+            token, application, intent, info, title, mockParent, id,
             lastNonConfigurationInstance);
       } catch (Exception e) {
         assertNotNull(newActivity);
@@ -153,13 +154,13 @@ public abstract class ActivityUnitTestCase<T extends Activity>
       assertNotNull(newActivity);
       setActivity(newActivity);
 
-      mAttached = true;
+      attached = true;
     }
 
     T result = getActivity();
     if (result != null) {
       getInstrumentation().callActivityOnCreate(getActivity(), savedInstanceState);
-      mCreated = true;
+      created = true;
     }
     return result;
   }
@@ -184,7 +185,7 @@ public abstract class ActivityUnitTestCase<T extends Activity>
    * @param application The Application object that will be injected into the Activity under test.
    */
   public void setApplication(Application application) {
-    mApplication = application;
+    this.application = application;
   }
 
   /**
@@ -193,7 +194,7 @@ public abstract class ActivityUnitTestCase<T extends Activity>
    * obtain a real Context, as a building block, use getInstrumentation().getTargetContext().
    */
   public void setActivityContext(Context activityContext) {
-    mActivityContext = activityContext;
+    this.activityContext = activityContext;
   }
 
   /**
@@ -201,8 +202,8 @@ public abstract class ActivityUnitTestCase<T extends Activity>
    * {@link android.app.Activity#setRequestedOrientation}.
    */
   public int getRequestedOrientation() {
-    if (mMockParent != null) {
-      return mMockParent.mRequestedOrientation;
+    if (mockParent != null) {
+      return mockParent.mRequestedOrientation;
     }
     return 0;
   }
@@ -215,8 +216,8 @@ public abstract class ActivityUnitTestCase<T extends Activity>
    * @return The Intent provided in the start call, or null if no start call was made.
    */
   public Intent getStartedActivityIntent() {
-    if (mMockParent != null) {
-      return mMockParent.mStartedActivityIntent;
+    if (mockParent != null) {
+      return mockParent.mStartedActivityIntent;
     }
     return null;
   }
@@ -228,8 +229,8 @@ public abstract class ActivityUnitTestCase<T extends Activity>
    * @return The request code provided in the start call, or -1 if no start call was made.
    */
   public int getStartedActivityRequest() {
-    if (mMockParent != null) {
-      return mMockParent.mStartedActivityRequest;
+    if (mockParent != null) {
+      return mockParent.mStartedActivityRequest;
     }
     return 0;
   }
@@ -243,15 +244,15 @@ public abstract class ActivityUnitTestCase<T extends Activity>
    * @return Returns true if one of the listed finish methods was called.
    */
   public boolean isFinishCalled() {
-    if (mMockParent != null) {
-      return mMockParent.mFinished;
+    if (mockParent != null) {
+      return mockParent.mFinished;
     }
     return false;
   }
 
   public Intent getFinishedActivityIntent() {
-    if (mMockParent != null) {
-      return mMockParent.mFinishedActivityIntent;
+    if (mockParent != null) {
+      return mockParent.mFinishedActivityIntent;
     }
     return null;
   }
@@ -263,8 +264,8 @@ public abstract class ActivityUnitTestCase<T extends Activity>
    * @return The request code provided in the start call, or -1 if no finish call was made.
    */
   public int getFinishedActivityRequest() {
-    if (mMockParent != null) {
-      return mMockParent.mFinishedActivityRequest;
+    if (mockParent != null) {
+      return mockParent.mFinishedActivityRequest;
     }
     return 0;
   }
@@ -282,6 +283,7 @@ public abstract class ActivityUnitTestCase<T extends Activity>
    * <p/>
    * TODO: Make this overrideable, and the unit test can look for calls to other methods
    */
+  @SuppressLint("Registered")
   private static class MockParent extends Activity {
 
     public int mRequestedOrientation = 0;
