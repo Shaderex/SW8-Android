@@ -1,12 +1,9 @@
 package dk.aau.sw808f16.datacollection.snapshot.measurement;
 
-import com.google.gson.JsonObject;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import dk.aau.sw808f16.datacollection.snapshot.JsonObjectAble;
-import dk.aau.sw808f16.datacollection.snapshot.JsonValueAble;
 import io.realm.RealmObject;
 
 public class ScanResultMeasurement extends RealmObject implements JsonObjectAble {

@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
 
 public class GyroscopeSensorProvider extends SensorProvider {
 

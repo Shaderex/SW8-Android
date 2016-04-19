@@ -127,15 +127,15 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
     final WifiManager manager = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);
     final List<ScanResult> realScanResults = manager.getScanResults();
 
-    if(realScanResults == null || realScanResults.size() < 3) {
+    if (realScanResults == null || realScanResults.size() < 3) {
       return;
     }
 
-    final WifiMeasurement measurement1 = new WifiMeasurement(realScanResults.subList(0,1));
+    final WifiMeasurement measurement1 = new WifiMeasurement(realScanResults.subList(0, 1));
     final Sample sample = new Sample(measurement1);
 
-    final WifiMeasurement measurement2 = new WifiMeasurement(realScanResults.subList(1,2));
-    final WifiMeasurement measurement3 = new WifiMeasurement(realScanResults.subList(2,3));
+    final WifiMeasurement measurement2 = new WifiMeasurement(realScanResults.subList(1, 2));
+    final WifiMeasurement measurement3 = new WifiMeasurement(realScanResults.subList(2, 3));
 
     sample.addMeasurements(Arrays.asList(measurement2, measurement3));
 
@@ -159,7 +159,7 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
     final LocationManager manager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
     final Location location = manager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
 
-    if(location == null) {
+    if (location == null) {
       return;
     }
 

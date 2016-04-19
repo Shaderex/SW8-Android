@@ -56,5 +56,5 @@ public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollect
       // We want this exception since we expect realm to throw this when reading an encrypted realm file.
     }
   }
-  
+
 }

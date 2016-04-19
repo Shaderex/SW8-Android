@@ -2,7 +2,6 @@ package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
 import android.content.Context;
 import android.hardware.SensorManager;
-import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 
 import java.util.ArrayList;
@@ -12,7 +11,6 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.WifiMeasurement;
 
