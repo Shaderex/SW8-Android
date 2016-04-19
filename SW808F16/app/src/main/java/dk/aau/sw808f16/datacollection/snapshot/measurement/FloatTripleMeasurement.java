@@ -112,7 +112,8 @@ public class FloatTripleMeasurement extends RealmObject implements JsonValueAble
 
   @Override
   public boolean equals(final Object object) {
-    return super.equals(object) || (object instanceof FloatTripleMeasurement && ((FloatTripleMeasurement) object).compressedValues == this.compressedValues);
+    return super.equals(object)
+        || (object instanceof FloatTripleMeasurement && ((FloatTripleMeasurement) object).compressedValues == this.compressedValues);
   }
 
   @Override
