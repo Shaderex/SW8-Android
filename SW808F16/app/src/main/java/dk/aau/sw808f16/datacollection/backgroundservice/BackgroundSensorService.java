@@ -154,10 +154,10 @@ public final class BackgroundSensorService extends Service {
     new Timer().scheduleAtFixedRate(new TimerTask() {
       @Override
       public void run() {
-        final String requestURL = RequestHostResolver.resolveHostForRequest(BackgroundSensorService.this,
+        final String requestUrl = RequestHostResolver.resolveHostForRequest(BackgroundSensorService.this,
             "/campaigns/" + campaign.getIdentifier() + "/snapshots");
 
-        final AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, requestURL, 200) {
+        final AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, requestUrl, 200) {
           @Override
           protected Response<String> sendRequest(Request webb) {
             try {
@@ -165,8 +165,8 @@ public final class BackgroundSensorService extends Service {
               final Response<String> jsonString = webb.param("snapshots", campaignString).asString();
               Log.d("Service-status", campaignString);
               return jsonString;
-            } catch (JSONException e) {
-              e.printStackTrace();
+            } catch (JSONException exception) {
+              exception.printStackTrace();
             }
             return null;
           }
