@@ -16,7 +16,8 @@ public class AccelerometerSensorProviderTest extends SensorProviderApplicationTe
   @Override
   protected void validateMeasurement(Object measurement, String sampleIdentifier) {
     if (!(measurement instanceof FloatTripleMeasurement)) {
-      assertEquals("[" + sampleIdentifier + "] Measurement in sample is of wrong type.", FloatTripleMeasurement.class, measurement.getClass());
+      assertEquals("[" + sampleIdentifier + "] Measurement in sample is of wrong type.",
+          FloatTripleMeasurement.class, measurement.getClass());
     }
 
     @SuppressWarnings("ConstantConditions")
