@@ -125,7 +125,8 @@ public class LocationMeasurementTest extends ApplicationTestCase<DataCollectionA
       return;
     }
 
-    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("location_measurement_test.realm").build();
+    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(
+        getContext()).name("location_measurement_test.realm").build();
     final Realm realm = Realm.getInstance(realmConfiguration);
 
     final LocationMeasurement locationMeasurement = new LocationMeasurement(location);
