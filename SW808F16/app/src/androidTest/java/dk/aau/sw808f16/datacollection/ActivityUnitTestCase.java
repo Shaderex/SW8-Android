@@ -132,7 +132,6 @@ public abstract class ActivityUnitTestCase<T extends Activity>
       setActivity(null);
       T newActivity = null;
       try {
-        IBinder token = null;
         if (application == null) {
           setApplication(new MockApplication());
         }
@@ -144,10 +143,11 @@ public abstract class ActivityUnitTestCase<T extends Activity>
         mockParent = new MockParent();
         String id = null;
 
+        IBinder token = null;
         newActivity = (T) getInstrumentation().newActivity(activityClass, activityContext,
             token, application, intent, info, title, mockParent, id,
             lastNonConfigurationInstance);
-      } catch (Exception e) {
+      } catch (Exception exception) {
         assertNotNull(newActivity);
       }
 
@@ -203,7 +203,7 @@ public abstract class ActivityUnitTestCase<T extends Activity>
    */
   public int getRequestedOrientation() {
     if (mockParent != null) {
-      return mockParent.mRequestedOrientation;
+      return mockParent.requestedOrientation;
     }
     return 0;
   }
@@ -217,7 +217,7 @@ public abstract class ActivityUnitTestCase<T extends Activity>
    */
   public Intent getStartedActivityIntent() {
     if (mockParent != null) {
-      return mockParent.mStartedActivityIntent;
+      return mockParent.startedActivityIntent;
     }
     return null;
   }
@@ -230,7 +230,7 @@ public abstract class ActivityUnitTestCase<T extends Activity>
    */
   public int getStartedActivityRequest() {
     if (mockParent != null) {
-      return mockParent.mStartedActivityRequest;
+      return mockParent.startedActivityRequest;
     }
     return 0;
   }
@@ -245,14 +245,14 @@ public abstract class ActivityUnitTestCase<T extends Activity>
    */
   public boolean isFinishCalled() {
     if (mockParent != null) {
-      return mockParent.mFinished;
+      return mockParent.finished;
     }
     return false;
   }
 
   public Intent getFinishedActivityIntent() {
     if (mockParent != null) {
-      return mockParent.mFinishedActivityIntent;
+      return mockParent.finishedActivityIntent;
     }
     return null;
   }
@@ -265,7 +265,7 @@ public abstract class ActivityUnitTestCase<T extends Activity>
    */
   public int getFinishedActivityRequest() {
     if (mockParent != null) {
-      return mockParent.mFinishedActivityRequest;
+      return mockParent.finishedActivityRequest;
     }
     return 0;
   }
@@ -286,19 +286,19 @@ public abstract class ActivityUnitTestCase<T extends Activity>
   @SuppressLint("Registered")
   private static class MockParent extends Activity {
 
-    public int mRequestedOrientation = 0;
-    public Intent mStartedActivityIntent = null;
-    public int mStartedActivityRequest = -1;
-    public boolean mFinished = false;
-    public Intent mFinishedActivityIntent = null;
-    public int mFinishedActivityRequest = -1;
+    public int requestedOrientation = 0;
+    public Intent startedActivityIntent = null;
+    public int startedActivityRequest = -1;
+    public boolean finished = false;
+    public Intent finishedActivityIntent = null;
+    public int finishedActivityRequest = -1;
 
     /**
      * Implementing in the parent allows the user to call this function on the tested activity.
      */
     @Override
     public void setRequestedOrientation(int requestedOrientation) {
-      mRequestedOrientation = requestedOrientation;
+      this.requestedOrientation = requestedOrientation;
     }
 
     /**
@@ -307,7 +307,7 @@ public abstract class ActivityUnitTestCase<T extends Activity>
     @SuppressWarnings("WrongConstant")
     @Override
     public int getRequestedOrientation() {
-      return mRequestedOrientation;
+      return requestedOrientation;
     }
 
     /**
@@ -327,8 +327,8 @@ public abstract class ActivityUnitTestCase<T extends Activity>
      */
     @Override
     public void startActivityFromChild(Activity child, Intent intent, int requestCode) {
-      mStartedActivityIntent = intent;
-      mStartedActivityRequest = requestCode;
+      startedActivityIntent = intent;
+      startedActivityRequest = requestCode;
     }
 
     /**
@@ -340,7 +340,7 @@ public abstract class ActivityUnitTestCase<T extends Activity>
      */
     @Override
     public void finishFromChild(Activity child) {
-      mFinished = true;
+      finished = true;
     }
 
     /**
@@ -351,23 +351,20 @@ public abstract class ActivityUnitTestCase<T extends Activity>
      */
     @Override
     public void finishActivityFromChild(Activity child, int requestCode) {
-      mFinished = true;
-      mFinishedActivityRequest = requestCode;
-      mFinishedActivityIntent = getResultData(child);
+      finished = true;
+      finishedActivityRequest = requestCode;
+      finishedActivityIntent = getResultData(child);
     }
 
     private Intent getResultData(final Activity activity) {
-
       Field field = null;
       try {
         field = Activity.class.getDeclaredField("mResultData");
         field.setAccessible(true);
         final Intent value = (Intent) field.get(activity);
         return value;
-      } catch (NoSuchFieldException e) {
-        e.printStackTrace();
-      } catch (IllegalAccessException e) {
-        e.printStackTrace();
+      } catch (NoSuchFieldException | IllegalAccessException exception) {
+        exception.printStackTrace();
       }
       return null;
     }
