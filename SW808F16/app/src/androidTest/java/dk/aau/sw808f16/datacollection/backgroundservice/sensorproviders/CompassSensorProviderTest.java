@@ -25,7 +25,7 @@ public class CompassSensorProviderTest extends SensorProviderApplicationTestCase
 
     assertTrue("[" + sampleIdentifier + "] measurement value are too large (not smaller than 360 degrees)",
         orientationValue.getValue() < maxDegrees);
-    
+
     assertTrue("[" + sampleIdentifier + "] measurement value are too small (below 0 degrees)",
         orientationValue.getValue() >= minDegrees);
   }

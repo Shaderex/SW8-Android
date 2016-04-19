@@ -32,7 +32,7 @@ public class FloatTripleMeasurementTest extends ApplicationTestCase<DataCollecti
 
     try {
       new FloatTripleMeasurement(new float[] {3f, 3f, 3f, 3f});
-    } catch (IllegalArgumentException e) {
+    } catch (IllegalArgumentException exception) {
       return;
     }
 
@@ -43,7 +43,7 @@ public class FloatTripleMeasurementTest extends ApplicationTestCase<DataCollecti
 
     try {
       new FloatTripleMeasurement(new float[] {3f, 3f});
-    } catch (IllegalArgumentException e) {
+    } catch (IllegalArgumentException exception) {
       return;
     }
 
@@ -155,7 +155,8 @@ public class FloatTripleMeasurementTest extends ApplicationTestCase<DataCollecti
   }
 
   public void testSaveToRealm() {
-    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test_float_triple_measurement.realm").build();
+    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(
+        getContext()).name("test_float_triple_measurement.realm").build();
     final Realm realm = Realm.getInstance(realmConfiguration);
 
     final FloatTripleMeasurement floatTripleMeasurement = new FloatTripleMeasurement(1f, 2f, 3f);
@@ -206,7 +207,9 @@ public class FloatTripleMeasurementTest extends ApplicationTestCase<DataCollecti
       final FloatTripleMeasurement floatTripleMeasurement = new FloatTripleMeasurement(rng.nextFloat(), rng.nextFloat(), rng.nextFloat());
       floatTripleMeasurements.add(floatTripleMeasurement);
       @SuppressWarnings("UnusedAssignment")
-      final float result = floatTripleMeasurement.getFirstValue() * floatTripleMeasurement.getSecondValue() * floatTripleMeasurement.getThirdValue();
+      final float result = floatTripleMeasurement.getFirstValue()
+          * floatTripleMeasurement.getSecondValue()
+          * floatTripleMeasurement.getThirdValue();
     }
 
     long time3 = System.currentTimeMillis();

@@ -24,14 +24,14 @@ public class DataCollectionApplication extends Application {
   private static final String TAG = "DataCollectionApp";
   private boolean isReceiverRegistered = false;
 
-  private BroadcastReceiver mRegistrationBroadcastReceiver;
+  private BroadcastReceiver registrationBroadcastReceiver;
 
   @Override
   public void onCreate() {
     super.onCreate();
     startService(new Intent(this, BackgroundSensorService.class));
 
-    mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+    registrationBroadcastReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(final Context context, final Intent intent) {
         final SharedPreferences sharedPreferences =
@@ -45,7 +45,7 @@ public class DataCollectionApplication extends Application {
           Toast.makeText(DataCollectionApplication.this, R.string.gcm_register_failed, Toast.LENGTH_LONG).show();
         }
 
-        LocalBroadcastManager.getInstance(DataCollectionApplication.this).unregisterReceiver(mRegistrationBroadcastReceiver);
+        LocalBroadcastManager.getInstance(DataCollectionApplication.this).unregisterReceiver(registrationBroadcastReceiver);
         isReceiverRegistered = false;
       }
     };
@@ -62,7 +62,7 @@ public class DataCollectionApplication extends Application {
 
   private void registerReceiver() {
     if (!isReceiverRegistered) {
-      LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+      LocalBroadcastManager.getInstance(this).registerReceiver(registrationBroadcastReceiver,
           new IntentFilter(QuickstartPreferences.REGISTRATION_COMPLETE));
       isReceiverRegistered = true;
     }
