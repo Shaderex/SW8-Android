@@ -21,7 +21,7 @@ public class StartFragmentTest extends ActivityUnitTestCase<MainActivity> {
     super(MainActivity.class);
   }
 
-  final String StartFragmentTestKey = "StartFragmentTestKey";
+  final String startFragmentTestKey = "StartFragmentTestKey";
 
   @Override
   public void setUp() throws Exception {
@@ -37,7 +37,7 @@ public class StartFragmentTest extends ActivityUnitTestCase<MainActivity> {
     startActivity(mainActivityIntent, null, null);
 
     final FragmentManager fragmentManager = getActivity().getFragmentManager();
-    fragmentManager.beginTransaction().add(R.id.content_frame_layout, StartFragment.newInstance(), StartFragmentTestKey).commit();
+    fragmentManager.beginTransaction().add(R.id.content_frame_layout, StartFragment.newInstance(), startFragmentTestKey).commit();
     fragmentManager.executePendingTransactions();
   }
 
