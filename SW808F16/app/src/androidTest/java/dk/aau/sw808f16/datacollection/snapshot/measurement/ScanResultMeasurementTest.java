@@ -111,7 +111,8 @@ public class ScanResultMeasurementTest extends ApplicationTestCase<DataCollectio
       return;
     }
 
-    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("scan_result_measurement_test.realm").build();
+    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(
+        getContext()).name("scan_result_measurement_test.realm").build();
     final Realm realm = Realm.getInstance(realmConfiguration);
 
     final ScanResultMeasurement scanResultMeasurement = new ScanResultMeasurement(realScanResults.get(0));

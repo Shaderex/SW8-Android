@@ -32,7 +32,9 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
 
     new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
 
-    new Sample(Arrays.asList(new FloatTripleMeasurement(1f, 1f, 1f), new FloatTripleMeasurement(2f, 2f, 2f), new FloatTripleMeasurement(3f, 3f, 3f)));
+    new Sample(Arrays.asList(new FloatTripleMeasurement(1f, 1f, 1f),
+        new FloatTripleMeasurement(2f, 2f, 2f),
+        new FloatTripleMeasurement(3f, 3f, 3f)));
   }
 
   public void testExtendsRealmObject() {
