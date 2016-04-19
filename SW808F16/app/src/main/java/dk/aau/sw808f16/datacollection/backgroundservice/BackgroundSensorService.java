@@ -106,8 +106,6 @@ public final class BackgroundSensorService extends Service {
   public int onStartCommand(final Intent intent, final int flags, final int startId) {
     Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
 
-    final Campaign campaign = new Campaign(1); // Todo: Acquire this campaign somewhere else!
-
     final Runnable addSnapshotRunnable = new Runnable() {
       @Override
       public void run() {
@@ -118,11 +116,10 @@ public final class BackgroundSensorService extends Service {
 
           accelerometerSamples = accelerometerSensorProvider.retrieveSamplesForDuration(2 * 60 * 1000, 1000, 500, 500).get();
           snapshot.addSamples(SensorType.ACCELEROMETER, accelerometerSamples);
-          byte[] key = getSecretKey();
 
           final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(BackgroundSensorService.this)
               .name(BackgroundSensorService.SNAPSHOT_REALM_NAME)
-              .encryptionKey(key)
+              .encryptionKey(getSecretKey())
               .build();
           final Realm realm = Realm.getInstance(realmConfiguration);
 
@@ -134,6 +131,7 @@ public final class BackgroundSensorService extends Service {
 
           realm.close();
 
+          final Campaign campaign = new Campaign(1); // Todo: Acquire this campaign somewhere else!
           campaign.addSnapshot(snapshot);
         } catch (InterruptedException | ExecutionException exception) {
           exception.printStackTrace();
@@ -154,39 +152,52 @@ public final class BackgroundSensorService extends Service {
     new Timer().scheduleAtFixedRate(new TimerTask() {
       @Override
       public void run() {
-        final String requestUrl = RequestHostResolver.resolveHostForRequest(BackgroundSensorService.this,
-            "/campaigns/" + campaign.getIdentifier() + "/snapshots");
+        final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(BackgroundSensorService.this)
+            .name(BackgroundSensorService.SNAPSHOT_REALM_NAME)
+            .encryptionKey(getSecretKey())
+            .build();
+        final Realm realm = Realm.getInstance(realmConfiguration);
+        List<Campaign> campaigns = realm.where(Campaign.class).findAll();
 
-        final AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, requestUrl, 200) {
-          @Override
-          protected Response<String> sendRequest(Request webb) {
-            try {
-              final String campaignString = campaign.toJsonObject().toString();
-              final Response<String> jsonString = webb.param("snapshots", campaignString).asString();
-              Log.d("Service-status", campaignString);
-              return jsonString;
-            } catch (JSONException exception) {
-              exception.printStackTrace();
+        for (final Campaign campaign : campaigns) {
+          final String requestUrl = RequestHostResolver.resolveHostForRequest(BackgroundSensorService.this,
+              "/campaigns/" + campaign.getIdentifier() + "/snapshots");
+
+          // Send the campaign to the server
+          final AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, requestUrl, 200) {
+            @Override
+            protected Response<String> sendRequest(Request webb) {
+              try {
+                final String campaignString = campaign.toJsonObject().toString();
+                final Response<String> jsonString = webb.param("snapshots", campaignString).asString();
+                Log.d("Service-status", campaignString);
+                return jsonString;
+              } catch (JSONException exception) {
+                exception.printStackTrace();
+              }
+              return null;
             }
-            return null;
-          }
 
-          @Override
-          public void onResponseCodeMatching(Response<String> response) {
-            Log.d("Service-status", "onResponseCodeMatching");
-          }
+            @Override
+            public void onResponseCodeMatching(Response<String> response) {
+              Log.d("Service-status", "onResponseCodeMatching");
+            }
 
-          @Override
-          public void onResponseCodeNotMatching(Response<String> response) {
-            Log.d("Service-status", "onResponseCodeNotMatching: " + response.getResponseMessage());
-          }
+            @Override
+            public void onResponseCodeNotMatching(Response<String> response) {
+              Log.d("Service-status", "onResponseCodeNotMatching: " + response.getResponseMessage());
+            }
 
-          @Override
-          public void onConnectionFailure() {
-            Log.d("Service-status", "onConnectionFailure");
-          }
-        };
-        task.execute();
+            @Override
+            public void onConnectionFailure() {
+              Log.d("Service-status", "onConnectionFailure");
+            }
+          };
+          task.execute();
+        }
+
+        // Remove the campaign
+        // TODO: Clear the database and re-add not-synced campaigns
       }
     }, 0, 10 * 60 * 1000);
 
