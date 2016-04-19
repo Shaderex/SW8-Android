@@ -24,8 +24,11 @@ public class ProximitySensorProviderTest extends SensorProviderApplicationTestCa
 
     @SuppressWarnings("ConstantConditions")
     FloatMeasurement proximityValue = (FloatMeasurement) measurement;
-    assertTrue("[" + sampleIdentifier + "] value of measurement must be below or equal to " + maxValue, proximityValue.getValue() <= maxValue);
-    assertTrue("[" + sampleIdentifier + "] value of measurement must be larger or equal to " + maxValue, proximityValue.getValue() >= minValue);
+    assertTrue("[" + sampleIdentifier + "] value of measurement must be below or equal to " + maxValue,
+        proximityValue.getValue() <= maxValue);
+
+    assertTrue("[" + sampleIdentifier + "] value of measurement must be larger or equal to " + maxValue,
+        proximityValue.getValue() >= minValue);
   }
 
   @Override

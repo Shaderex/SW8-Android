@@ -59,7 +59,7 @@ public class PrivateCampaignFragment extends Fragment {
 
     submitBtn.setOnClickListener(new View.OnClickListener() {
       @Override
-      public void onClick(View v) {
+      public void onClick(View view) {
         Toast.makeText(getActivity(), "Starter", Toast.LENGTH_SHORT).show();
 
         final long enteredCampaignId = Long.parseLong(campaignIdField.getText().toString());

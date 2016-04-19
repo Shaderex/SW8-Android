@@ -125,9 +125,12 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
     final TextView no_connection_emptyView = (TextView) fragment.getView().findViewById(R.id.empty_no_connection);
     final TextView unexpected_response_emptyView = (TextView) fragment.getView().findViewById(R.id.empty_unexpected_response);
 
-    assertTrue("no_data_emptyView was visible", no_data_emptyView.getVisibility() == View.INVISIBLE || no_data_emptyView.getVisibility() == View.GONE);
-    assertTrue("no_connection_emptyView was visible", no_connection_emptyView.getVisibility() == View.INVISIBLE || no_connection_emptyView.getVisibility() == View.GONE);
-    assertTrue("unexpected_response_emptyView was visible", unexpected_response_emptyView.getVisibility() == View.INVISIBLE || unexpected_response_emptyView.getVisibility() == View.GONE);
+    assertTrue("no_data_emptyView was visible", no_data_emptyView.getVisibility() == View.INVISIBLE
+    || no_data_emptyView.getVisibility() == View.GONE);
+    assertTrue("no_connection_emptyView was visible", no_connection_emptyView.getVisibility() == View.INVISIBLE
+    || no_connection_emptyView.getVisibility() == View.GONE);
+    assertTrue("unexpected_response_emptyView was visible", unexpected_response_emptyView.getVisibility() == View.INVISIBLE
+    || unexpected_response_emptyView.getVisibility() == View.GONE);
   }
   */
 
@@ -178,8 +181,8 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
       public long getItemId(int position) {
         try {
           return campaings.get(position).getInt("id");
-        } catch (JSONException e) {
-          e.printStackTrace();
+        } catch (JSONException exception) {
+          exception.printStackTrace();
         }
 
         return -1;

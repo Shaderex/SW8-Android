@@ -31,10 +31,10 @@ public class PrivateCampaignFragmentTest extends ActivityUnitTestCase<MainActivi
     final Intent mainActivityIntent = Intent.makeMainActivity(componentName);
     startActivity(mainActivityIntent, null, null);
 
-    final String KEY = "TEST_KEY";
+    final String key = "TEST_KEY";
 
     final FragmentManager fragmentManager = getActivity().getFragmentManager();
-    fragmentManager.beginTransaction().add(R.id.content_frame_layout, PrivateCampaignFragment.newInstance(), KEY).commit();
+    fragmentManager.beginTransaction().add(R.id.content_frame_layout, PrivateCampaignFragment.newInstance(), key).commit();
     fragmentManager.executePendingTransactions();
 
 

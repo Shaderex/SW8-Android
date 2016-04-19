@@ -8,7 +8,7 @@ import dk.aau.sw808f16.datacollection.gcm.RegistrationIntentService;
 public class RequestHostResolver {
 
   public static String resolveHostForRequest(final Context context, final String resourcePath) {
-    final String wifiSsid = RegistrationIntentService.findWifiSSID(context);
+    final String wifiSsid = RegistrationIntentService.findWifiSsid(context);
     String requestUrl;
     if (wifiSsid != null && wifiSsid.contains(context.getString(R.string.aau_wifi_ssid))) {
       requestUrl = context.getString(R.string.backendURL_AAU);

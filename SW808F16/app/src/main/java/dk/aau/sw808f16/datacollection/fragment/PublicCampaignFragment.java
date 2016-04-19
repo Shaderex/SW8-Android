@@ -135,9 +135,11 @@ public class PublicCampaignFragment extends Fragment
 
     final String campaignListResourcePath = RequestHostResolver.resolveHostForRequest(getActivity(), "/campaigns");
 
-    currentGetCampaignsTask = new AsyncHttpWebbTask<JSONArray>(AsyncHttpWebbTask.Method.GET, campaignListResourcePath, HttpURLConnection.HTTP_OK) {
+    currentGetCampaignsTask = new AsyncHttpWebbTask<JSONArray>(AsyncHttpWebbTask.Method.GET,
+        campaignListResourcePath,
+        HttpURLConnection.HTTP_OK) {
 
-      final JsonCampaingsAdapter adapter = new JsonCampaingsAdapter();
+      final JsonCampaignsAdapter adapter = new JsonCampaignsAdapter();
 
       @Override
       protected void onPreExecute() {
@@ -198,16 +200,16 @@ public class PublicCampaignFragment extends Fragment
     currentGetCampaignsTask.execute();
   }
 
-  class JsonCampaingsAdapter extends BaseAdapter {
+  class JsonCampaignsAdapter extends BaseAdapter {
 
     private JSONArray data;
 
     private CheckBox lastMarkedCheckBox;
 
-    JsonCampaingsAdapter() {
+    JsonCampaignsAdapter() {
     }
 
-    JsonCampaingsAdapter(final JSONArray data) {
+    JsonCampaignsAdapter(final JSONArray data) {
       this.data = data;
     }
 

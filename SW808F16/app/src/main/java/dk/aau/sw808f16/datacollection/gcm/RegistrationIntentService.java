@@ -63,8 +63,8 @@ public class RegistrationIntentService extends IntentService {
       // R.string.gcm_defaultSenderId (the Sender ID) is typically derived from google-services.json.
       // See https://developers.google.com/cloud-messaging/android/start for details on this file.
       // [START get_token]
-      final InstanceID instanceID = InstanceID.getInstance(this);
-      final String token = instanceID.getToken(getString(R.string.defaultSenderID),
+      final InstanceID instanceIdentifier = InstanceID.getInstance(this);
+      final String token = instanceIdentifier.getToken(getString(R.string.defaultSenderID),
           GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
       // [END get_token]
       Log.i(TAG, "GCM Registration Token: " + token);
@@ -80,8 +80,8 @@ public class RegistrationIntentService extends IntentService {
       // otherwise your server should have already received the token.
       sharedPreferences.edit().putBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, true).apply();
       // [END register_for_gcm]
-    } catch (Exception e) {
-      Log.d(TAG, "Failed to complete token refresh", e);
+    } catch (Exception exception) {
+      Log.d(TAG, "Failed to complete token refresh", exception);
       // If an exception happens while fetching the new token or updating our registration data
       // on a third-party server, this ensures that we'll attempt the update at a later time.
       sharedPreferences.edit().putBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false).apply();
@@ -103,13 +103,15 @@ public class RegistrationIntentService extends IntentService {
 
     final String request = RequestHostResolver.resolveHostForRequest(this, "/gcm/registerDevice");
 
-    final AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, request, HttpURLConnection.HTTP_OK) {
+    final AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST,
+        request,
+        HttpURLConnection.HTTP_OK) {
       @Override
       protected Response<String> sendRequest(final Request webb) {
         try {
-          final String deviceID = URLEncoder.encode(token, "utf-8");
-          final Response<String> deviceIdString = webb.param("device_id", deviceID).asString();
-          return deviceIdString;
+          final String deviceIdentifier = URLEncoder.encode(token, "utf-8");
+          final Response<String> deviceIdentifierString = webb.param("device_id", deviceIdentifier).asString();
+          return deviceIdentifierString;
         } catch (UnsupportedEncodingException exception) {
           exception.printStackTrace();
         }
@@ -164,12 +166,11 @@ public class RegistrationIntentService extends IntentService {
     return new DefaultHttpClient(conMgr, params);
   }
 
-  public static String findWifiSSID(final Context context) {
+  public static String findWifiSsid(final Context context) {
     final WifiManager wifiMgr = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
     final WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
-    final String name = wifiInfo.getSSID();
 
-    return name;
+    return wifiInfo.getSSID();
   }
 
 }

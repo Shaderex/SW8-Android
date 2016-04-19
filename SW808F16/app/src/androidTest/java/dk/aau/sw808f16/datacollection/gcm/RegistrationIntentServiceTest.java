@@ -9,9 +9,9 @@ public class RegistrationIntentServiceTest extends ApplicationTestCase<DataColle
     super(DataCollectionApplication.class);
   }
 
-  public void testFindWifiSSID() {
+  public void testFindWifiSsid() {
     final RegistrationIntentService service = new RegistrationIntentService();
-    assertNotNull(service.findWifiSSID(getContext()));
+    assertNotNull(service.findWifiSsid(getContext()));
   }
 
 }
