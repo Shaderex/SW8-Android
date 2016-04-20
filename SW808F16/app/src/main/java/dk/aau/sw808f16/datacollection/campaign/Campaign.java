@@ -10,9 +10,11 @@ import dk.aau.sw808f16.datacollection.snapshot.JsonObjectAble;
 import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 public class Campaign extends RealmObject implements JsonObjectAble {
 
+  @PrimaryKey
   private int identifier;
   private RealmList<Snapshot> snapshots;
 

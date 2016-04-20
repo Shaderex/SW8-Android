@@ -1,8 +1,10 @@
 package dk.aau.sw808f16.datacollection.backgroundservice;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.SensorManager;
+import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -21,6 +23,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -35,6 +38,7 @@ import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
 import dk.aau.sw808f16.datacollection.webutil.RequestHostResolver;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
 
 public final class BackgroundSensorService extends Service {
   public static final String SNAPSHOT_REALM_NAME = "snapshot.realm";
@@ -112,7 +116,7 @@ public final class BackgroundSensorService extends Service {
         List<Sample> accelerometerSamples;
 
         try {
-          final Snapshot snapshot = new Snapshot();
+          Snapshot snapshot = new Snapshot();
 
           accelerometerSamples = accelerometerSensorProvider.retrieveSamplesForDuration(2 * 60 * 1000, 1000, 500, 500).get();
           snapshot.addSamples(SensorType.ACCELEROMETER, accelerometerSamples);
@@ -124,15 +128,22 @@ public final class BackgroundSensorService extends Service {
           final Realm realm = Realm.getInstance(realmConfiguration);
 
           realm.beginTransaction();
-          realm.copyToRealm(snapshot);
+
+          // Find the campaign from the database
+          // Todo: Acquire this campaign somewhere else!
+          Campaign campaign = realm.where(Campaign.class).equalTo("identifier", 1).findFirst();
+          if (campaign == null) {
+            campaign = new Campaign(1); // If it does not exist yet, create it
+          }
+
+          // Attach the newly created snapshot so that it will also be saved
+          campaign.addSnapshot(snapshot);
+
+          realm.copyToRealmOrUpdate(campaign);
+
           realm.commitTransaction();
 
-          Log.d("Service-status", "Saved snapshot...");
-
           realm.close();
-
-          final Campaign campaign = new Campaign(1); // Todo: Acquire this campaign somewhere else!
-          campaign.addSnapshot(snapshot);
         } catch (InterruptedException | ExecutionException exception) {
           exception.printStackTrace();
         }
@@ -146,58 +157,86 @@ public final class BackgroundSensorService extends Service {
         final Thread thread = new Thread(addSnapshotRunnable);
         thread.start();
       }
-    }, 0, 5 * 60 * 1000);
+    }, 0, 5000);
 
     // Send the campaign to the server every x minutes
     new Timer().scheduleAtFixedRate(new TimerTask() {
       @Override
       public void run() {
+        // Check if we have access to wifi. If not, don't try to synchronize
+        WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        if (!wifi.isWifiEnabled()) {
+          Log.d("CampaignSyncLog", "Unable to upload without network");
+          return; // Take no further actions
+        }
+
+        // Find all stored campaigns
         final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(BackgroundSensorService.this)
             .name(BackgroundSensorService.SNAPSHOT_REALM_NAME)
             .encryptionKey(getSecretKey())
             .build();
         final Realm realm = Realm.getInstance(realmConfiguration);
-        List<Campaign> campaigns = realm.where(Campaign.class).findAll();
+        RealmResults<Campaign> results = realm.where(Campaign.class).findAll();
 
-        for (final Campaign campaign : campaigns) {
+        if (results.size() == 0) {
+          Log.d("CampaignSyncLog", "There are no campaigns to be uploaded");
+        }
+
+        for (int i = 0; i < results.size(); i++) {
+          final Campaign campaign = results.get(i);
           final String requestUrl = RequestHostResolver.resolveHostForRequest(BackgroundSensorService.this,
               "/campaigns/" + campaign.getIdentifier() + "/snapshots");
 
-          // Send the campaign to the server
-          final AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, requestUrl, 200) {
-            @Override
-            protected Response<String> sendRequest(Request webb) {
-              try {
-                final String campaignString = campaign.toJsonObject().toString();
+          final CountDownLatch requestHandled = new CountDownLatch(1);
+          final CountDownLatch requestSuccessful = new CountDownLatch(1);
+
+          try {
+            final String campaignString = campaign.toJsonObject().toString();
+
+            // Send the campaign to the server
+            final AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, requestUrl, 200) {
+              @Override
+              protected Response<String> sendRequest(Request webb) {
                 final Response<String> jsonString = webb.param("snapshots", campaignString).asString();
                 Log.d("Service-status", campaignString);
                 return jsonString;
-              } catch (JSONException exception) {
-                exception.printStackTrace();
               }
-              return null;
-            }
 
-            @Override
-            public void onResponseCodeMatching(Response<String> response) {
-              Log.d("Service-status", "onResponseCodeMatching");
-            }
+              @Override
+              public void onResponseCodeMatching(Response<String> response) {
+                Log.d("CampaignSyncLog", "All campaigns were uploaded");
+                requestSuccessful.countDown();
+                requestHandled.countDown();
+              }
 
-            @Override
-            public void onResponseCodeNotMatching(Response<String> response) {
-              Log.d("Service-status", "onResponseCodeNotMatching: " + response.getResponseMessage());
-            }
+              @Override
+              public void onResponseCodeNotMatching(Response<String> response) {
+                requestHandled.countDown();
+              }
 
-            @Override
-            public void onConnectionFailure() {
-              Log.d("Service-status", "onConnectionFailure");
+              @Override
+              public void onConnectionFailure() {
+                requestHandled.countDown();
+              }
+            };
+            task.execute();
+
+            // Wait until the request is done
+            requestHandled.await();
+
+            // Check if the request is successful
+            if (requestSuccessful.getCount() == 0) {
+              // Remove the campaign that was successfully uploaded
+              realm.beginTransaction();
+              campaign.removeFromRealm();
+              realm.commitTransaction();
             }
-          };
-          task.execute();
+          } catch (JSONException | InterruptedException exception) {
+            exception.printStackTrace();
+          }
         }
 
-        // Remove the campaign
-        // TODO: Clear the database and re-add not-synced campaigns
+        realm.close();
       }
     }, 0, 10 * 60 * 1000);
 
