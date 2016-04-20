@@ -1,6 +1,8 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
 import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
 import java.lang.ref.WeakReference;
@@ -15,27 +17,68 @@ import java.util.concurrent.Future;
 
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
-public abstract class SensorProvider {
+public abstract class SensorProvider<MeasurementType> {
 
   final WeakReference<Context> context;
   private final ExecutorService sensorThreadPool;
   final SensorManager sensorManager;
 
+  private MeasurementType cachedMeasurement;
+  private Timer measurementTimer;
+
+  protected abstract EventListenerRegistrationManager createSensorAndEventListenerPairs();
+
+  protected void onNewMeasurement(MeasurementType newMeasurement) {
+    cachedMeasurement = newMeasurement;
+  }
+
   public SensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     this.context = new WeakReference<>(context);
     this.sensorThreadPool = sensorThreadPool;
     this.sensorManager = sensorManager;
+
+    measurementTimer = new Timer(true);
   }
 
   // Arguments are given in milliseconds
-  protected abstract Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency)
-      throws InterruptedException;
+  private Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency)
+      throws InterruptedException {
+    final CountDownLatch latch = new CountDownLatch(1);
+    final Sample sensorValues = new Sample();
+
+    final TimerTask sampleTimerTask = new TimerTask() {
+      @Override
+      public void run() {
+        latch.countDown();
+      }
+    };
+
+    measurementTimer.schedule(sampleTimerTask, sampleDuration);
+
+    final TimerTask measurementTimerTask = new TimerTask() {
+      @Override
+      public void run() {
+        sensorValues.addMeasurement(cachedMeasurement);
+      }
+    };
+
+    measurementTimer.schedule(measurementTimerTask, 0, measurementFrequency);
+
+    latch.await();
+    measurementTimerTask.cancel();
+
+    return sensorValues;
+  }
 
   // Arguments are given in milliseconds
   public Future<List<Sample>> retrieveSamplesForDuration(final long totalDuration,
                                                          final long sampleFrequency,
                                                          final long sampleDuration,
                                                          final long measurementFrequency) {
+
+    final EventListenerRegistrationManager registrationManager = createSensorAndEventListenerPairs();
+
+    registrationManager.register(SensorManager.SENSOR_DELAY_FASTEST);
 
     if (!(totalDuration >= sampleFrequency)) {
       throw new IllegalArgumentException("Total duration must be greater than or equal to sample frequency");
@@ -82,10 +125,41 @@ public abstract class SensorProvider {
 
         latch.await();
 
+        registrationManager.unregister();
+
         return samples;
       }
     });
   }
 
   public abstract boolean isSensorAvailable();
+
+
+  interface EventListenerRegistrationManager {
+    void register(final int frequency);
+    void unregister();
+  }
+
+  protected static class SensorEventListenerRegistrationManager implements EventListenerRegistrationManager {
+
+    private final Sensor sensor;
+    private final SensorManager manager;
+    private final SensorEventListener listener;
+
+    public SensorEventListenerRegistrationManager(final SensorManager manager, final Sensor sensor, final SensorEventListener listener) {
+      this.sensor = sensor;
+      this.manager = manager;
+      this.listener = listener;
+    }
+
+    public void register(final int frequency) {
+      manager.registerListener(listener, sensor, frequency);
+    }
+
+    public void unregister() {
+      manager.unregisterListener(listener);
+    }
+
+
+  }
 }

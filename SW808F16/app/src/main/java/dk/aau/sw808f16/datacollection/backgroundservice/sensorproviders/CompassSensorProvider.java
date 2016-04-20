@@ -6,6 +6,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 
-public class CompassSensorProvider extends SensorProvider {
+public class CompassSensorProvider extends SensorProvider<FloatMeasurement> {
 
   private static final int maxArcDegrees = 360;
 
@@ -25,6 +26,109 @@ public class CompassSensorProvider extends SensorProvider {
   }
 
   @Override
+  protected EventListenerRegistrationManager createSensorAndEventListenerPairs() {
+
+    return new EventListenerRegistrationManager(){
+
+      float[] accelerometerOutput;
+      float[] magneticFieldOutput;
+
+      final float[] rotationMatrix = new float[16];
+      final float[] inclinationMatrix = new float[16];
+      final float[] values = new float[3];
+
+      final Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+      final Sensor magneticFieldSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+
+      SensorEventListener accelerometerListener;
+      SensorEventListener magneticFieldListener;
+
+      final SensorEventListener initialAccelerometerListener = new SensorEventListener() {
+        @Override
+        public void onSensorChanged(final SensorEvent event) {
+
+          synchronized (CompassSensorProvider.this) {
+
+            accelerometerOutput = event.values;
+
+            if (magneticFieldOutput != null) {
+
+              SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, accelerometerOutput, magneticFieldOutput);
+
+              SensorManager.getOrientation(rotationMatrix, values);
+              onNewMeasurement(new FloatMeasurement(sensorDataToOrientation(values)));
+
+              sensorManager.unregisterListener(initialAccelerometerListener);
+              sensorManager.unregisterListener(initialMagneticFieldListener);
+
+              sensorManager.registerListener(accelerometerListener,
+                  accelerometerSensor,
+                  SensorManager.SENSOR_DELAY_FASTEST);
+              sensorManager.registerListener(magneticFieldListener,
+                  magneticFieldSensor,
+                  SensorManager.SENSOR_DELAY_FASTEST);
+            }
+          }
+        }
+
+        @Override
+        public void onAccuracyChanged(final Sensor sensor, final int accuracy) {
+        }
+      };
+
+      final SensorEventListener initialMagneticFieldListener = new SensorEventListener() {
+
+        @Override
+        public void onSensorChanged(final SensorEvent event) {
+
+          synchronized (CompassSensorProvider.this) {
+
+            magneticFieldOutput = event.values;
+
+            if (accelerometerOutput != null) {
+
+              SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, accelerometerOutput, magneticFieldOutput);
+
+              SensorManager.getOrientation(rotationMatrix, values);
+              onNewMeasurement(new FloatMeasurement(sensorDataToOrientation(values)));
+
+              sensorManager.unregisterListener(initialAccelerometerListener);
+              sensorManager.unregisterListener(initialMagneticFieldListener);
+
+              sensorManager.registerListener(accelerometerListener,
+                  accelerometerSensor,
+                  SensorManager.SENSOR_DELAY_FASTEST);
+              sensorManager.registerListener(magneticFieldListener,
+                  magneticFieldSensor,
+                  SensorManager.SENSOR_DELAY_FASTEST);
+            }
+          }
+        }
+
+        @Override
+        public void onAccuracyChanged(final Sensor sensor, int accuracy) {
+        }
+      };;
+
+      // Listeners used when we have one measurement from each sensor
+
+
+      @Override
+      public void register(final int frequency) {
+
+        sensorManager.registerListener(initialAccelerometerListener, accelerometerSensor, SensorManager.SENSOR_DELAY_FASTEST);
+        sensorManager.registerListener(initialMagneticFieldListener, magneticFieldSensor, SensorManager.SENSOR_DELAY_FASTEST);
+      }
+
+      @Override
+      public void unregister() {
+
+        sensorManager.unregisterListener(accelerometerListener);
+        sensorManager.unregisterListener(magneticFieldListener);
+      }
+    };
+  }
+  /*
   protected Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency) throws InterruptedException {
 
     final long endTime = System.currentTimeMillis() + sampleDuration;
@@ -60,6 +164,8 @@ public class CompassSensorProvider extends SensorProvider {
         // Convert measurement frequency to micro seconds for the Android API
         final int microPerMilli = context.get().getResources().getInteger(R.integer.micro_seconds_per_milli_second);
         final int measurementFrequencyInMicroSeconds = (int) (measurementFrequency * microPerMilli);
+
+
 
         initialAccelerometerListener = new SensorEventListener() {
           @Override
@@ -227,7 +333,7 @@ public class CompassSensorProvider extends SensorProvider {
 
     return new Sample(measurements);
   }
-
+  */
   @Override
   public boolean isSensorAvailable() {
     return context.get().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_COMPASS);

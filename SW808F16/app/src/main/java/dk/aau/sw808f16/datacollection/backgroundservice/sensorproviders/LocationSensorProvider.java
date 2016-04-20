@@ -1,10 +1,15 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
 import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.LocationManager;
+import android.util.Pair;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -12,9 +17,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.LocationMeasurement;
 
-public class LocationSensorProvider extends SensorProvider {
+public class LocationSensorProvider extends SensorProvider<LocationMeasurement> {
 
   private final Timer locationMeasureTimer;
 
@@ -22,6 +28,25 @@ public class LocationSensorProvider extends SensorProvider {
     super(context, sensorThreadPool, sensorManager);
     locationMeasureTimer = new Timer(true);
   }
+
+  @Override
+  protected List<Pair<Sensor, SensorEventListener>> createSensorAndEventListenerPairs() {
+    final SensorEventListener listener = new SensorEventListener() {
+      @Override
+      public void onSensorChanged(SensorEvent event) {
+        final LocationManager locationManager = (LocationManager) context.get().getSystemService(Context.LOCATION_SERVICE);
+        onNewMeasurement(new LocationMeasurement(locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER)));
+      }
+
+      @Override
+      public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+      }
+    };
+
+    return Arrays.asList(new Pair<>( , listener));
+  }
+
 
   @Override
   protected Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency)
@@ -42,7 +67,7 @@ public class LocationSensorProvider extends SensorProvider {
         }
 
         // Do the measurements
-        locations.add(new LocationMeasurement(locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER)));
+        locations.add;
       }
     };
 
