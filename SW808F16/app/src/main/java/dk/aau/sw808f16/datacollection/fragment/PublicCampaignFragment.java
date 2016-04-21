@@ -28,6 +28,8 @@ import java.net.HttpURLConnection;
 
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.campaign.AsyncHttpCampaignJoinTask;
+import dk.aau.sw808f16.datacollection.campaign.AsyncHttpGetCampaignSpecificationTask;
+import dk.aau.sw808f16.datacollection.campaign.Campaign;
 import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
 import dk.aau.sw808f16.datacollection.webutil.RequestHostResolver;
 
@@ -107,6 +109,23 @@ public class PublicCampaignFragment extends Fragment
         } else {
           onConfirmedCampaignSave();
         }
+      }
+    });
+
+    confirmButton.setOnLongClickListener(new View.OnLongClickListener() {
+      @Override
+      public boolean onLongClick(View v) {
+
+        AsyncHttpGetCampaignSpecificationTask task = new AsyncHttpGetCampaignSpecificationTask(getActivity(), currentlyMarkedCampaign) {
+          @Override
+          public void onResult(Campaign campaign) {
+
+          }
+        };
+
+        task.execute();
+
+        return true;
       }
     });
 

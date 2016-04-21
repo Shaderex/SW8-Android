@@ -88,6 +88,8 @@ public abstract class AsyncHttpWebbTask<ResultT> extends AsyncTask<Void, Void, R
 
     webb.setRetryManager(new RetryManager());
 
+    webb.setDefaultHeader("X-Requested-With", "XMLHttpRequest");
+
     if (isCancelled()) {
       return null;
     }

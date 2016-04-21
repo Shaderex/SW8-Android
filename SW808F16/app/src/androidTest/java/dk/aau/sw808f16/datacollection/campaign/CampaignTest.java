@@ -6,9 +6,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 import dk.aau.sw808f16.datacollection.SensorType;
+import dk.aau.sw808f16.datacollection.questionaire.models.Question;
+import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
 import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -103,6 +106,12 @@ public class CampaignTest extends ApplicationTestCase<DataCollectionApplication>
       add(SensorType.AMBIENT_LIGHT);
       add(SensorType.ACCELEROMETER);
     }});
+
+    List<Question> questions = new ArrayList<>();
+    questions.add(new Question("Er du okay?"));
+    questions.add(new Question("Er du okay, Annie?"));
+
+    campaign.setQuestionnaire(new Questionnaire(questions));
 
     realm.beginTransaction();
     realm.copyToRealm(campaign);
@@ -204,8 +213,19 @@ public class CampaignTest extends ApplicationTestCase<DataCollectionApplication>
     assertEquals(expected, campaign.getSensors());
   }
 
-  public void testSetQuestions() {
+  public void testSetQuestionnaire() {
+    Campaign campaign = new Campaign();
 
+    ArrayList<Question> questions = new ArrayList<Question>(){{
+      add(new Question("Er du god?"));
+      add(new Question("Er du dårlig?"));
+    }};
+    Questionnaire expected = new Questionnaire(questions);
+
+
+    campaign.setQuestionnaire(expected);
+
+    assertEquals(expected, campaign.getQuestionnaire());
   }
 
 }

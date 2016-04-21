@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dk.aau.sw808f16.datacollection.SensorType;
+import dk.aau.sw808f16.datacollection.questionaire.models.Question;
+import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
 import dk.aau.sw808f16.datacollection.snapshot.JsonObjectAble;
 import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
 import io.realm.RealmList;
@@ -31,6 +33,7 @@ public class Campaign extends RealmObject implements JsonObjectAble {
 
   @Ignore
   private List<SensorType> sensors;
+  private Questionnaire questionnaire;
 
   public Campaign() {
     if (snapshots == null) {
@@ -64,9 +67,16 @@ public class Campaign extends RealmObject implements JsonObjectAble {
 
     this.setSensors(sensorTypes);
 
-    // TODO: Add questions to campaign
-    JSONArray questions = jsonObject.getJSONArray("questions");
 
+    JSONArray questionStrings = jsonObject.getJSONArray("questions");
+    List<Question> questions = new ArrayList<>();
+
+    for (int i = 0; i < questionStrings.length(); i++) {
+      String question = questionStrings.getJSONObject(i).getString("question");
+      questions.add(new Question(question));
+    }
+
+    this.setQuestionnaire(new Questionnaire(questions));
   }
 
   public void addSnapshot(final Snapshot snapshot) {
@@ -94,7 +104,8 @@ public class Campaign extends RealmObject implements JsonObjectAble {
         this.sampleFrequency == that.sampleFrequency &&
         this.measurementFrequency == that.measurementFrequency &&
         this.sensorString != null ? this.sensorString.equals(that.sensorString) : that.sensorString == null &&
-        this.getSensors().equals(that.getSensors());
+        this.getSensors().equals(that.getSensors()) &&
+        this.questionnaire != null ? this.questionnaire.equals(that.questionnaire) : that.questionnaire == null;
 
     if (this.identifier != that.identifier) {
       return false;
@@ -190,12 +201,15 @@ public class Campaign extends RealmObject implements JsonObjectAble {
 
   public List<SensorType> getSensors() {
 
-    if (sensors == null && sensorString != null && !sensorString.isEmpty()) {
+    if (sensors == null) {
       this.sensors = new ArrayList<>();
-      String[] sensorTypeStrings = sensorString.split(",");
 
-      for (String sensorTypeString : sensorTypeStrings) {
-        this.sensors.add(SensorType.getSensorTypeById(Integer.parseInt(sensorTypeString)));
+      if (sensorString != null && !sensorString.isEmpty()) {
+        String[] sensorTypeStrings = sensorString.split(",");
+
+        for (String sensorTypeString : sensorTypeStrings) {
+          this.sensors.add(SensorType.getSensorTypeById(Integer.parseInt(sensorTypeString)));
+        }
       }
     }
     return sensors;
@@ -211,5 +225,13 @@ public class Campaign extends RealmObject implements JsonObjectAble {
     this.sensorString += sensors.get(sensors.size() - 1).getIdentifier();
 
     this.sensors = sensors;
+  }
+
+  public Questionnaire getQuestionnaire() {
+    return questionnaire;
+  }
+
+  public void setQuestionnaire(Questionnaire qustionnaire) {
+    this.questionnaire = qustionnaire;
   }
 }
