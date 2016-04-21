@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -36,6 +37,7 @@ public class PublicCampaignFragment extends Fragment
 
   private static final String CONFIRM_SAVE_SELECTION_FRAGMENT = "confirmSaveSelectionFragment";
   private static final String CURRENTLY_CHECKED_CAMPAIGN_ID_KEY = "CURRENTLY_CHECKED_CAMPAIGN_ID_KEY";
+  private static final String CAMPAIGN_SPECIFICATION_FRAGMENT_KEY = "CAMPAIGN_SPECIFICATION_FRAGMENT_KEY";
 
   public Menu menu;
   private long currentlyMarkedCampaign;
@@ -107,6 +109,26 @@ public class PublicCampaignFragment extends Fragment
         } else {
           onConfirmedCampaignSave();
         }
+      }
+    });
+
+    final ListView listView = (ListView) view.findViewById(R.id.campaigns_list_view);
+
+    listView.setLongClickable(true);
+    listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+      @Override
+      public boolean onItemLongClick(final AdapterView<?> parent, final View view, final int position, final long id) {
+
+        final JSONArray data = ((JsonCampaignsAdapter) parent.getAdapter()).data;
+
+        final CampaignSpecificationFragment fragment = CampaignSpecificationFragment.newInstance(id);
+
+        getFragmentManager().beginTransaction()
+            .replace(R.id.content_frame_layout, fragment, CAMPAIGN_SPECIFICATION_FRAGMENT_KEY)
+            .addToBackStack(CAMPAIGN_SPECIFICATION_FRAGMENT_KEY)
+            .commit();
+
+        return true;
       }
     });
 
@@ -200,9 +222,9 @@ public class PublicCampaignFragment extends Fragment
     currentGetCampaignsTask.execute();
   }
 
-  class JsonCampaignsAdapter extends BaseAdapter {
+  private class JsonCampaignsAdapter extends BaseAdapter {
 
-    private JSONArray data;
+    public JSONArray data;
 
     private CheckBox lastMarkedCheckBox;
 
