@@ -13,7 +13,7 @@ public class GyroscopeSensorProviderTest extends SensorProviderApplicationTestCa
   }
 
   @Override
-  protected void validateMeasurement(Object measurement, String sampleIdentifier) {
+  protected void validateMeasurement(final Object measurement, final String sampleIdentifier) {
     if (!(measurement instanceof FloatTripleMeasurement)) {
       assertEquals("Compass sensor data is of wrong type.", FloatTripleMeasurement.class, measurement.getClass());
     }
@@ -31,11 +31,6 @@ public class GyroscopeSensorProviderTest extends SensorProviderApplicationTestCa
         gyroscopeValues.getSecondValue() <= maxValue && gyroscopeValues.getSecondValue() >= minValue);
     assertTrue("Data for index 2 value must be between " + minValue + " and " + maxValue,
         gyroscopeValues.getThirdValue() <= maxValue && gyroscopeValues.getThirdValue() >= minValue);
-  }
-
-  @Override
-  public void testGetSample() throws ExecutionException, InterruptedException, ClassCastException {
-    super.testGetSample();
   }
 
   @Override

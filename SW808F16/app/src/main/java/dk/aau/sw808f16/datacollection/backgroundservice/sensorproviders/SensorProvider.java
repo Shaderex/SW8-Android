@@ -4,6 +4,8 @@ import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Handler;
+import android.os.HandlerThread;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -14,26 +16,37 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public abstract class SensorProvider<MeasurementType> {
 
-  final WeakReference<Context> context;
+  final WeakReference<Context> contextWeakReference;
   private final ExecutorService sensorThreadPool;
   final SensorManager sensorManager;
 
-  private MeasurementType cachedMeasurement;
+  private MeasurementType cachedMeasurement = null;
+  private final Object firstMeasurementLock = new Object();
   private Timer measurementTimer;
 
-  protected abstract EventListenerRegistrationManager createSensorAndEventListenerPairs();
+  final AtomicBoolean atomicBoolean = new AtomicBoolean(false);
 
-  protected void onNewMeasurement(MeasurementType newMeasurement) {
+  protected abstract EventListenerRegistrationManager createRegManager();
+
+  protected void onNewMeasurement(final MeasurementType newMeasurement) {
+
     cachedMeasurement = newMeasurement;
+
+    if(!atomicBoolean.getAndSet(true)) {
+      synchronized (firstMeasurementLock) {
+        firstMeasurementLock.notify();
+      }
+    }
   }
 
   public SensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
-    this.context = new WeakReference<>(context);
+    this.contextWeakReference = new WeakReference<>(context);
     this.sensorThreadPool = sensorThreadPool;
     this.sensorManager = sensorManager;
 
@@ -43,6 +56,14 @@ public abstract class SensorProvider<MeasurementType> {
   // Arguments are given in milliseconds
   private Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency)
       throws InterruptedException {
+
+    if(cachedMeasurement == null)
+    {
+      synchronized (firstMeasurementLock) {
+        firstMeasurementLock.wait();
+      }
+    }
+
     final CountDownLatch latch = new CountDownLatch(1);
     final Sample sensorValues = new Sample();
 
@@ -53,11 +74,19 @@ public abstract class SensorProvider<MeasurementType> {
       }
     };
 
+    final long measurementsPerSample = sampleDuration / measurementFrequency;
+
     measurementTimer.schedule(sampleTimerTask, sampleDuration);
 
     final TimerTask measurementTimerTask = new TimerTask() {
       @Override
       public void run() {
+
+        if(sensorValues.size() == measurementsPerSample)
+        {
+          return;
+        }
+
         sensorValues.addMeasurement(cachedMeasurement);
       }
     };
@@ -76,7 +105,7 @@ public abstract class SensorProvider<MeasurementType> {
                                                          final long sampleDuration,
                                                          final long measurementFrequency) {
 
-    final EventListenerRegistrationManager registrationManager = createSensorAndEventListenerPairs();
+    final EventListenerRegistrationManager registrationManager = createRegManager();
 
     registrationManager.register(SensorManager.SENSOR_DELAY_FASTEST);
 
@@ -134,7 +163,6 @@ public abstract class SensorProvider<MeasurementType> {
 
   public abstract boolean isSensorAvailable();
 
-
   interface EventListenerRegistrationManager {
     void register(final int frequency);
     void unregister();
@@ -145,21 +173,25 @@ public abstract class SensorProvider<MeasurementType> {
     private final Sensor sensor;
     private final SensorManager manager;
     private final SensorEventListener listener;
+    private HandlerThread thread;
 
     public SensorEventListenerRegistrationManager(final SensorManager manager, final Sensor sensor, final SensorEventListener listener) {
+
       this.sensor = sensor;
       this.manager = manager;
       this.listener = listener;
+
+      thread = new HandlerThread("SensorEventListenerRegistrationManager HandlerThread");
     }
 
     public void register(final int frequency) {
-      manager.registerListener(listener, sensor, frequency);
+      thread.start();
+      manager.registerListener(listener, sensor, frequency, new Handler(thread.getLooper()));
     }
 
     public void unregister() {
       manager.unregisterListener(listener);
+      thread.quit();
     }
-
-
   }
 }

@@ -1,88 +1,70 @@
 package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
 import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
-import android.util.Pair;
+import android.os.Bundle;
+import android.os.HandlerThread;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-import dk.aau.sw808f16.datacollection.snapshot.Sample;
-import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.LocationMeasurement;
 
 public class LocationSensorProvider extends SensorProvider<LocationMeasurement> {
 
-  private final Timer locationMeasureTimer;
+  private final HandlerThread handlerThread = new HandlerThread("LocationSensorProvider HandlerThread");
 
   public LocationSensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
-    locationMeasureTimer = new Timer(true);
   }
 
   @Override
-  protected List<Pair<Sensor, SensorEventListener>> createSensorAndEventListenerPairs() {
-    final SensorEventListener listener = new SensorEventListener() {
+  protected EventListenerRegistrationManager createRegManager() {
+
+    return new EventListenerRegistrationManager() {
+
+      final LocationManager locationManager = (LocationManager) contextWeakReference.get().getSystemService(Context.LOCATION_SERVICE);
+      final LocationListener listener = new LocationListener() {
+        @Override
+        public void onLocationChanged(final Location location) {
+          onNewMeasurement(new LocationMeasurement(location));
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+
+        }
+      };
+
       @Override
-      public void onSensorChanged(SensorEvent event) {
-        final LocationManager locationManager = (LocationManager) context.get().getSystemService(Context.LOCATION_SERVICE);
+      public void register(final int frequency) {
+        handlerThread.start();
+        locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0.0f, listener , handlerThread.getLooper());
         onNewMeasurement(new LocationMeasurement(locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER)));
       }
 
       @Override
-      public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
+      public void unregister() {
+        locationManager.removeUpdates(listener);
       }
     };
-
-    return Arrays.asList(new Pair<>( , listener));
-  }
-
-
-  @Override
-  protected Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency)
-      throws InterruptedException {
-
-    final LocationManager locationManager = (LocationManager) context.get().getSystemService(Context.LOCATION_SERVICE);
-    final long endTime = System.currentTimeMillis() + sampleDuration;
-    final CountDownLatch latch = new CountDownLatch(1);
-    final List<LocationMeasurement> locations = new ArrayList<>();
-
-    final TimerTask cellNetworkMeasurementTask = new TimerTask() {
-      @Override
-      public void run() {
-        if (System.currentTimeMillis() > endTime) {
-          this.cancel();
-          latch.countDown();
-          return;
-        }
-
-        // Do the measurements
-        locations.add;
-      }
-    };
-
-    locationMeasureTimer.scheduleAtFixedRate(cellNetworkMeasurementTask, 0, measurementFrequency);
-
-    latch.await();
-
-    return new Sample(locations);
-
-
   }
 
   @Override
   public boolean isSensorAvailable() {
-    LocationManager lm = (LocationManager) context.get().getSystemService(Context.LOCATION_SERVICE);
+    LocationManager lm = (LocationManager) contextWeakReference.get().getSystemService(Context.LOCATION_SERVICE);
     boolean gpsEnabled = false;
 
     try {

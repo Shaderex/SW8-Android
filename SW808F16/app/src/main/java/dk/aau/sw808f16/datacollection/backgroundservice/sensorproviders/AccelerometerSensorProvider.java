@@ -6,15 +6,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.Pair;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-import dk.aau.sw808f16.datacollection.snapshot.Sample;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
 
 public class AccelerometerSensorProvider extends SensorProvider<FloatTripleMeasurement> {
@@ -24,7 +18,7 @@ public class AccelerometerSensorProvider extends SensorProvider<FloatTripleMeasu
   }
 
   @Override
-  protected EventListenerRegistrationManager createSensorAndEventListenerPairs() {
+  protected EventListenerRegistrationManager createRegManager() {
     final SensorEventListener listener = new SensorEventListener() {
       @Override
       public void onSensorChanged(final SensorEvent event) {
@@ -41,6 +35,6 @@ public class AccelerometerSensorProvider extends SensorProvider<FloatTripleMeasu
 
   @Override
   public boolean isSensorAvailable() {
-    return context.get().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_ACCELEROMETER);
+    return contextWeakReference.get().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_ACCELEROMETER);
   }
 }

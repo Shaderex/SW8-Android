@@ -27,7 +27,7 @@ public class AmbientLightSensorProvider extends SensorProvider<FloatMeasurement>
   }
 
   @Override
-  protected EventListenerRegistrationManager createSensorAndEventListenerPairs() {
+  protected EventListenerRegistrationManager createRegManager() {
 
     final SensorEventListener listener = new SensorEventListener() {
 

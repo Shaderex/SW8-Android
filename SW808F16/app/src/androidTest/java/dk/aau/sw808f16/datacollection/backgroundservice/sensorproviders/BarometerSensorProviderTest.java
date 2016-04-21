@@ -14,7 +14,7 @@ public class BarometerSensorProviderTest extends SensorProviderApplicationTestCa
   }
 
   @Override
-  protected void validateMeasurement(Object measurement, String sampleIdentifier) {
+  protected void validateMeasurement(final Object measurement, final String sampleIdentifier) {
     final Sensor barometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
     final float maxValue = barometerSensor.getMaximumRange();
     final float minValue = -barometerSensor.getMaximumRange();
@@ -27,11 +27,6 @@ public class BarometerSensorProviderTest extends SensorProviderApplicationTestCa
     FloatMeasurement pressure = (FloatMeasurement) measurement;
     assertTrue("[" + sampleIdentifier + "] Measurement value is below " + minValue, pressure.getValue() > minValue);
     assertTrue("[" + sampleIdentifier + "] Measurement value is above " + minValue, pressure.getValue() < maxValue);
-  }
-
-  @Override
-  public void testGetSample() throws ExecutionException, InterruptedException, ClassCastException {
-    super.testGetSample();
   }
 
   @Override

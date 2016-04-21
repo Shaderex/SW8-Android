@@ -6,18 +6,10 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.Pair;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-import dk.aau.sw808f16.datacollection.R;
-import dk.aau.sw808f16.datacollection.snapshot.Sample;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 
 public class ProximitySensorProvider extends SensorProvider<FloatMeasurement> {
@@ -30,7 +22,7 @@ public class ProximitySensorProvider extends SensorProvider<FloatMeasurement> {
   }
 
   @Override
-  protected EventListenerRegistrationManager createSensorAndEventListenerPairs() {
+  protected EventListenerRegistrationManager createRegManager() {
     SensorEventListener listener = new SensorEventListener() {
       @Override
       public void onSensorChanged(SensorEvent event) {
@@ -48,6 +40,6 @@ public class ProximitySensorProvider extends SensorProvider<FloatMeasurement> {
 
   @Override
   public boolean isSensorAvailable() {
-    return context.get().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_PROXIMITY);
+    return contextWeakReference.get().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_PROXIMITY);
   }
 }

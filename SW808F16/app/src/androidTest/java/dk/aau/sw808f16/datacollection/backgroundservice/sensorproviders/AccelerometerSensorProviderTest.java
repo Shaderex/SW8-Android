@@ -14,14 +14,14 @@ public class AccelerometerSensorProviderTest extends SensorProviderApplicationTe
   }
 
   @Override
-  protected void validateMeasurement(Object measurement, String sampleIdentifier) {
+  protected void validateMeasurement(final Object measurement, final String sampleIdentifier) {
     if (!(measurement instanceof FloatTripleMeasurement)) {
       assertEquals("[" + sampleIdentifier + "] Measurement in sample is of wrong type.",
           FloatTripleMeasurement.class, measurement.getClass());
     }
 
     @SuppressWarnings("ConstantConditions")
-    FloatTripleMeasurement accelerometerValues = (FloatTripleMeasurement) measurement;
+    final FloatTripleMeasurement accelerometerValues = (FloatTripleMeasurement) measurement;
 
     final Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
     final float maxValue = sensor.getMaximumRange();
@@ -34,11 +34,6 @@ public class AccelerometerSensorProviderTest extends SensorProviderApplicationTe
         accelerometerValues.getSecondValue() <= maxValue && accelerometerValues.getSecondValue() >= minValue);
     assertTrue("[" + sampleIdentifier + "] third value of measurement must be between " + minValue + " and " + maxValue,
         accelerometerValues.getThirdValue() <= maxValue && accelerometerValues.getThirdValue() >= minValue);
-  }
-
-  @Override
-  public void testGetSample() throws ExecutionException, InterruptedException, ClassCastException {
-    super.testGetSample();
   }
 
   @Override
