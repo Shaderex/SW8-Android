@@ -17,4 +17,6 @@
     <string name="unexpected_response_from_server">Unexpected response from server</string>
     <string name="private_campaign_button">Private campaign</string>
     <string name="public_campaign_button">Public campaigns</string>
+    <string name="campaign_specification_fragment_title">Campaign Specification</string>
+    <string name="campaign_specification_name_title">Name:</string>
 </resources>
