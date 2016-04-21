@@ -6,8 +6,10 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.util.Pair;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -15,42 +17,23 @@ import java.util.concurrent.ExecutorService;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 
-public class AmbientLightSensorProvider extends SensorProvider {
+public class AmbientLightSensorProvider extends SensorProvider<FloatMeasurement> {
 
   private Context context;
 
-  public AmbientLightSensorProvider(Context context, ExecutorService sensorThreadPool, SensorManager sensorManager) {
+  public AmbientLightSensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
     this.context = context;
   }
 
   @Override
-  protected Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency) throws InterruptedException {
+  protected EventListenerRegistrationManager createRegManager() {
 
-    final CountDownLatch latch = new CountDownLatch(1);
-    final List<FloatMeasurement> sensorValues = new ArrayList<>();
-    final long endTime = System.currentTimeMillis() + sampleDuration;
-
-    final Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-
-    final SensorEventListener accelerometerListener = new SensorEventListener() {
-
-      private long lastUpdateTime = 0;
+    final SensorEventListener listener = new SensorEventListener() {
 
       @Override
       public void onSensorChanged(final SensorEvent event) {
-        final long currentTime = System.currentTimeMillis();
-        if (lastUpdateTime + measurementFrequency >= currentTime) {
-          return;
-        }
-
-        sensorValues.add(new FloatMeasurement(event.values[0]));
-
-        lastUpdateTime = currentTime;
-
-        if (endTime <= currentTime) {
-          latch.countDown();
-        }
+        onNewMeasurement(new FloatMeasurement(event.values[0]));
       }
 
       @Override
@@ -58,17 +41,7 @@ public class AmbientLightSensorProvider extends SensorProvider {
       }
     };
 
-    if (!sensorManager.registerListener(accelerometerListener, accelerometerSensor, SensorManager.SENSOR_DELAY_FASTEST)) {
-
-      sensorManager.unregisterListener(accelerometerListener);
-      return null;
-    }
-
-    latch.await();
-
-    sensorManager.unregisterListener(accelerometerListener);
-
-    return new Sample(sensorValues);
+    return new SensorEventListenerRegistrationManager(sensorManager, sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT), listener);
   }
 
   @Override

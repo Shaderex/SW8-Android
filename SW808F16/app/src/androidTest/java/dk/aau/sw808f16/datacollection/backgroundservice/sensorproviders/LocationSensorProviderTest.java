@@ -12,14 +12,9 @@ public class LocationSensorProviderTest extends SensorProviderApplicationTestCas
   }
 
   @Override
-  protected void validateMeasurement(Object measurement, String sampleIdentifier) {
+  protected void validateMeasurement(final Object measurement, final String sampleIdentifier) {
     assertTrue("[" + sampleIdentifier + "] measurement is not of type Location",
         LocationMeasurement.class.isAssignableFrom(measurement.getClass()));
-  }
-
-  @Override
-  public void testGetSample() throws ExecutionException, InterruptedException, ClassCastException {
-    super.testGetSample();
   }
 
   @Override

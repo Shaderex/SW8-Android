@@ -41,15 +41,15 @@ public abstract class SensorProviderApplicationTestCase extends ApplicationTestC
 
     // Calculate the expected size(s), because of real time issues the size may differ +/- 1
     final int expectedSize = (int) (sampleDuration / measurementFrequency);
-    minSize = expectedSize - 1;
-    maxSize = expectedSize + 1;
+    minSize = expectedSize;
+    maxSize = expectedSize;
 
     sensorThreadPool = Executors.newFixedThreadPool(1);
     sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
     sensorProvider = getSensorProvider();
   }
 
-  private void validateSample(Sample sample, String sampleIdentifier) {
+  private void validateSample(final Sample sample, final String sampleIdentifier) {
     assertNotNull("[" + sampleIdentifier + "] Sample data is null", sample);
     assertFalse("[" + sampleIdentifier + "] Sample data is empty", sample.getMeasurements().isEmpty());
 
@@ -62,29 +62,6 @@ public abstract class SensorProviderApplicationTestCase extends ApplicationTestC
     assertTrue("[" + sampleIdentifier + "] The amount of data and sampling period do not match. "
             + "Expected: " + minSize + " - " + maxSize + ", Actual: " + sample.getMeasurements().size(),
         sample.getMeasurements().size() <= maxSize && sample.getMeasurements().size() >= minSize);
-  }
-
-  public void testGetSample() throws ExecutionException, InterruptedException, ClassCastException {
-    if (sensorProvider.isSensorAvailable()) {
-      final Sample sample1 = sensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
-      final Sample sample2 = sensorProvider.retrieveSampleForDuration(sampleDuration, measurementFrequency);
-
-      // Cellular networks are not always available. If both samples are null, pass the test.
-
-      for (final Object measurement : sample1.getMeasurements()) {
-        if (measurement != null) {
-          validateSample(sample1, "sample1");
-          break;
-        }
-      }
-
-      for (final Object measurement : sample2.getMeasurements()) {
-        if (measurement != null) {
-          validateSample(sample2, "sample2");
-          break;
-        }
-      }
-    }
   }
 
   public void testGetSamples() throws ExecutionException, InterruptedException {

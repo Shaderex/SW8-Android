@@ -11,7 +11,7 @@ public class CompassSensorProviderTest extends SensorProviderApplicationTestCase
   }
 
   @Override
-  protected void validateMeasurement(Object measurement, String sampleIdentifier) {
+  protected void validateMeasurement(final Object measurement, final String sampleIdentifier) {
 
     if (!(measurement instanceof FloatMeasurement)) {
       assertEquals("[" + sampleIdentifier + "] Measurement is of wrong type.", FloatMeasurement.class, measurement.getClass());
@@ -21,18 +21,13 @@ public class CompassSensorProviderTest extends SensorProviderApplicationTestCase
     final int minDegrees = 0;
 
     @SuppressWarnings("ConstantConditions")
-    FloatMeasurement orientationValue = (FloatMeasurement) measurement;
+    final FloatMeasurement orientationValue = (FloatMeasurement) measurement;
 
     assertTrue("[" + sampleIdentifier + "] measurement value are too large (not smaller than 360 degrees)",
         orientationValue.getValue() < maxDegrees);
 
     assertTrue("[" + sampleIdentifier + "] measurement value are too small (below 0 degrees)",
         orientationValue.getValue() >= minDegrees);
-  }
-
-  @Override
-  public void testGetSample() throws ExecutionException, InterruptedException, ClassCastException {
-    super.testGetSample();
   }
 
   @Override

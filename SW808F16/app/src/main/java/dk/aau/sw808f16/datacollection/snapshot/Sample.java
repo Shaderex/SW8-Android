@@ -66,6 +66,11 @@ public class Sample extends RealmObject implements JsonObjectAble {
     }
   }
 
+  public int size()
+  {
+    return floatTripleMeasurements.size() + floatMeasurements.size() + wifiMeasurements.size() + locationMeasurements.size();
+  }
+
   public List<JsonValueAble> getMeasurements() {
 
     final List<JsonValueAble> result = new ArrayList<>();
