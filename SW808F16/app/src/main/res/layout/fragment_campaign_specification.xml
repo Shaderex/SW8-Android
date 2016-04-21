@@ -16,7 +16,7 @@
         android:id="@+id/fragment_campaign_specification_listing"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignBottom="@id/campaign_specification_title"/>
+        android:layout_below="@id/campaign_specification_title"/>
 
     <android.support.v4.widget.ContentLoadingProgressBar
         android:id="@+id/activity_indicator"

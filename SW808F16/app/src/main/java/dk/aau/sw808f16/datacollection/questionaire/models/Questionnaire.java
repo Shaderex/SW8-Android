@@ -6,9 +6,13 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Questionnaire implements Parcelable {
+import io.realm.RealmList;
+import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 
-  private final List<Question> questions;
+public class Questionnaire extends RealmObject implements Parcelable {
+
+  private RealmList<Question> questions;
   private int currentQuestionIndex = -1;
   public static final Parcelable.Creator<Questionnaire> CREATOR = new Creator<Questionnaire>() {
     @Override
@@ -23,11 +27,12 @@ public class Questionnaire implements Parcelable {
   };
 
   public Questionnaire() {
-    this.questions = new ArrayList<>();
+    this.questions = new RealmList<>();
   }
 
   public Questionnaire(List<Question> questions) {
-    this.questions = questions;
+    this();
+    this.questions.addAll(questions);
   }
 
   private Questionnaire(Parcel parcel) {

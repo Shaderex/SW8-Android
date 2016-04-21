@@ -3,11 +3,14 @@ package dk.aau.sw808f16.datacollection.questionaire.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Question implements Parcelable {
+import io.realm.RealmObject;
+
+public class Question extends RealmObject implements Parcelable {
 
   private Boolean answer;
   private String question;
 
+  public Question() {}
   public Question(String question) {
     this.setQuestion(question);
   }

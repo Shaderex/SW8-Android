@@ -114,7 +114,6 @@ public class PublicCampaignFragment extends Fragment
 
     final ListView listView = (ListView) view.findViewById(R.id.campaigns_list_view);
 
-    listView.setLongClickable(true);
     listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
       @Override
       public boolean onItemLongClick(final AdapterView<?> parent, final View view, final int position, final long id) {
@@ -222,7 +221,7 @@ public class PublicCampaignFragment extends Fragment
     currentGetCampaignsTask.execute();
   }
 
-  private class JsonCampaignsAdapter extends BaseAdapter {
+  public class JsonCampaignsAdapter extends BaseAdapter {
 
     public JSONArray data;
 

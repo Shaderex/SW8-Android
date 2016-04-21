@@ -17,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import dk.aau.sw808f16.datacollection.R;
+import dk.aau.sw808f16.datacollection.campaign.AsyncHttpGetCampaignSpecificationTask;
 import dk.aau.sw808f16.datacollection.campaign.Campaign;
 
 public class CampaignSpecificationFragment extends Fragment {
@@ -113,13 +114,15 @@ public class CampaignSpecificationFragment extends Fragment {
       if (convertView == null) {
         final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 
-        convertView = inflater.inflate(R.layout.fragment_campaign_specification_item, parent);
+        convertView = inflater.inflate(R.layout.fragment_campaign_specification_item, null);
 
         final ViewHolder holder = new ViewHolder();
 
         holder.campaignSpecificationItemTitle = (TextView) convertView.findViewById(R.id.campaign_specification_item_title);
         holder.campaignSpecificationItemValue = (TextView) convertView.findViewById(R.id.campaign_specification_item_value);
         holder.campaignSpecificationItemLargeTextBlock = (TextView) convertView.findViewById(R.id.campaign_specification_item_large_text_block);
+
+        convertView.setTag(holder);
       }
 
       final ViewHolder holder = (ViewHolder) convertView.getTag();
@@ -188,7 +191,21 @@ public class CampaignSpecificationFragment extends Fragment {
     if (arguments.containsKey(CAMPAIGN_ID_TAG)) {
       // Start AsyncTask
 
-      //adapter.setCampaignSpecification(new JSONObject(arguments.getString(CAMPAIGN_JSON_TAG)));
+      //
+      final long campaignId = arguments.getLong(CAMPAIGN_ID_TAG);
+
+      AsyncHttpGetCampaignSpecificationTask task = new AsyncHttpGetCampaignSpecificationTask(getActivity(), campaignId) {
+        @Override
+        public void onResult(final Campaign campaign) {
+          try {
+            adapter.setCampaignSpecification(campaign.toJsonObject());
+          } catch (JSONException e) {
+            e.printStackTrace();
+          }
+        }
+      };
+
+      task.execute();
 
 
     } else if (arguments.containsKey(CAMPAIGN_JSON_TAG)) {
