@@ -7,6 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+import io.realm.RealmObject;
 
 public class QuestionnaireTest extends ApplicationTestCase<DataCollectionApplication> {
 
@@ -41,6 +45,8 @@ public class QuestionnaireTest extends ApplicationTestCase<DataCollectionApplica
     questionsDifferent.add(new Question("Are you okay, Annie?"));
   }
 
+
+
   public void testEmptyConstructor() {
     Questionnaire questionnaire = new Questionnaire();
 
@@ -52,6 +58,11 @@ public class QuestionnaireTest extends ApplicationTestCase<DataCollectionApplica
     Questionnaire questionnaire = new Questionnaire(questions);
 
     assertNotNull(questionnaire);
+  }
+
+  public void testExtendsRealmObject() {
+    assertTrue(Questionnaire.class.getName() + " does not extend " + RealmObject.class.getName(),
+        RealmObject.class.isAssignableFrom(Questionnaire.class));
   }
 
   public void testGetQuestionsList() {
@@ -113,5 +124,26 @@ public class QuestionnaireTest extends ApplicationTestCase<DataCollectionApplica
     Questionnaire createdFromParcel = Questionnaire.CREATOR.createFromParcel(parcel);
 
     assertEquals(questionnaire, createdFromParcel);
+  }
+
+  public void testSaveToRealm() {
+    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test_questionnaire.realm").build();
+    final Realm realm = Realm.getInstance(realmConfiguration);
+
+    Questionnaire questionnaire = new Questionnaire(questions);
+
+    realm.beginTransaction();
+    realm.copyToRealm(questionnaire);
+    realm.commitTransaction();
+
+    final Questionnaire loadedQuestionnaire = realm.where(Questionnaire.class).findFirst();
+
+    final boolean equals = questionnaire.equals(loadedQuestionnaire);
+
+    realm.close();
+
+    Realm.deleteRealm(realmConfiguration);
+
+    assertTrue("The loaded measurement was not equal to the original", equals);
   }
 }

@@ -5,7 +5,13 @@ import android.test.ApplicationTestCase;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
+import dk.aau.sw808f16.datacollection.SensorType;
+import dk.aau.sw808f16.datacollection.questionaire.models.Question;
+import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
 import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -89,6 +95,23 @@ public class CampaignTest extends ApplicationTestCase<DataCollectionApplication>
     final Realm realm = Realm.getInstance(realmConfiguration);
 
     final Campaign campaign = new Campaign(1);
+    campaign.setPrivate(true);
+    campaign.setName("name");
+    campaign.setDescription("description");
+    campaign.setSnapshotLength(10);
+    campaign.setSampleDuration(10);
+    campaign.setSampleFrequency(10);
+    campaign.setMeasurementFrequency(10);
+    campaign.setSensors(new ArrayList<SensorType>() {{
+      add(SensorType.AMBIENT_LIGHT);
+      add(SensorType.ACCELEROMETER);
+    }});
+
+    List<Question> questions = new ArrayList<>();
+    questions.add(new Question("Er du okay?"));
+    questions.add(new Question("Er du okay, Annie?"));
+
+    campaign.setQuestionnaire(new Questionnaire(questions));
 
     realm.beginTransaction();
     realm.copyToRealm(campaign);
@@ -99,6 +122,7 @@ public class CampaignTest extends ApplicationTestCase<DataCollectionApplication>
     assertEquals(campaign, loadedCampaign);
 
     realm.close();
+    Realm.deleteRealm(realmConfiguration);
   }
 
   public void testCanBecomeJson() throws JSONException {
@@ -112,6 +136,96 @@ public class CampaignTest extends ApplicationTestCase<DataCollectionApplication>
     assertNotNull(campaignJsonObjectString);
 
     assertTrue(campaignJsonObjectString.contains("snapshots"));
+  }
+
+  public void testSetName() {
+    Campaign campaign = new Campaign();
+
+    String expected = "hej";
+    campaign.setName(expected);
+
+    assertEquals(expected, campaign.getName());
+  }
+
+  public void testSetDescription() {
+    Campaign campaign = new Campaign();
+
+    String expected = "hej";
+    campaign.setDescription(expected);
+
+    assertEquals(expected, campaign.getDescription());
+  }
+
+  public void testSetIsPrivate() {
+    Campaign campaign = new Campaign();
+
+    boolean expected = true;
+    campaign.setPrivate(expected);
+
+    assertEquals(expected, campaign.isPrivate());
+  }
+
+  public void testSetSnapshotLength() {
+    Campaign campaign = new Campaign();
+
+    int expected = 1;
+    campaign.setSnapshotLength(expected);
+
+    assertEquals(expected, campaign.getSnapshotLength());
+  }
+
+  public void testSetSampleDuration() {
+    Campaign campaign = new Campaign();
+
+    int expected = 1;
+    campaign.setSampleDuration(expected);
+
+    assertEquals(expected, campaign.getSampleDuration());
+  }
+
+  public void testSetSampleFrequency() {
+    Campaign campaign = new Campaign();
+
+    int expected = 1;
+    campaign.setSampleFrequency(expected);
+
+    assertEquals(expected, campaign.getSampleFrequency());
+  }
+
+  public void testSetMeasurementFrequency() {
+    Campaign campaign = new Campaign();
+
+    int expected = 1;
+    campaign.setMeasurementFrequency(expected);
+
+    assertEquals(expected, campaign.getMeasurementFrequency());
+  }
+
+  public void testSetSensors() {
+    Campaign campaign = new Campaign();
+
+    ArrayList<SensorType> expected = new ArrayList<>();
+    expected.add(SensorType.ACCELEROMETER);
+    expected.add(SensorType.AMBIENT_LIGHT);
+
+    campaign.setSensors(expected);
+
+    assertEquals(expected, campaign.getSensors());
+  }
+
+  public void testSetQuestionnaire() {
+    Campaign campaign = new Campaign();
+
+    ArrayList<Question> questions = new ArrayList<Question>(){{
+      add(new Question("Er du god?"));
+      add(new Question("Er du dårlig?"));
+    }};
+    Questionnaire expected = new Questionnaire(questions);
+
+
+    campaign.setQuestionnaire(expected);
+
+    assertEquals(expected, campaign.getQuestionnaire());
   }
 
 }

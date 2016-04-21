@@ -4,6 +4,10 @@ import android.os.Parcel;
 import android.test.ApplicationTestCase;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+import io.realm.RealmObject;
 
 public class QuestionTest extends ApplicationTestCase<DataCollectionApplication> {
 
@@ -44,6 +48,12 @@ public class QuestionTest extends ApplicationTestCase<DataCollectionApplication>
       assertEquals(exception.getMessage(), "Question cannot be null");
     }
   }
+
+  public void testExtendsRealmObject() {
+    assertTrue(Question.class.getName() + " does not extend " + RealmObject.class.getName(),
+        RealmObject.class.isAssignableFrom(Question.class));
+  }
+
 
   public void testAnswerQuestion() {
     Question question = new Question(this.question);
@@ -110,5 +120,26 @@ public class QuestionTest extends ApplicationTestCase<DataCollectionApplication>
     Question createdFromParcel = Question.CREATOR.createFromParcel(parcel);
 
     assertEquals(question, createdFromParcel);
+  }
+
+  public void testSaveToRealm() {
+    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test_question.realm").build();
+    final Realm realm = Realm.getInstance(realmConfiguration);
+
+    final Question question = new Question("Hvorn skern?");
+
+    realm.beginTransaction();
+    realm.copyToRealm(question);
+    realm.commitTransaction();
+
+    final Question loadedQuestion = realm.where(Question.class).findFirst();
+
+    final boolean equals = question.equals(loadedQuestion);
+
+    realm.close();
+
+    Realm.deleteRealm(realmConfiguration);
+
+    assertTrue("The loaded measurement was not equal to the original", equals);
   }
 }
