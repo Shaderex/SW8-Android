@@ -71,9 +71,8 @@ public class QuestionnaireTest extends ApplicationTestCase<DataCollectionApplica
     Questionnaire expected = new Questionnaire(questions);
     Questionnaire actual = new Questionnaire(expected);
 
-    expected.getNextQuestion().setAnswer(true);
-
-    assertFalse("There are references copying present", expected.equals(actual));
+    expected.getQuestions().get(0).setAnswer(true);
+    assertFalse("There are copied references present", expected.equals(actual));
   }
 
   public void testExtendsRealmObject() {
