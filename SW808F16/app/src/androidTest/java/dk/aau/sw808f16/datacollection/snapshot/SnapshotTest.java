@@ -26,6 +26,7 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
 
   public void testConstructor() {
     new Snapshot();
+    Snapshot.Create();
   }
 
   public void testExtendsRealmObject() {
@@ -40,6 +41,15 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
     snapshot.setLabel(expectedLabel);
 
     assertEquals(expectedLabel, snapshot.getLabel());
+  }
+
+  public void testGetSetTimeStamp() {
+    final long expected = System.currentTimeMillis();
+    final Snapshot snapshot = new Snapshot();
+
+    snapshot.setTimestamp(expected);
+
+    assertEquals(expected, snapshot.getTimestamp());
   }
 
   public void testAddSampleGetSamples() {
@@ -181,7 +191,7 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
         new FloatMeasurement(329f)
     ));
 
-    final Snapshot snapshot = new Snapshot();
+    final Snapshot snapshot = Snapshot.Create();
 
     snapshot.addSample(SensorType.ACCELEROMETER, accelerometerSample);
     snapshot.addSample(SensorType.GYROSCOPE, gyroscopeSample);
@@ -198,6 +208,7 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
     assertTrue(snapshotJsonObjectStringRepresentation.contains("gyroscope"));
     assertTrue(snapshotJsonObjectStringRepresentation.contains("barometer"));
     assertTrue(snapshotJsonObjectStringRepresentation.contains("accelerometer"));
+    assertTrue(snapshotJsonObjectStringRepresentation.contains("timestamp"));
   }
 
   public void testCanBecomeJsonAndRealmAndJson() throws JSONException {
@@ -215,7 +226,7 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
         new FloatMeasurement(329f)
     ));
 
-    final Snapshot originalSnapshot = new Snapshot();
+    final Snapshot originalSnapshot = Snapshot.Create();
 
     originalSnapshot.addSample(SensorType.ACCELEROMETER, accelerometerSample);
     originalSnapshot.addSample(SensorType.GYROSCOPE, gyroscopeSample);

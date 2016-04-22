@@ -17,6 +17,7 @@ import io.realm.annotations.Ignore;
 public class Snapshot extends RealmObject implements JsonObjectAble {
 
   private Label label;
+  private long timestamp;
   private RealmList<Sample> accelerometerSamples = new RealmList<>();
   private RealmList<Sample> ambientLightSamples = new RealmList<>();
   private RealmList<Sample> barometerSamples = new RealmList<>();
@@ -30,6 +31,17 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
   @Ignore
   private Map<SensorType, RealmList<Sample>> sensorSampleMap = null;
 
+  public static Snapshot Create() {
+    @SuppressWarnings("deprication")
+    Snapshot snapshot = new Snapshot();
+    snapshot.setTimestamp(System.currentTimeMillis());
+    return snapshot;
+  }
+
+  /**
+   * @deprecated Use the {@link #Create()} factory method. This is reserved for Realm.io
+   */
+  @Deprecated
   public Snapshot() {
   }
 
@@ -78,11 +90,10 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
 
     final Snapshot that = (Snapshot) object;
 
-    if ((this.getLabel() == null || that.getLabel() == null) && this.getLabel() != that.getLabel()) {
-      return false;
-    }
+    boolean isSame = this.getLabel() != null ? this.getLabel().equals(that.getLabel()) : that.getLabel() == null &&
+        this.getTimestamp() == that.getTimestamp();
 
-    if (this.getLabel() != null && !this.getLabel().equals(that.getLabel())) {
+    if (!isSame) {
       return false;
     }
 
@@ -121,7 +132,7 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
   public JSONObject toJsonObject() throws JSONException {
 
     final JSONObject jsonObject = new JSONObject();
-
+    jsonObject.put("timestamp", this.timestamp);
     addSampleListToJsonObject(jsonObject, "accelerometerSamples", accelerometerSamples);
     addSampleListToJsonObject(jsonObject, "ambientLightSamples", ambientLightSamples);
     addSampleListToJsonObject(jsonObject, "barometerSamples", barometerSamples);
@@ -155,5 +166,13 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
       }
     }
 
+  }
+
+  public void setTimestamp(long timestamp) {
+    this.timestamp = timestamp;
+  }
+
+  public long getTimestamp() {
+    return timestamp;
   }
 }
