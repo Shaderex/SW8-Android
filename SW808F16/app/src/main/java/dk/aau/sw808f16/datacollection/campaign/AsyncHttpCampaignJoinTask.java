@@ -8,7 +8,6 @@ import com.goebl.david.Response;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -63,11 +62,7 @@ public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
 
     final Context context = weakContextReference.get();
     if (context != null) {
-      try {
-        Toast.makeText(context, response.getBody().getString("message"), Toast.LENGTH_SHORT).show();
-      } catch (JSONException exception) {
-        exception.printStackTrace();
-      }
+      Toast.makeText(context, R.string.campaign_joined_message, Toast.LENGTH_SHORT).show();
     }
   }
 
@@ -75,7 +70,7 @@ public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
   public void onResponseCodeNotMatching(final Response<JSONObject> response) {
     final Context context = weakContextReference.get();
     if (context != null) {
-      Toast.makeText(context, response.getErrorBody().toString(), Toast.LENGTH_SHORT).show();
+      Toast.makeText(context, R.string.unable_to_join_campaign_message, Toast.LENGTH_SHORT).show();
     }
   }
 

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
+                android:paddingLeft="4dp"
+                android:paddingBottom="4dp"
+                android:paddingTop="4dp"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
@@ -17,15 +20,16 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/campaign_specification_fragment_title"
-            android:textAppearance="@android:style/TextAppearance.Material.Title"/>
+            android:textAppearance="@android:style/TextAppearance.Material.Title"
+            android:textStyle="bold"/>
 
         <TextView
             android:id="@+id/campaign_specification_item_value"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/campaign_specification_fragment_title"
-            android:textAppearance="@android:style/TextAppearance.Material.Title"/>
+            android:gravity="center_horizontal"
+            android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
     </LinearLayout>
 
     <!-- Should only be used for the description of a campaign -->
@@ -35,7 +39,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/campaign_specification_item_title_value_container"
         android:text="@string/campaign_specification_fragment_title"
-        android:visibility="gone"
-        android:textAppearance="@android:style/TextAppearance.Material.Title"/>
+        android:textAppearance="@android:style/TextAppearance.Material.Medium"
+        android:visibility="gone"/>
 
 </RelativeLayout>

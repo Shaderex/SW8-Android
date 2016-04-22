@@ -24,7 +24,7 @@ public abstract class AsyncHttpGetCampaignSpecificationTask extends AsyncHttpWeb
 
   public AsyncHttpGetCampaignSpecificationTask(final Context context, final long campaignId) {
 
-    super(AsyncHttpWebbTask.Method.GET, RequestHostResolver.resolveHostForRequest(context, "/campaigns/" + campaignId), 200);
+    super(AsyncHttpWebbTask.Method.GET, RequestHostResolver.resolveHostForRequest(context, "/campaigns/" + campaignId), HttpURLConnection.HTTP_OK);
   }
 
   @Override
@@ -33,34 +33,7 @@ public abstract class AsyncHttpGetCampaignSpecificationTask extends AsyncHttpWeb
   }
 
   @Override
-  public void onResponseCodeMatching(Response<JSONObject> response) {
-    try {
-      Campaign campaign = new Campaign(response.getBody());
-
-      Log.d("CampaignSpecification", "Campaign Specification Retrieved");
-      Log.d("CampaignSpecification", "name: " + campaign.getName());
-      Log.d("CampaignSpecification", "description: " + campaign.getDescription());
-      Log.d("CampaignSpecification", "private: " + campaign.isPrivate());
-      Log.d("CampaignSpecification", "sensors: " + campaign.getSensors());
-      Log.d("CampaignSpecification", "snapshotLength: " + campaign.getSnapshotLength());
-      Log.d("CampaignSpecification", "sampleDuration: " + campaign.getSampleDuration());
-      Log.d("CampaignSpecification", "sampleFrequency: " + campaign.getSampleFrequency());
-      Log.d("CampaignSpecification", "measurementFrequency: " + campaign.getMeasurementFrequency());
-
-      String questions = "";
-      for (Question question : campaign.getQuestionnaire().getQuestions()) {
-        questions += question.getQuestion() + ",";
-      }
-      Log.d("CampaignSpecification", "questions: " + questions);
-
-      onResult(campaign);
-    } catch (JSONException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Override
-  public void onResponseCodeNotMatching(Response<JSONObject> response) {
+  public void onResponseCodeNotMatching(final Response<JSONObject> response) {
     Log.d("CampaignSpecification", "Did not get the correct response code");
   }
 
@@ -69,5 +42,4 @@ public abstract class AsyncHttpGetCampaignSpecificationTask extends AsyncHttpWeb
     Log.d("CampaignSpecification", "Unable to connect to the server");
   }
 
-  public abstract void onResult(Campaign campaign);
 }

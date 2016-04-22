@@ -10,10 +10,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -112,25 +113,6 @@ public class PublicCampaignFragment extends Fragment
       }
     });
 
-    final ListView listView = (ListView) view.findViewById(R.id.campaigns_list_view);
-
-    listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-      @Override
-      public boolean onItemLongClick(final AdapterView<?> parent, final View view, final int position, final long id) {
-
-        final JSONArray data = ((JsonCampaignsAdapter) parent.getAdapter()).data;
-
-        final CampaignSpecificationFragment fragment = CampaignSpecificationFragment.newInstance(id);
-
-        getFragmentManager().beginTransaction()
-            .replace(R.id.content_frame_layout, fragment, CAMPAIGN_SPECIFICATION_FRAGMENT_KEY)
-            .addToBackStack(CAMPAIGN_SPECIFICATION_FRAGMENT_KEY)
-            .commit();
-
-        return true;
-      }
-    });
-
     return view;
   }
 
@@ -151,7 +133,8 @@ public class PublicCampaignFragment extends Fragment
     final SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) getView().findViewById(R.id.swipe_refresh_container);
 
     if (currentGetCampaignsTask != null) {
-      currentGetCampaignsTask.cancel(true);
+      //currentGetCampaignsTask.cancel(true);
+      currentGetCampaignsTask = null;
     }
 
     final String campaignListResourcePath = RequestHostResolver.resolveHostForRequest(getActivity(), "/campaigns");
@@ -201,6 +184,7 @@ public class PublicCampaignFragment extends Fragment
         listView.setEmptyView(getView().findViewById(R.id.empty_unexpected_response));
         listView.setAdapter(adapter);
         refreshLayout.setRefreshing(false);
+        currentGetCampaignsTask = null;
       }
 
       @Override
@@ -215,6 +199,7 @@ public class PublicCampaignFragment extends Fragment
         listView.setEmptyView(getView().findViewById(R.id.empty_no_connection));
         listView.setAdapter(adapter);
         refreshLayout.setRefreshing(false);
+        currentGetCampaignsTask = null;
       }
     };
 
@@ -228,10 +213,6 @@ public class PublicCampaignFragment extends Fragment
     private CheckBox lastMarkedCheckBox;
 
     JsonCampaignsAdapter() {
-    }
-
-    JsonCampaignsAdapter(final JSONArray data) {
-      this.data = data;
     }
 
     public void setData(final JSONArray data) {
@@ -274,7 +255,9 @@ public class PublicCampaignFragment extends Fragment
     class ViewHolder {
       TextView idTextView;
       TextView titleTextView;
+      LinearLayout campaignTextContainer;
       CheckBox campaignCheckBox;
+      ImageButton infoButton;
     }
 
     @Override
@@ -293,6 +276,8 @@ public class PublicCampaignFragment extends Fragment
         holder.idTextView = (TextView) convertView.findViewById(R.id.campaign_id_text_view);
         holder.titleTextView = (TextView) convertView.findViewById(R.id.campaign_title_text_view);
         holder.campaignCheckBox = (CheckBox) convertView.findViewById(R.id.campaign_check_box);
+        holder.campaignTextContainer = (LinearLayout) convertView.findViewById(R.id.campaign_text_container);
+        holder.infoButton = (ImageButton) convertView.findViewById(R.id.info_button);
 
         convertView.setTag(holder);
       } else {
@@ -310,7 +295,7 @@ public class PublicCampaignFragment extends Fragment
           holder.campaignCheckBox.setChecked(false);
         }
 
-        holder.campaignCheckBox.setOnClickListener(new View.OnClickListener() {
+        final View.OnClickListener markCheckBoxListener = new View.OnClickListener() {
           @Override
           public void onClick(final View clickedView) {
 
@@ -332,6 +317,31 @@ public class PublicCampaignFragment extends Fragment
             } else {
               currentlyMarkedCampaign = -1;
               lastMarkedCheckBox = null;
+            }
+          }
+        };
+
+        holder.campaignCheckBox.setOnClickListener(markCheckBoxListener);
+        holder.campaignTextContainer.setOnClickListener(new View.OnClickListener() {
+          @Override
+          public void onClick(final View view) {
+            holder.campaignCheckBox.performClick();
+          }
+        });
+
+        holder.infoButton.setOnClickListener(new View.OnClickListener() {
+          @Override
+          public void onClick(final View view) {
+            final CampaignSpecificationFragment fragment;
+            try {
+              fragment = CampaignSpecificationFragment.newInstance(campaignObject.getLong("id"));
+
+              getFragmentManager().beginTransaction()
+                  .replace(R.id.content_frame_layout, fragment, CAMPAIGN_SPECIFICATION_FRAGMENT_KEY)
+                  .addToBackStack(CAMPAIGN_SPECIFICATION_FRAGMENT_KEY)
+                  .commit();
+            } catch (JSONException exception) {
+              exception.printStackTrace();
             }
           }
         });
