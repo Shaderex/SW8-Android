@@ -50,6 +50,26 @@ public class QuestionTest extends ApplicationTestCase<DataCollectionApplication>
     }
   }
 
+  public void testCopyConstructor() {
+    String questionString = "How are you?";
+
+    Question expected = new Question(questionString);
+    Question actual = new Question(question);
+
+    assertEquals("The copy constructor did make exact copy", expected, actual);
+  }
+
+  public void testCopyConstructorAndChange() {
+    String questionString = "How are you?";
+
+    Question expected = new Question(questionString);
+    Question actual = new Question(question);
+
+    expected.setAnswer(true);
+
+    assertFalse("There still exists references", expected.equals(actual));
+  }
+
   public void testExtendsRealmObject() {
     assertTrue(Question.class.getName() + " does not extend " + RealmObject.class.getName(),
         RealmObject.class.isAssignableFrom(Question.class));
