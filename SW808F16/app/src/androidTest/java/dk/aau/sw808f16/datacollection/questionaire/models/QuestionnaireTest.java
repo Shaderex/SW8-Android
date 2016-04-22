@@ -3,10 +3,14 @@ package dk.aau.sw808f16.datacollection.questionaire.models;
 import android.os.Parcel;
 import android.test.ApplicationTestCase;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
+import dk.aau.sw808f16.datacollection.snapshot.JsonObjectAble;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -139,6 +143,19 @@ public class QuestionnaireTest extends ApplicationTestCase<DataCollectionApplica
     Questionnaire createdFromParcel = Questionnaire.CREATOR.createFromParcel(parcel);
 
     assertEquals(questionnaire, createdFromParcel);
+  }
+
+  public void testImplementsJsonObjectable() {
+    assertTrue(Question.class.getName() + " does not extend " + JsonObjectAble.class.getName(),
+        JsonObjectAble.class.isAssignableFrom(Question.class));
+  }
+
+  public void testIsJsonObjectable() throws JSONException {
+    Questionnaire questionnaire = new Questionnaire(this.questions);
+
+    JSONObject jsonObject = questionnaire.toJsonObject();
+
+    assertTrue(jsonObject.has("questions") && jsonObject.getJSONArray("questions").length() == this.questions.size());
   }
 
   public void testSaveToRealm() {

@@ -3,9 +3,13 @@ package dk.aau.sw808f16.datacollection.questionaire.models;
 import android.os.Parcel;
 import android.test.ApplicationTestCase;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.lang.reflect.Field;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
+import dk.aau.sw808f16.datacollection.snapshot.JsonObjectAble;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmObject;
@@ -70,6 +74,10 @@ public class QuestionTest extends ApplicationTestCase<DataCollectionApplication>
     assertFalse("There still exists references", expected.equals(actual));
   }
 
+  public void testConstructorWithQuestionAndId() {
+    Question question = new Question(this.question, 255);
+  }
+
   public void testExtendsRealmObject() {
     assertTrue(Question.class.getName() + " does not extend " + RealmObject.class.getName(),
         RealmObject.class.isAssignableFrom(Question.class));
@@ -106,19 +114,37 @@ public class QuestionTest extends ApplicationTestCase<DataCollectionApplication>
     assertNull(question.getAnswer());
   }
 
+  public void testGetSetId() {
+    Question question = new Question(this.question);
+
+    long expected = 255;
+    question.setIdentifier(expected);
+
+    assertEquals(expected, question.getIdentifier());
+  }
+
   public void testEquals() {
-    Question question1 = new Question(this.question);
-    Question question2 = new Question(this.question);
+    Question question1 = new Question(this.question, 1);
+    Question question2 = new Question(this.question, 1);
 
     assertEquals(question1, question2);
   }
 
-  public void testNotEquals() {
-    Question question1 = new Question(this.question);
-    Question question2 = new Question(this.question + " How are you feeling?");
+  public void testNotEqualsDifferentQuestions() {
+    Question question1 = new Question(this.question, 1);
+    Question question2 = new Question(this.question + " How are you feeling?", 1);
 
     assertFalse(question1.equals(question2));
   }
+
+  public void testNotEqualsDifferentIdentifiers() {
+    Question question1 = new Question(this.question, 1);
+    Question question2 = new Question(this.question, 2);
+
+    assertFalse(question1.equals(question2));
+  }
+
+
 
   public void testReferenceEquals() {
     Question question1 = new Question(this.question);
@@ -151,6 +177,33 @@ public class QuestionTest extends ApplicationTestCase<DataCollectionApplication>
     Question createdFromParcel = Question.CREATOR.createFromParcel(parcel);
 
     assertEquals(question, createdFromParcel);
+  }
+
+  public void testImplementsJsonObjectable() {
+    assertTrue(Question.class.getName() + " does not extend " + JsonObjectAble.class.getName(),
+        JsonObjectAble.class.isAssignableFrom(Question.class));
+  }
+
+  public void testIsJsonObjectable() throws JSONException {
+    Question question = new Question(this.question, 1);
+
+    JSONObject jsonObject = question.toJsonObject();
+
+    assertTrue(jsonObject.has("id") && jsonObject.getLong("id") == 1);
+    assertTrue(jsonObject.has("answer") && jsonObject.getString("answer") == "undefined");
+
+    question.setAnswer(true);
+
+    jsonObject = question.toJsonObject();
+
+    assertTrue(jsonObject.has("answer") && jsonObject.getString("answer") == "true");
+    assertTrue(jsonObject.has("timestamp") && jsonObject.getLong("timestamp") != 0);
+
+    question.setAnswer(false);
+
+    jsonObject = question.toJsonObject();
+
+    assertTrue(jsonObject.has("answer") && jsonObject.getString("answer") == "false");
   }
 
   public void testSaveToRealm() {

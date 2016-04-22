@@ -12,6 +12,8 @@ import java.util.List;
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.label.Label;
+import dk.aau.sw808f16.datacollection.questionaire.models.Question;
+import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
 import io.realm.Realm;
@@ -42,6 +44,20 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
     snapshot.setLabel(expectedLabel);
 
     assertEquals(expectedLabel, snapshot.getLabel());
+  }
+
+  public void testGetSetQuestionnaire() {
+    final Snapshot snapshot = new Snapshot();
+    final Question question = new Question("Question");
+
+    ArrayList<Question> questions = new ArrayList<>();
+    questions.add(question);
+
+    final Questionnaire expected = new Questionnaire(questions);
+
+    snapshot.setQuestionnaire(expected);
+
+    assertEquals(expected, snapshot.getQuestionnaire());
   }
 
   public void testAddSampleGetSamples() {
