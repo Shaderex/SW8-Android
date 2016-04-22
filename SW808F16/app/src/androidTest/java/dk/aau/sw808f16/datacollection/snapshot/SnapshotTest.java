@@ -126,8 +126,10 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
   }
 
   public void testEqualsSingleElementSameValue() {
-    final Sample sample1 = Sample.Create(new FloatTripleMeasurement(1f, 2f, 3f));
-    final Sample sample2 = Sample.Create(new FloatTripleMeasurement(1f, 2f, 3f));
+    final Sample sample1 = new Sample();
+    sample1.addMeasurement(new FloatTripleMeasurement(1f, 2f, 3f));
+    final Sample sample2 = new Sample();
+    sample2.addMeasurement(new FloatTripleMeasurement(1f, 2f, 3f));
 
     final Snapshot snapshot1 = new Snapshot();
     final Snapshot snapshot2 = new Snapshot();
