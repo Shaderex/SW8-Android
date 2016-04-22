@@ -147,12 +147,13 @@ public class QuestionTest extends ApplicationTestCase<DataCollectionApplication>
 
     final boolean equals = question.equals(loadedQuestion);
 
+    final Boolean loadedAnswer = loadedQuestion.getAnswer();
+
     realm.close();
 
     Realm.deleteRealm(realmConfiguration);
 
-    assertNull("The default value for answer is not null", loadedQuestion.getAnswer());
-
     assertTrue("The loaded measurement was not equal to the original", equals);
+    assertNull("The default value for answer is not null", loadedAnswer);
   }
 }
