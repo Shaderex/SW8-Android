@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,10 +32,10 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
   @Ignore
   private Map<SensorType, RealmList<Sample>> sensorSampleMap = null;
 
+  @SuppressWarnings("deprecation")
   public static Snapshot Create() {
-    @SuppressWarnings("deprication")
     Snapshot snapshot = new Snapshot();
-    snapshot.setTimestamp(System.currentTimeMillis());
+    snapshot.timestamp = Calendar.getInstance().getTimeInMillis();
     return snapshot;
   }
 
@@ -91,7 +92,7 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
     final Snapshot that = (Snapshot) object;
 
     boolean isSame = this.getLabel() != null ? this.getLabel().equals(that.getLabel()) : that.getLabel() == null &&
-        this.getTimestamp() == that.getTimestamp();
+        this.timestamp == that.timestamp;
 
     if (!isSame) {
       return false;
@@ -166,13 +167,5 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
       }
     }
 
-  }
-
-  public void setTimestamp(long timestamp) {
-    this.timestamp = timestamp;
-  }
-
-  public long getTimestamp() {
-    return timestamp;
   }
 }

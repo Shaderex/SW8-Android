@@ -38,7 +38,7 @@ public abstract class SensorProvider<MeasurementType> {
 
     cachedMeasurement = newMeasurement;
 
-    if(!atomicBoolean.getAndSet(true)) {
+    if (!atomicBoolean.getAndSet(true)) {
       synchronized (firstMeasurementLock) {
         firstMeasurementLock.notify();
       }
@@ -57,8 +57,7 @@ public abstract class SensorProvider<MeasurementType> {
   private Sample retrieveSampleForDuration(final long sampleDuration, final long measurementFrequency)
       throws InterruptedException {
 
-    if(cachedMeasurement == null)
-    {
+    if (cachedMeasurement == null) {
       synchronized (firstMeasurementLock) {
         firstMeasurementLock.wait();
       }
@@ -82,8 +81,7 @@ public abstract class SensorProvider<MeasurementType> {
       @Override
       public void run() {
 
-        if(sensorValues.size() == measurementsPerSample)
-        {
+        if (sensorValues.size() == measurementsPerSample) {
           return;
         }
 
@@ -165,6 +163,7 @@ public abstract class SensorProvider<MeasurementType> {
 
   interface EventListenerRegistrationManager {
     void register(final int frequency);
+
     void unregister();
   }
 

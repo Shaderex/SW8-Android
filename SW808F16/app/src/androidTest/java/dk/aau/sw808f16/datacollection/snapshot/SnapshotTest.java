@@ -18,6 +18,7 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmObject;
 
+@SuppressWarnings("deprecation")
 public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication> {
 
   public SnapshotTest() {
@@ -43,18 +44,9 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
     assertEquals(expectedLabel, snapshot.getLabel());
   }
 
-  public void testGetSetTimeStamp() {
-    final long expected = System.currentTimeMillis();
-    final Snapshot snapshot = new Snapshot();
-
-    snapshot.setTimestamp(expected);
-
-    assertEquals(expected, snapshot.getTimestamp());
-  }
-
   public void testAddSampleGetSamples() {
     final Snapshot snapshot = new Snapshot();
-    final Sample sample = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
+    final Sample sample = Sample.Create(new FloatTripleMeasurement(1f, 2f, 3f));
     final SensorType sensorType = SensorType.ACCELEROMETER;
 
     snapshot.addSample(sensorType, sample);
@@ -77,9 +69,9 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
 
     final List<Sample> expected = new ArrayList<Sample>() {
       {
-        add(new Sample(new FloatTripleMeasurement(1f, 2f, 3f)));
-        add(new Sample(new FloatTripleMeasurement(1f, 2f, 3f)));
-        add(new Sample(new FloatTripleMeasurement(1f, 2f, 3f)));
+        add(Sample.Create(new FloatTripleMeasurement(1f, 2f, 3f)));
+        add(Sample.Create(new FloatTripleMeasurement(1f, 2f, 3f)));
+        add(Sample.Create(new FloatTripleMeasurement(1f, 2f, 3f)));
       }
     };
 
@@ -94,6 +86,17 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
     assertNotSame(snapshot, null);
   }
 
+  public void testEqualsDifferentTimestamp() throws InterruptedException {
+
+    Snapshot snapshot1 = Snapshot.Create();
+    Thread.sleep(100);
+    Snapshot snapshot2 = Snapshot.Create();
+
+    boolean equals = snapshot1.equals(snapshot2);
+
+    assertFalse("They are equals", equals);
+  }
+
   public void testEqualsEmptySnapshot() {
     final Snapshot snapshot1 = new Snapshot();
     final Snapshot snapshot2 = new Snapshot();
@@ -102,7 +105,7 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
   }
 
   public void testEqualsEmptyAndNonEmptySnapshot() {
-    final Sample sample = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
+    final Sample sample = Sample.Create(new FloatTripleMeasurement(1f, 2f, 3f));
 
     final Snapshot snapshot1 = new Snapshot();
     final Snapshot snapshot2 = new Snapshot();
@@ -112,7 +115,7 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
   }
 
   public void testEqualsSingleElementSameReference() {
-    final Sample sample = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
+    final Sample sample = Sample.Create(new FloatTripleMeasurement(1f, 2f, 3f));
 
     final Snapshot snapshot1 = new Snapshot();
     final Snapshot snapshot2 = new Snapshot();
@@ -123,8 +126,8 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
   }
 
   public void testEqualsSingleElementSameValue() {
-    final Sample sample1 = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
-    final Sample sample2 = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
+    final Sample sample1 = Sample.Create(new FloatTripleMeasurement(1f, 2f, 3f));
+    final Sample sample2 = Sample.Create(new FloatTripleMeasurement(1f, 2f, 3f));
 
     final Snapshot snapshot1 = new Snapshot();
     final Snapshot snapshot2 = new Snapshot();
@@ -135,8 +138,8 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
   }
 
   public void testEqualsSingleElementDifferentValues() {
-    final Sample sample1 = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
-    final Sample sample2 = new Sample(new FloatTripleMeasurement(4f, 5f, 6f));
+    final Sample sample1 = Sample.Create(new FloatTripleMeasurement(1f, 2f, 3f));
+    final Sample sample2 = Sample.Create(new FloatTripleMeasurement(4f, 5f, 6f));
 
     final Snapshot snapshot1 = new Snapshot();
     final Snapshot snapshot2 = new Snapshot();
@@ -157,7 +160,7 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
     final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test_snapshot.realm").build();
     final Realm realm = Realm.getInstance(realmConfiguration);
 
-    final Sample sample = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
+    final Sample sample = Sample.Create(new FloatTripleMeasurement(1f, 2f, 3f));
     final Snapshot snapshot = new Snapshot();
     snapshot.addSample(SensorType.ACCELEROMETER, sample);
 
@@ -177,11 +180,11 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
   }
 
   public void testCanBecomeJson() throws JSONException {
-    final Sample accelerometerSample = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
-    final Sample gyroscopeSample = new Sample(new FloatTripleMeasurement(4f, 5f, 6f));
-    final Sample barometerSample = new Sample(new FloatMeasurement(4f));
+    final Sample accelerometerSample = Sample.Create(new FloatTripleMeasurement(1f, 2f, 3f));
+    final Sample gyroscopeSample = Sample.Create(new FloatTripleMeasurement(4f, 5f, 6f));
+    final Sample barometerSample = Sample.Create(new FloatMeasurement(4f));
 
-    final Sample largeCompassSample = new Sample(Arrays.asList(
+    final Sample largeCompassSample = Sample.Create(Arrays.asList(
         new FloatMeasurement(4f),
         new FloatMeasurement(42f),
         new FloatMeasurement(130f),
@@ -212,11 +215,11 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
   }
 
   public void testCanBecomeJsonAndRealmAndJson() throws JSONException {
-    final Sample accelerometerSample = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
-    final Sample gyroscopeSample = new Sample(new FloatTripleMeasurement(4f, 5f, 6f));
-    final Sample barometerSample = new Sample(new FloatMeasurement(4f));
+    final Sample accelerometerSample = Sample.Create(new FloatTripleMeasurement(1f, 2f, 3f));
+    final Sample gyroscopeSample = Sample.Create(new FloatTripleMeasurement(4f, 5f, 6f));
+    final Sample barometerSample = Sample.Create(new FloatMeasurement(4f));
 
-    final Sample largeCompassSample = new Sample(Arrays.asList(
+    final Sample largeCompassSample = Sample.Create(Arrays.asList(
         new FloatMeasurement(4f),
         new FloatMeasurement(42f),
         new FloatMeasurement(130f),

@@ -21,6 +21,7 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmObject;
 
+@SuppressWarnings("deprecation")
 public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
 
   public SampleTest() {
@@ -28,11 +29,9 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
   }
 
   public void testConstructor() {
-    new Sample();
+    Sample.Create(new FloatTripleMeasurement(1f, 2f, 3f));
 
-    new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
-
-    new Sample(Arrays.asList(new FloatTripleMeasurement(1f, 1f, 1f),
+    Sample.Create(Arrays.asList(new FloatTripleMeasurement(1f, 1f, 1f),
         new FloatTripleMeasurement(2f, 2f, 2f),
         new FloatTripleMeasurement(3f, 3f, 3f)));
   }
@@ -44,7 +43,7 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
 
   public void testAddFloatTripleMeasurement() {
     final FloatTripleMeasurement floatTripleMeasurement = new FloatTripleMeasurement(1f, 1f, 1f);
-    final Sample sample1 = new Sample(floatTripleMeasurement);
+    final Sample sample1 = Sample.Create(floatTripleMeasurement);
 
     boolean foundActual = false;
     for (final Object m : sample1.getMeasurements()) {
@@ -60,7 +59,7 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
 
   public void testAddFloatMeasurement() {
     final FloatMeasurement floatMeasurement = new FloatMeasurement(1f);
-    final Sample sample2 = new Sample(floatMeasurement);
+    final Sample sample2 = Sample.Create(floatMeasurement);
 
     boolean foundActual = false;
     for (final Object m : sample2.getMeasurements()) {
@@ -76,7 +75,7 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
 
   public void testAddFloatTripleMeasurements() {
     final FloatTripleMeasurement measurement1 = new FloatTripleMeasurement(1f, 1f, 1f);
-    final Sample sample = new Sample(measurement1);
+    final Sample sample = Sample.Create(measurement1);
 
     final FloatTripleMeasurement measurement2 = new FloatTripleMeasurement(2f, 2f, 2f);
     final FloatTripleMeasurement measurement3 = new FloatTripleMeasurement(3f, 3f, 3f);
@@ -101,7 +100,7 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
 
   public void testAddFloatMeasurements() {
     final FloatMeasurement measurement1 = new FloatMeasurement(1f);
-    final Sample sample = new Sample(measurement1);
+    final Sample sample = Sample.Create(measurement1);
 
     final FloatMeasurement measurement2 = new FloatMeasurement(2f);
     final FloatMeasurement measurement3 = new FloatMeasurement(3f);
@@ -134,7 +133,7 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
     }
 
     final WifiMeasurement measurement1 = new WifiMeasurement(realScanResults.subList(0, 1));
-    final Sample sample = new Sample(measurement1);
+    final Sample sample = Sample.Create(measurement1);
 
     final WifiMeasurement measurement2 = new WifiMeasurement(realScanResults.subList(1, 2));
     final WifiMeasurement measurement3 = new WifiMeasurement(realScanResults.subList(2, 3));
@@ -166,7 +165,7 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
     }
 
     final LocationMeasurement measurement1 = new LocationMeasurement(location);
-    final Sample sample = new Sample(measurement1);
+    final Sample sample = Sample.Create(measurement1);
 
     final LocationMeasurement measurement2 = new LocationMeasurement(location);
     final LocationMeasurement measurement3 = new LocationMeasurement(location);
@@ -192,7 +191,7 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
   public void testAddMeasurementInconsistentMeasurementTypes() {
     final FloatMeasurement measurement1 = new FloatMeasurement(1f);
     final FloatTripleMeasurement measurement2 = new FloatTripleMeasurement(1f, 2f, 3f);
-    final Sample sample = new Sample();
+    final Sample sample = Sample.Create();
 
     sample.addMeasurement(measurement1);
 
@@ -209,7 +208,7 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
   public void testAddMeasurementsInconsistentMeasurementTypes() {
     final FloatMeasurement measurement1 = new FloatMeasurement(1f);
     final FloatTripleMeasurement measurement2 = new FloatTripleMeasurement(1f, 2f, 3f);
-    final Sample sample = new Sample();
+    final Sample sample = Sample.Create();
 
     sample.addMeasurement(measurement1);
 
@@ -224,7 +223,7 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
   }
 
   public void testAddUnsupportedMeasurement() {
-    final Sample sample = new Sample();
+    final Sample sample = Sample.Create();
     final Object measurement = new Object();
 
     boolean threwException = false;
@@ -238,7 +237,7 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
   }
 
   public void testAddUnsupportedMeasurements() {
-    final Sample sample = new Sample();
+    final Sample sample = Sample.Create();
     final Object measurement1 = new Object();
     final Object measurement2 = new Object();
 
@@ -258,7 +257,7 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
   }
 
   public void testEqualsNull() {
-    final Sample sample = new Sample();
+    final Sample sample = Sample.Create();
 
     assertNotSame(sample, null);
   }
@@ -274,17 +273,18 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
     final FloatTripleMeasurement floatTripleMeasurement = new FloatTripleMeasurement(1f, 2f, 3f);
 
     final Sample sample1 = new Sample();
-    final Sample sample2 = new Sample(floatTripleMeasurement);
+    final Sample sample2 = new Sample();
+    sample2.addMeasurement(floatTripleMeasurement);
 
     assertNotSame(sample1, sample2);
   }
 
   public void testEqualsSingleElementSameReference() {
     final FloatTripleMeasurement floatTripleMeasurement = new FloatTripleMeasurement(1f, 2f, 3f);
-
-    final Sample sample1 = new Sample(floatTripleMeasurement);
-    final Sample sample2 = new Sample(floatTripleMeasurement);
-
+    final Sample sample1 = new Sample();
+    sample1.addMeasurement(floatTripleMeasurement);
+    final Sample sample2 = new Sample();
+    sample2.addMeasurement(floatTripleMeasurement);
     assertEquals(sample1, sample2);
   }
 
@@ -292,8 +292,10 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
     final FloatTripleMeasurement floatTripleMeasurement1 = new FloatTripleMeasurement(1f, 2f, 3f);
     final FloatTripleMeasurement floatTripleMeasurement2 = new FloatTripleMeasurement(1f, 2f, 3f);
 
-    Sample sample1 = new Sample(floatTripleMeasurement1);
-    Sample sample2 = new Sample(floatTripleMeasurement2);
+    Sample sample1 = new Sample();
+    sample1.addMeasurement(floatTripleMeasurement1);
+    Sample sample2 = new Sample();
+    sample2.addMeasurement(floatTripleMeasurement2);
 
     assertEquals(sample1, sample2);
   }
@@ -302,16 +304,29 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
     final FloatTripleMeasurement floatTripleMeasurement1 = new FloatTripleMeasurement(1f, 2f, 3f);
     final FloatTripleMeasurement floatTripleMeasurement2 = new FloatTripleMeasurement(1f, 2f, 4f);
 
-    Sample sample1 = new Sample(floatTripleMeasurement1);
-    Sample sample2 = new Sample(floatTripleMeasurement2);
+    Sample sample1 = new Sample();
+    sample1.addMeasurement(floatTripleMeasurement1);
+    Sample sample2 = new Sample();
+    sample2.addMeasurement(floatTripleMeasurement2);
 
     assertNotSame(sample1, sample2);
+  }
+
+  public void testEqualsDifferentTimestamp() throws InterruptedException {
+    final FloatTripleMeasurement floatTripleMeasurement = new FloatTripleMeasurement(1f, 2f, 3f);
+    Sample sample1 = Sample.Create(floatTripleMeasurement);
+    Thread.sleep(100);
+    Sample sample2 = Sample.Create(floatTripleMeasurement);
+
+    boolean equals = sample1.equals(sample2);
+
+    assertFalse("They are equals", equals);
   }
 
   public void testEqualsSameReference() {
     final FloatTripleMeasurement floatTripleMeasurement = new FloatTripleMeasurement(1f, 2f, 3f);
 
-    Sample sample1 = new Sample(floatTripleMeasurement);
+    Sample sample1 = Sample.Create(floatTripleMeasurement);
     Sample sample2 = sample1;
 
     assertEquals(sample1, sample2);
@@ -321,7 +336,7 @@ public class SampleTest extends ApplicationTestCase<DataCollectionApplication> {
     final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(getContext()).name("test_sample.realm").build();
     final Realm realm = Realm.getInstance(realmConfiguration);
 
-    final Sample sample = new Sample(new FloatTripleMeasurement(1f, 2f, 3f));
+    final Sample sample = Sample.Create(new FloatTripleMeasurement(1f, 2f, 3f));
 
     realm.beginTransaction();
     realm.copyToRealm(sample);
