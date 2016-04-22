@@ -76,14 +76,19 @@ public class Question extends RealmObject implements Parcelable {
     if (this == object) {
       return true;
     }
+
+    if(object == null) {
+      return false;
+    }
+
     if (!(object instanceof Question)) {
       return false;
     }
 
     final Question that = (Question) object;
 
-    return that.getQuestion().equals(this.getQuestion())
-        && this.getAnswer() != null ?  this.getAnswer().equals(that.getAnswer()) : that.getAnswer() == null;
+    return (this.getQuestion() != null ? this.getQuestion().equals(that.getQuestion()) : that.getQuestion() == null) &&
+        (this.getAnswer() != null ? this.getAnswer().equals(that.getAnswer()) : that.getAnswer() == null);
   }
 
   @Override
