@@ -60,6 +60,22 @@ public class QuestionnaireTest extends ApplicationTestCase<DataCollectionApplica
     assertNotNull(questionnaire);
   }
 
+  public void testCopyConstructor() {
+    Questionnaire expected = new Questionnaire(questions);
+    Questionnaire actual = new Questionnaire(expected);
+
+    assertEquals("The copy constructor did not make an exact match", expected, actual);
+  }
+
+  public void testCopyConstructorChange() {
+    Questionnaire expected = new Questionnaire(questions);
+    Questionnaire actual = new Questionnaire(expected);
+
+    expected.getNextQuestion().setAnswer(true);
+
+    assertFalse("There are references copying present", expected.equals(actual));
+  }
+
   public void testExtendsRealmObject() {
     assertTrue(Questionnaire.class.getName() + " does not extend " + RealmObject.class.getName(),
         RealmObject.class.isAssignableFrom(Questionnaire.class));

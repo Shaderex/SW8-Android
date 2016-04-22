@@ -30,6 +30,14 @@ public class Questionnaire extends RealmObject implements Parcelable {
     this.questions = new RealmList<>();
   }
 
+  public Questionnaire(final Questionnaire questionnaire) {
+    this.questions = new RealmList<>();
+
+    for (Question question : questionnaire.questions) {
+      this.questions.add(new Question(question));
+    }
+  }
+
   public Questionnaire(List<Question> questions) {
     this();
     this.questions.addAll(questions);
