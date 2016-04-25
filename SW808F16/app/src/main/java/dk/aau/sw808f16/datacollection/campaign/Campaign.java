@@ -1,5 +1,7 @@
 package dk.aau.sw808f16.datacollection.campaign;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -233,5 +235,23 @@ public class Campaign extends RealmObject implements JsonObjectAble {
 
   public void setQuestionnaire(Questionnaire qustionnaire) {
     this.questionnaire = qustionnaire;
+  }
+
+  public void log(final String logTag) {
+    Log.d(logTag, "Campaign Specification Retrieved");
+    Log.d(logTag, "name: " + this.getName());
+    Log.d(logTag, "description: " + this.getDescription());
+    Log.d(logTag, "private: " + this.isPrivate());
+    Log.d(logTag, "sensors: " + this.getSensors());
+    Log.d(logTag, "snapshotLength: " + this.getSnapshotLength());
+    Log.d(logTag, "sampleDuration: " + this.getSampleDuration());
+    Log.d(logTag, "sampleFrequency: " + this.getSampleFrequency());
+    Log.d(logTag, "measurementFrequency: " + this.getMeasurementFrequency());
+
+    String questions = "";
+    for (Question question : this.getQuestionnaire().getQuestions()) {
+      questions += question.getQuestion() + ",";
+    }
+    Log.d(logTag, "questions: " + questions);
   }
 }
