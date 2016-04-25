@@ -102,10 +102,12 @@ public class CampaignTest extends ApplicationTestCase<DataCollectionApplication>
     campaign.setSampleDuration(10);
     campaign.setSampleFrequency(10);
     campaign.setMeasurementFrequency(10);
-    campaign.setSensors(new ArrayList<SensorType>() {{
-      add(SensorType.AMBIENT_LIGHT);
-      add(SensorType.ACCELEROMETER);
-    }});
+    campaign.setSensors(new ArrayList<SensorType>() {
+      {
+        add(SensorType.AMBIENT_LIGHT);
+        add(SensorType.ACCELEROMETER);
+      }
+    });
 
     List<Question> questions = new ArrayList<>();
     questions.add(new Question("Er du okay?"));
@@ -215,10 +217,12 @@ public class CampaignTest extends ApplicationTestCase<DataCollectionApplication>
   public void testSetQuestionnaire() {
     Campaign campaign = new Campaign();
 
-    ArrayList<Question> questions = new ArrayList<Question>() {{
-      add(new Question("Er du god?"));
-      add(new Question("Er du dårlig?"));
-    }};
+    ArrayList<Question> questions = new ArrayList<Question>() {
+      {
+        add(new Question("Er du god?"));
+        add(new Question("Er du dårlig?"));
+      }
+    };
     Questionnaire expected = new Questionnaire(questions);
 
 
