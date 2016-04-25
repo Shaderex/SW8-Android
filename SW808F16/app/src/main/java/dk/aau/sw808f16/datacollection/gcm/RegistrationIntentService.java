@@ -31,9 +31,7 @@ import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.URLEncoder;
 
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
@@ -108,14 +106,11 @@ public class RegistrationIntentService extends IntentService {
         HttpURLConnection.HTTP_OK) {
       @Override
       protected Response<String> sendRequest(final Request webb) {
-        try {
-          final String deviceIdentifier = URLEncoder.encode(token, "utf-8");
-          final Response<String> deviceIdentifierString = webb.param("device_id", deviceIdentifier).asString();
-          return deviceIdentifierString;
-        } catch (UnsupportedEncodingException exception) {
-          exception.printStackTrace();
-        }
-        return null;
+
+        final String deviceIdentifier = token;
+        final Response<String> deviceIdentifierString = webb.param("device_id", deviceIdentifier).asString();
+        return deviceIdentifierString;
+
       }
 
       @Override
