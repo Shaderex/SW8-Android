@@ -11,6 +11,7 @@ import java.util.Map;
 
 import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.label.Label;
+import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
@@ -31,6 +32,7 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
 
   @Ignore
   private Map<SensorType, RealmList<Sample>> sensorSampleMap = null;
+  private Questionnaire questionnaire;
 
   @SuppressWarnings("deprecation")
   public static Snapshot Create() {
@@ -167,5 +169,13 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
       }
     }
 
+  }
+
+  public void setQuestionnaire(final Questionnaire questionnaire) {
+    this.questionnaire = new Questionnaire(questionnaire);
+  }
+
+  public Questionnaire getQuestionnaire() {
+    return questionnaire;
   }
 }

@@ -6,16 +6,9 @@ import android.util.Log;
 import com.goebl.david.Request;
 import com.goebl.david.Response;
 
-import org.apache.http.protocol.HTTP;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.HttpURLConnection;
-import java.util.ArrayList;
-
-import dk.aau.sw808f16.datacollection.SensorType;
-import dk.aau.sw808f16.datacollection.questionaire.models.Question;
 import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
 import dk.aau.sw808f16.datacollection.webutil.RequestHostResolver;
 
@@ -36,22 +29,7 @@ public abstract class AsyncHttpGetCampaignSpecificationTask extends AsyncHttpWeb
   public void onResponseCodeMatching(Response<JSONObject> response) {
     try {
       Campaign campaign = new Campaign(response.getBody());
-
-      Log.d("CampaignSpecification", "Campaign Specification Retrieved");
-      Log.d("CampaignSpecification", "name: " + campaign.getName());
-      Log.d("CampaignSpecification", "description: " + campaign.getDescription());
-      Log.d("CampaignSpecification", "private: " + campaign.isPrivate());
-      Log.d("CampaignSpecification", "sensors: " + campaign.getSensors());
-      Log.d("CampaignSpecification", "snapshotLength: " + campaign.getSnapshotLength());
-      Log.d("CampaignSpecification", "sampleDuration: " + campaign.getSampleDuration());
-      Log.d("CampaignSpecification", "sampleFrequency: " + campaign.getSampleFrequency());
-      Log.d("CampaignSpecification", "measurementFrequency: " + campaign.getMeasurementFrequency());
-
-      String questions = "";
-      for (Question question : campaign.getQuestionnaire().getQuestions()) {
-        questions += question.getQuestion() + ",";
-      }
-      Log.d("CampaignSpecification", "questions: " + questions);
+      campaign.log("CampaignSpecification");
 
       onResult(campaign);
     } catch (JSONException e) {
