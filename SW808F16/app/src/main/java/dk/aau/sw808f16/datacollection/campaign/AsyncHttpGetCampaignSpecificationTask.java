@@ -49,7 +49,7 @@ public abstract class AsyncHttpGetCampaignSpecificationTask extends AsyncHttpWeb
 
       String questions = "";
       for (Question question : campaign.getQuestionnaire().getQuestions()) {
-        questions += question.getQuestion() + ",";
+        questions += question.getIdentifier() + ": " + question.getQuestion() + ",";
       }
       Log.d("CampaignSpecification", "questions: " + questions);
 
