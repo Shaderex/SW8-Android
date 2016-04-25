@@ -13,20 +13,18 @@ public class MainActivity extends Activity {
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
-
     super.onCreate(savedInstanceState);
+    
     setContentView(R.layout.activity_main);
 
     final FragmentManager fragmentManager = getFragmentManager();
 
-    fragmentManager.beginTransaction()
-        .replace(R.id.content_frame_layout, StartFragment.newInstance(), START_FRAGMENT_KEY).commit();
+    fragmentManager.beginTransaction().replace(R.id.content_frame_layout, StartFragment.newInstance(), START_FRAGMENT_KEY).commit();
   }
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     super.onCreateOptionsMenu(menu);
-
 
     return true;
   }
