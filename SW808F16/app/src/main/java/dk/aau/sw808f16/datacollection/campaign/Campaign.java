@@ -70,12 +70,13 @@ public class Campaign extends RealmObject implements JsonObjectAble {
     this.setSensors(sensorTypes);
 
 
-    JSONArray questionStrings = jsonObject.getJSONArray("questions");
+    JSONArray questionsArray = jsonObject.getJSONArray("questions");
     List<Question> questions = new ArrayList<>();
 
-    for (int i = 0; i < questionStrings.length(); i++) {
-      String question = questionStrings.getJSONObject(i).getString("question");
-      questions.add(new Question(question));
+    for (int i = 0; i < questionsArray.length(); i++) {
+      String question = questionsArray.getJSONObject(i).getString("question");
+      long id = questionsArray.getJSONObject(i).getLong("id");
+      questions.add(new Question(question, id));
     }
 
     this.setQuestionnaire(new Questionnaire(questions));
@@ -250,8 +251,8 @@ public class Campaign extends RealmObject implements JsonObjectAble {
 
     String questions = "";
     for (Question question : this.getQuestionnaire().getQuestions()) {
-      questions += question.getQuestion() + ",";
+      questions += question.getIdentifier() + ": " + question.getQuestion() + ",";
     }
-    Log.d(logTag, "questions: " + questions);
+    Log.d("CampaignSpecification", "questions: " + questions);
   }
 }

@@ -29,8 +29,8 @@ public abstract class AsyncHttpGetCampaignSpecificationTask extends AsyncHttpWeb
   public void onResponseCodeMatching(Response<JSONObject> response) {
     try {
       Campaign campaign = new Campaign(response.getBody());
-
       campaign.log("CampaignSpecification");
+
       onResult(campaign);
     } catch (JSONException e) {
       e.printStackTrace();

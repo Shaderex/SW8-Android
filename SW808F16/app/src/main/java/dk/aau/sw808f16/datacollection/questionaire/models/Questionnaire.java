@@ -3,14 +3,19 @@ package dk.aau.sw808f16.datacollection.questionaire.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import dk.aau.sw808f16.datacollection.snapshot.JsonObjectAble;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 
-public class Questionnaire extends RealmObject implements Parcelable {
+public class Questionnaire extends RealmObject implements Parcelable, JsonObjectAble {
 
   private RealmList<Question> questions;
   private int currentQuestionIndex = -1;
@@ -82,5 +87,17 @@ public class Questionnaire extends RealmObject implements Parcelable {
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeList(questions);
     dest.writeInt(currentQuestionIndex);
+  }
+
+  @Override
+  public JSONObject toJsonObject() throws JSONException {
+    JSONObject jsonObject = new JSONObject();
+    JSONArray questionsArray = new JSONArray();
+    for (Question question : questions) {
+      questionsArray.put(question.toJsonObject());
+    }
+
+    jsonObject.put("questions", questionsArray);
+    return jsonObject;
   }
 }
