@@ -159,10 +159,9 @@ public class CampaignTest extends ApplicationTestCase<DataCollectionApplication>
   public void testSetIsPrivate() {
     Campaign campaign = new Campaign();
 
-    boolean expected = true;
-    campaign.setPrivate(expected);
+    campaign.setPrivate(true);
 
-    assertEquals(expected, campaign.isPrivate());
+    assertTrue(campaign.isPrivate());
   }
 
   public void testSetSnapshotLength() {
@@ -216,7 +215,7 @@ public class CampaignTest extends ApplicationTestCase<DataCollectionApplication>
   public void testSetQuestionnaire() {
     Campaign campaign = new Campaign();
 
-    ArrayList<Question> questions = new ArrayList<Question>(){{
+    ArrayList<Question> questions = new ArrayList<Question>() {{
       add(new Question("Er du god?"));
       add(new Question("Er du dårlig?"));
     }};

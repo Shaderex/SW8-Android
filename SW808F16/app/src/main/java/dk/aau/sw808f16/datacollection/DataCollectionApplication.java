@@ -21,7 +21,7 @@ import dk.aau.sw808f16.datacollection.gcm.RegistrationIntentService;
 public class DataCollectionApplication extends Application {
 
   private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-  private static final String TAG = "DataCollectionApp";
+  public static final String TAG = "DataCollectionApp";
   private boolean isReceiverRegistered = false;
 
   private BroadcastReceiver registrationBroadcastReceiver;
@@ -29,6 +29,7 @@ public class DataCollectionApplication extends Application {
   @Override
   public void onCreate() {
     super.onCreate();
+
     startService(new Intent(this, BackgroundSensorService.class));
 
     registrationBroadcastReceiver = new BroadcastReceiver() {

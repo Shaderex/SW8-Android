@@ -18,6 +18,8 @@ import java.net.HttpURLConnection;
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
 import dk.aau.sw808f16.datacollection.webutil.RequestHostResolver;
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
 
@@ -64,7 +66,18 @@ public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
     final Context context = weakContextReference.get();
     if (context != null) {
       try {
-        Toast.makeText(context, response.getBody().getString("message"), Toast.LENGTH_SHORT).show();
+        Campaign campaign = new Campaign(response.getBody());
+        Realm realm = Realm.getDefaultInstance();
+
+        realm.beginTransaction();
+
+        RealmResults<Campaign> results = realm.where(Campaign.class).findAll();
+        results.clear();
+        realm.copyToRealm(campaign);
+        realm.commitTransaction();
+        realm.close();
+
+        Toast.makeText(context, "Det duede mega godt", Toast.LENGTH_SHORT).show();
       } catch (JSONException exception) {
         exception.printStackTrace();
       }
