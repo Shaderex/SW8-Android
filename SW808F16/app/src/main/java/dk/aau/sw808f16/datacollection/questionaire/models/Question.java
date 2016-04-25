@@ -3,12 +3,15 @@ package dk.aau.sw808f16.datacollection.questionaire.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Calendar;
+
 import io.realm.RealmObject;
 
 public class Question extends RealmObject implements Parcelable {
 
   private Boolean answer;
   private String question;
+  private long timestamp;
 
   public Question() {}
   public Question(String question) {
@@ -39,6 +42,11 @@ public class Question extends RealmObject implements Parcelable {
     }
   };
 
+  public Question(Question question) {
+    this.question = question.question;
+    this.answer = question.answer;
+  }
+
   public String getQuestion() {
     return question;
   }
@@ -56,7 +64,7 @@ public class Question extends RealmObject implements Parcelable {
 
   public void setAnswer(final Boolean answer) {
     this.answer = answer;
-    return;
+    this.timestamp = Calendar.getInstance().getTimeInMillis();
   }
 
   public Boolean getAnswer() {
@@ -68,14 +76,19 @@ public class Question extends RealmObject implements Parcelable {
     if (this == object) {
       return true;
     }
+
+    if(object == null) {
+      return false;
+    }
+
     if (!(object instanceof Question)) {
       return false;
     }
 
-    final Question instance = (Question) object;
+    final Question that = (Question) object;
 
-    return instance.getQuestion().equals(this.getQuestion())
-        && instance.getAnswer() == this.getAnswer();
+    return (this.getQuestion() != null ? this.getQuestion().equals(that.getQuestion()) : that.getQuestion() == null) &&
+        (this.getAnswer() != null ? this.getAnswer().equals(that.getAnswer()) : that.getAnswer() == null);
   }
 
   @Override

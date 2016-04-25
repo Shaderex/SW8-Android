@@ -13,6 +13,10 @@ android {
         javaMaxHeapSize "3g"
     }
 
+    lintOptions {
+        abortOnError false
+    }
+
     defaultConfig {
         applicationId "dk.aau.sw808f16.datacollection"
         minSdkVersion 21

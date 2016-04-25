@@ -116,7 +116,7 @@ public final class BackgroundSensorService extends Service {
         List<Sample> accelerometerSamples;
 
         try {
-          Snapshot snapshot = new Snapshot();
+          Snapshot snapshot = Snapshot.Create();
 
           accelerometerSamples = accelerometerSensorProvider.retrieveSamplesForDuration(2 * 60 * 1000, 1000, 500, 500).get();
           snapshot.addSamples(SensorType.ACCELEROMETER, accelerometerSamples);

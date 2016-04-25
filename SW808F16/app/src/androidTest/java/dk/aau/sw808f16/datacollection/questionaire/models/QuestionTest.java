@@ -3,8 +3,9 @@ package dk.aau.sw808f16.datacollection.questionaire.models;
 import android.os.Parcel;
 import android.test.ApplicationTestCase;
 
+import java.lang.reflect.Field;
+
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
-import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmObject;
@@ -49,24 +50,54 @@ public class QuestionTest extends ApplicationTestCase<DataCollectionApplication>
     }
   }
 
+  public void testCopyConstructor() {
+    String questionString = "How are you?";
+
+    Question expected = new Question(questionString);
+    Question actual = new Question(question);
+
+    assertEquals("The copy constructor did make exact copy", expected, actual);
+  }
+
+  public void testCopyConstructorAndChange() {
+    String questionString = "How are you?";
+
+    Question expected = new Question(questionString);
+    Question actual = new Question(question);
+
+    expected.setAnswer(true);
+
+    assertFalse("There still exists references", expected.equals(actual));
+  }
+
   public void testExtendsRealmObject() {
     assertTrue(Question.class.getName() + " does not extend " + RealmObject.class.getName(),
         RealmObject.class.isAssignableFrom(Question.class));
   }
-
 
   public void testAnswerQuestion() {
     Question question = new Question(this.question);
     question.setAnswer(true);
   }
 
-  public void testGetAnswer() {
+  public void testGetAnswer() throws NoSuchFieldException, IllegalAccessException {
     Question question = new Question(this.question);
     question.setAnswer(false);
 
     final Boolean expected = false;
     //noinspection ConstantConditions
     assertEquals("Answer not as expected", expected, question.getAnswer());
+
+    Field field = question.getClass().getDeclaredField("timestamp");
+    field.setAccessible(true);
+
+    long timestamp = field.getLong(question);
+
+    field.setAccessible(false);
+
+    boolean timestampSat = timestamp != 0;
+    assertTrue("The timestamp was not sat", timestampSat);
+
   }
 
   public void testGetAnswerNotYetAnswered() {
@@ -136,10 +167,13 @@ public class QuestionTest extends ApplicationTestCase<DataCollectionApplication>
 
     final boolean equals = question.equals(loadedQuestion);
 
+    final Boolean loadedAnswer = loadedQuestion.getAnswer();
+
     realm.close();
 
     Realm.deleteRealm(realmConfiguration);
 
     assertTrue("The loaded measurement was not equal to the original", equals);
+    assertNull("The default value for answer is not null", loadedAnswer);
   }
 }
