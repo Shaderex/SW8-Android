@@ -10,6 +10,7 @@ import java.util.List;
 
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.HeartRateMeasurement;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.LocationMeasurement;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.WifiMeasurement;
 import io.realm.RealmList;
@@ -26,6 +27,7 @@ public class Sample extends RealmObject implements JsonObjectAble {
   private RealmList<FloatMeasurement> floatMeasurements = new RealmList<>();
   private RealmList<WifiMeasurement> wifiMeasurements = new RealmList<>();
   private RealmList<LocationMeasurement> locationMeasurements = new RealmList<>();
+  private RealmList<HeartRateMeasurement> heartRateMeasurements = new RealmList<>();
   private long timestamp;
 
   /**
@@ -71,6 +73,8 @@ public class Sample extends RealmObject implements JsonObjectAble {
       wifiMeasurements.add((WifiMeasurement) measurement);
     } else if (measurement instanceof LocationMeasurement) {
       locationMeasurements.add((LocationMeasurement) measurement);
+    } else if (measurement instanceof HeartRateMeasurement) {
+      heartRateMeasurements.add((HeartRateMeasurement) measurement);
     } else {
       throw new IllegalArgumentException("Type " + measurement.getClass().getName() + " is not a supported measurement type");
     }
@@ -95,6 +99,7 @@ public class Sample extends RealmObject implements JsonObjectAble {
     result.addAll(floatMeasurements);
     result.addAll(wifiMeasurements);
     result.addAll(locationMeasurements);
+    result.addAll(heartRateMeasurements);
 
     return result;
   }
