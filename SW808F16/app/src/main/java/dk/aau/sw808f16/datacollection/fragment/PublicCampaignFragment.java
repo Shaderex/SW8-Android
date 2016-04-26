@@ -37,7 +37,6 @@ public class PublicCampaignFragment extends Fragment
     implements ConfirmSaveSelectionFragment.SaveConfirmedCampaign, SwipeRefreshLayout.OnRefreshListener {
 
   private static final String CONFIRM_SAVE_SELECTION_FRAGMENT = "confirmSaveSelectionFragment";
-  private static final String CURRENTLY_CHECKED_CAMPAIGN_ID_KEY = "CURRENTLY_CHECKED_CAMPAIGN_ID_KEY";
   private static final String CAMPAIGN_SPECIFICATION_FRAGMENT_KEY = "CAMPAIGN_SPECIFICATION_FRAGMENT_KEY";
 
   public Menu menu;
@@ -63,7 +62,7 @@ public class PublicCampaignFragment extends Fragment
     setHasOptionsMenu(true);
 
     final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-    currentlyMarkedCampaign = preferences.getLong(CURRENTLY_CHECKED_CAMPAIGN_ID_KEY, -1);
+    currentlyMarkedCampaign = preferences.getLong(getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), -1);
   }
 
   @Override
@@ -98,12 +97,12 @@ public class PublicCampaignFragment extends Fragment
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         // Spawn dialog if there is already a marked campaign
-        if (currentlyMarkedCampaign == -1 && preferences.getLong(CURRENTLY_CHECKED_CAMPAIGN_ID_KEY, -1) != -1) {
+        if (currentlyMarkedCampaign == -1 && preferences.getLong(getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), -1) != -1) {
           Toast.makeText(getActivity(), R.string.select_campaign_first_message, Toast.LENGTH_SHORT).show();
         } else if (currentlyMarkedCampaign == -1) {
           // TODO: byt denne toast ud med en dialog der håndterer ting
           Toast.makeText(getActivity(), R.string.unsubscribe_from_campaign_message, Toast.LENGTH_SHORT).show();
-        } else if (preferences.getLong(CURRENTLY_CHECKED_CAMPAIGN_ID_KEY, -1) != -1) {
+        } else if (preferences.getLong(getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), -1) != -1) {
           ConfirmSaveSelectionFragment confirmSaveSelectionFragment = new ConfirmSaveSelectionFragment();
           confirmSaveSelectionFragment.show(getChildFragmentManager(), CONFIRM_SAVE_SELECTION_FRAGMENT);
           getFragmentManager().executePendingTransactions();
@@ -120,7 +119,7 @@ public class PublicCampaignFragment extends Fragment
   public void onConfirmedCampaignSave() {
 
     final SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
-    editor.putLong(CURRENTLY_CHECKED_CAMPAIGN_ID_KEY, currentlyMarkedCampaign);
+    editor.putLong(getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), currentlyMarkedCampaign);
     editor.apply();
 
     final AsyncHttpCampaignJoinTask joinCampaignTask = new AsyncHttpCampaignJoinTask(getActivity(), currentlyMarkedCampaign);
