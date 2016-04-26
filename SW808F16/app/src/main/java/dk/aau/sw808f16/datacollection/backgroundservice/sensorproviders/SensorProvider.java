@@ -28,7 +28,7 @@ public abstract class SensorProvider<MeasurementType> {
 
   private MeasurementType cachedMeasurement = null;
   private final Object firstMeasurementLock = new Object();
-  private Timer measurementTimer;
+  private final Timer measurementTimer;
 
   final AtomicBoolean atomicBoolean = new AtomicBoolean(false);
 

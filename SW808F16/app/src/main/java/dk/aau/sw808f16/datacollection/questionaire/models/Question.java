@@ -22,7 +22,8 @@ public class Question extends RealmObject implements Parcelable, JsonObjectAble 
    * @deprecated Do not use this constructor. This is reserved for Realm.io
    */
   @Deprecated
-  public Question() {}
+  public Question() {
+  }
 
   /**
    * @deprecated Use {@link #Question(String, long)} instead.
@@ -96,7 +97,7 @@ public class Question extends RealmObject implements Parcelable, JsonObjectAble 
       return true;
     }
 
-    if(object == null) {
+    if (object == null) {
       return false;
     }
 
