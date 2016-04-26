@@ -24,7 +24,7 @@ public abstract class AsyncHttpWebbTask<ResultT> extends AsyncTask<Void, Void, R
 
   private final Method method;
   private final String url;
-  private Webb webb;
+  private final Webb webb;
   private int expectedResponseCode;
 
   public AsyncHttpWebbTask(final Method method, final String url, final int expectedResponseCode) {

@@ -1,6 +1,7 @@
 package dk.aau.sw808f16.datacollection.fragment;
 
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -29,7 +30,6 @@ import org.json.JSONObject;
 import java.net.HttpURLConnection;
 
 import dk.aau.sw808f16.datacollection.R;
-import dk.aau.sw808f16.datacollection.campaign.AsyncHttpCampaignJoinTask;
 import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
 import dk.aau.sw808f16.datacollection.webutil.RequestHostResolver;
 
@@ -39,7 +39,6 @@ public class PublicCampaignFragment extends Fragment
   private static final String CONFIRM_SAVE_SELECTION_FRAGMENT = "confirmSaveSelectionFragment";
   private static final String CAMPAIGN_SPECIFICATION_FRAGMENT_KEY = "CAMPAIGN_SPECIFICATION_FRAGMENT_KEY";
 
-  public Menu menu;
   private long currentlyMarkedCampaign;
   private AsyncHttpWebbTask<JSONArray> currentGetCampaignsTask;
 
@@ -76,8 +75,6 @@ public class PublicCampaignFragment extends Fragment
   public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);
 
-    this.menu = menu;
-
     inflater.inflate(R.menu.main_action_bar, menu);
   }
 
@@ -89,26 +86,31 @@ public class PublicCampaignFragment extends Fragment
     final SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_container);
     swipeRefreshLayout.setOnRefreshListener(this);
 
-    final Button confirmButton = (Button) view.findViewById(R.id.confirm_button);
-    confirmButton.setOnClickListener(new View.OnClickListener() {
+    final Button continueButton = (Button) view.findViewById(R.id.confirm_button);
+    continueButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(final View view) {
 
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         // Spawn dialog if there is already a marked campaign
-        if (currentlyMarkedCampaign == -1 && preferences.getLong(getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), -1) != -1) {
+        if (currentlyMarkedCampaign == -1 && preferences.getLong(getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), -1L) == -1L) {
           Toast.makeText(getActivity(), R.string.select_campaign_first_message, Toast.LENGTH_SHORT).show();
         } else if (currentlyMarkedCampaign == -1) {
+
           // TODO: byt denne toast ud med en dialog der håndterer ting
           Toast.makeText(getActivity(), R.string.unsubscribe_from_campaign_message, Toast.LENGTH_SHORT).show();
+
         } else if (preferences.getLong(getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), -1) != -1) {
+
           ConfirmSaveSelectionFragment confirmSaveSelectionFragment = new ConfirmSaveSelectionFragment();
           confirmSaveSelectionFragment.show(getChildFragmentManager(), CONFIRM_SAVE_SELECTION_FRAGMENT);
+
           getFragmentManager().executePendingTransactions();
         } else {
           onConfirmedCampaignSave();
         }
+
       }
     });
 
@@ -118,12 +120,13 @@ public class PublicCampaignFragment extends Fragment
   @Override
   public void onConfirmedCampaignSave() {
 
-    final SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
-    editor.putLong(getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), currentlyMarkedCampaign);
-    editor.apply();
 
-    final AsyncHttpCampaignJoinTask joinCampaignTask = new AsyncHttpCampaignJoinTask(getActivity(), currentlyMarkedCampaign);
-    joinCampaignTask.execute();
+    final FragmentManager fragmentManager = getFragmentManager();
+    fragmentManager.beginTransaction()
+        .replace(R.id.content_frame_layout, CampaignConfirmationFragment.newInstance(currentlyMarkedCampaign),
+            getString(R.string.CAMPAIGN_CONFIRMATION_FRAGMENT_KEY))
+        .addToBackStack(getString(R.string.CAMPAIGN_CONFIRMATION_FRAGMENT_KEY))
+        .commit();
   }
 
   @Override

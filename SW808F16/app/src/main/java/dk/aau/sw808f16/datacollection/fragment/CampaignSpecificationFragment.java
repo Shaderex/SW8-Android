@@ -125,7 +125,8 @@ public class CampaignSpecificationFragment extends Fragment {
 
         holder.campaignSpecificationItemTitle = (TextView) convertView.findViewById(R.id.campaign_specification_item_title);
         holder.campaignSpecificationItemValue = (TextView) convertView.findViewById(R.id.campaign_specification_item_value);
-        holder.campaignSpecificationItemLargeTextBlock = (TextView) convertView.findViewById(R.id.campaign_specification_item_large_text_block);
+        holder.campaignSpecificationItemLargeTextBlock =
+            (TextView) convertView.findViewById(R.id.campaign_specification_item_large_text_block);
 
         convertView.setTag(holder);
       }

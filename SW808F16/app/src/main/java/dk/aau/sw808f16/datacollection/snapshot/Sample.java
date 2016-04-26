@@ -19,6 +19,7 @@ import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 
 
+@SuppressWarnings("CanBeFinal")
 public class Sample extends RealmObject implements JsonObjectAble {
 
   @Ignore
