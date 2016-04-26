@@ -255,4 +255,14 @@ public class Campaign extends RealmObject implements JsonObjectAble {
     }
     Log.d("CampaignSpecification", "questions: " + questions);
   }
+
+  public List<RealmObject> children() {
+
+    List<RealmObject> children = new ArrayList<>();
+    children.add(this);
+    for (Snapshot snapshot : snapshots) {
+      children.addAll(snapshot.children());
+    }
+    return children;
+  }
 }

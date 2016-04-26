@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -177,5 +178,19 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
 
   public Questionnaire getQuestionnaire() {
     return questionnaire;
+  }
+
+  public List<RealmObject> children() {
+
+    List<RealmObject> children = new ArrayList<>();
+    children.add(this);
+
+    for (List<Sample> sampleList: sensorSampleMap.values()) {
+      for (Sample sample : sampleList) {
+        children.addAll(sample.children());
+      }
+    }
+
+    return children;
   }
 }

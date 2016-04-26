@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.List;
 
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
@@ -150,5 +151,22 @@ public class Sample extends RealmObject implements JsonObjectAble {
     sampleJsonObject.put("measurements", jsonMeasurements);
 
     return sampleJsonObject;
+  }
+
+  public List<RealmObject> children() {
+    List<RealmObject> children = new ArrayList<>();
+    children.add(this);
+
+    children.addAll(floatTripleMeasurements);
+    children.addAll(floatMeasurements);
+    children.addAll(locationMeasurements);
+    children.addAll(heartRateMeasurements);
+    children.addAll(wifiMeasurements);
+
+    for (WifiMeasurement measurement : wifiMeasurements) {
+      children.addAll(measurement.children());
+    }
+
+    return children;
   }
 }
