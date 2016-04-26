@@ -3,14 +3,31 @@ package dk.aau.sw808f16.datacollection.questionaire.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Calendar;
+
+import dk.aau.sw808f16.datacollection.snapshot.JsonObjectAble;
 import io.realm.RealmObject;
 
-public class Question extends RealmObject implements Parcelable {
+public class Question extends RealmObject implements Parcelable, JsonObjectAble {
 
   private Boolean answer;
   private String question;
+  private long timestamp;
+  private long identifier;
 
+  /**
+   * @deprecated Do not use this constructor. This is reserved for Realm.io
+   */
+  @Deprecated
   public Question() {}
+
+  /**
+   * @deprecated Use {@link #Question(String, long)} instead.
+   */
+  @Deprecated
   public Question(String question) {
     this.setQuestion(question);
   }
@@ -39,6 +56,16 @@ public class Question extends RealmObject implements Parcelable {
     }
   };
 
+  public Question(Question question) {
+    this.question = question.question;
+    this.answer = question.answer;
+  }
+
+  public Question(String question, long identifier) {
+    this.question = question;
+    this.identifier = identifier;
+  }
+
   public String getQuestion() {
     return question;
   }
@@ -56,7 +83,7 @@ public class Question extends RealmObject implements Parcelable {
 
   public void setAnswer(final Boolean answer) {
     this.answer = answer;
-    return;
+    this.timestamp = Calendar.getInstance().getTimeInMillis();
   }
 
   public Boolean getAnswer() {
@@ -68,14 +95,21 @@ public class Question extends RealmObject implements Parcelable {
     if (this == object) {
       return true;
     }
+
+    if(object == null) {
+      return false;
+    }
+
     if (!(object instanceof Question)) {
       return false;
     }
 
-    final Question instance = (Question) object;
+    final Question that = (Question) object;
 
-    return instance.getQuestion().equals(this.getQuestion())
-        && instance.getAnswer() == this.getAnswer();
+    boolean isSame = (this.getQuestion() != null ? this.getQuestion().equals(that.getQuestion()) : that.getQuestion() == null) &&
+        (this.getAnswer() != null ? this.getAnswer().equals(that.getAnswer()) : that.getAnswer() == null) &&
+        (this.identifier == that.identifier);
+    return isSame;
   }
 
   @Override
@@ -97,5 +131,31 @@ public class Question extends RealmObject implements Parcelable {
 
     dest.writeByte(byteAnswer);
     dest.writeString(question);
+  }
+
+  public long getIdentifier() {
+    return identifier;
+  }
+
+  public void setIdentifier(long id) {
+    this.identifier = id;
+  }
+
+  @Override
+  public JSONObject toJsonObject() throws JSONException {
+    JSONObject jsonObject = new JSONObject();
+    jsonObject.put("id", identifier);
+
+    if (answer == null) {
+      jsonObject.put("answer", "undefined");
+    } else if (answer) {
+      jsonObject.put("answer", "true");
+    } else {
+      jsonObject.put("answer", "false");
+    }
+
+
+    jsonObject.put("timestamp", timestamp);
+    return jsonObject;
   }
 }

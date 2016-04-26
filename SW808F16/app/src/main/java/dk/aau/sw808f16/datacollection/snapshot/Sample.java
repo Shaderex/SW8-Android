@@ -5,10 +5,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.HeartRateMeasurement;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.LocationMeasurement;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.WifiMeasurement;
 import io.realm.RealmList;
@@ -25,18 +27,34 @@ public class Sample extends RealmObject implements JsonObjectAble {
   private RealmList<FloatMeasurement> floatMeasurements = new RealmList<>();
   private RealmList<WifiMeasurement> wifiMeasurements = new RealmList<>();
   private RealmList<LocationMeasurement> locationMeasurements = new RealmList<>();
+  private RealmList<HeartRateMeasurement> heartRateMeasurements = new RealmList<>();
+  private long timestamp;
 
+  /**
+   * @deprecated Do not use this constructor. This is reserved for Realm.io
+   */
+  @Deprecated
   public Sample() {
   }
 
-  public Sample(final Object initialMeasurement) {
-    addMeasurement(initialMeasurement);
+  public static Sample Create() {
+    Sample sample = new Sample();
+    sample.timestamp = Calendar.getInstance().getTimeInMillis();
+    return sample;
   }
 
-  public Sample(final List<?> initialMeasurements) {
+  public static Sample Create(final Object initialMeasurement) {
+    Sample sample = Sample.Create();
+    sample.addMeasurement(initialMeasurement);
+    return sample;
+  }
+
+  public static Sample Create(final List<?> initialMeasurements) {
+    Sample sample = Sample.Create();
     for (Object o : initialMeasurements) {
-      addMeasurement(o);
+      sample.addMeasurement(o);
     }
+    return sample;
   }
 
   public void addMeasurement(final Object measurement) {
@@ -55,6 +73,8 @@ public class Sample extends RealmObject implements JsonObjectAble {
       wifiMeasurements.add((WifiMeasurement) measurement);
     } else if (measurement instanceof LocationMeasurement) {
       locationMeasurements.add((LocationMeasurement) measurement);
+    } else if (measurement instanceof HeartRateMeasurement) {
+      heartRateMeasurements.add((HeartRateMeasurement) measurement);
     } else {
       throw new IllegalArgumentException("Type " + measurement.getClass().getName() + " is not a supported measurement type");
     }
@@ -66,8 +86,7 @@ public class Sample extends RealmObject implements JsonObjectAble {
     }
   }
 
-  public int size()
-  {
+  public int size() {
     return floatTripleMeasurements.size() + floatMeasurements.size() + wifiMeasurements.size() + locationMeasurements.size();
   }
 
@@ -80,6 +99,7 @@ public class Sample extends RealmObject implements JsonObjectAble {
     result.addAll(floatMeasurements);
     result.addAll(wifiMeasurements);
     result.addAll(locationMeasurements);
+    result.addAll(heartRateMeasurements);
 
     return result;
   }
@@ -95,6 +115,10 @@ public class Sample extends RealmObject implements JsonObjectAble {
     }
 
     final Sample that = (Sample) object;
+
+    if (this.timestamp != that.timestamp) {
+      return false;
+    }
 
     List<?> ourMeasurements = this.getMeasurements();
     List<?> theirMeasurements = that.getMeasurements();
@@ -122,6 +146,7 @@ public class Sample extends RealmObject implements JsonObjectAble {
       jsonMeasurements.put(object.toJsonValue());
     }
 
+    sampleJsonObject.put("timestamp", timestamp);
     sampleJsonObject.put("measurements", jsonMeasurements);
 
     return sampleJsonObject;

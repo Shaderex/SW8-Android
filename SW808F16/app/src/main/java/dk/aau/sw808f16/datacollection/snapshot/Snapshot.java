@@ -4,12 +4,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.label.Label;
+import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
@@ -17,6 +19,7 @@ import io.realm.annotations.Ignore;
 public class Snapshot extends RealmObject implements JsonObjectAble {
 
   private Label label;
+  private long timestamp;
   private RealmList<Sample> accelerometerSamples = new RealmList<>();
   private RealmList<Sample> ambientLightSamples = new RealmList<>();
   private RealmList<Sample> barometerSamples = new RealmList<>();
@@ -29,7 +32,19 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
 
   @Ignore
   private Map<SensorType, RealmList<Sample>> sensorSampleMap = null;
+  private Questionnaire questionnaire;
 
+  @SuppressWarnings("deprecation")
+  public static Snapshot Create() {
+    Snapshot snapshot = new Snapshot();
+    snapshot.timestamp = Calendar.getInstance().getTimeInMillis();
+    return snapshot;
+  }
+
+  /**
+   * @deprecated Use the {@link #Create()} factory method. This is reserved for Realm.io
+   */
+  @Deprecated
   public Snapshot() {
   }
 
@@ -78,11 +93,10 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
 
     final Snapshot that = (Snapshot) object;
 
-    if ((this.getLabel() == null || that.getLabel() == null) && this.getLabel() != that.getLabel()) {
-      return false;
-    }
+    boolean isSame = this.getLabel() != null ? this.getLabel().equals(that.getLabel()) : that.getLabel() == null &&
+        this.timestamp == that.timestamp;
 
-    if (this.getLabel() != null && !this.getLabel().equals(that.getLabel())) {
+    if (!isSame) {
       return false;
     }
 
@@ -121,7 +135,7 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
   public JSONObject toJsonObject() throws JSONException {
 
     final JSONObject jsonObject = new JSONObject();
-
+    jsonObject.put("timestamp", this.timestamp);
     addSampleListToJsonObject(jsonObject, "accelerometerSamples", accelerometerSamples);
     addSampleListToJsonObject(jsonObject, "ambientLightSamples", ambientLightSamples);
     addSampleListToJsonObject(jsonObject, "barometerSamples", barometerSamples);
@@ -155,5 +169,13 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
       }
     }
 
+  }
+
+  public void setQuestionnaire(final Questionnaire questionnaire) {
+    this.questionnaire = new Questionnaire(questionnaire);
+  }
+
+  public Questionnaire getQuestionnaire() {
+    return questionnaire;
   }
 }

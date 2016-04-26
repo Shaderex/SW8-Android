@@ -252,10 +252,9 @@ public class CampaignSpecificationFragment extends Fragment {
     if (arguments.containsKey(CAMPAIGN_ID_TAG)) {
       // Start AsyncTask
 
-      //
       final long campaignId = arguments.getLong(CAMPAIGN_ID_TAG);
 
-      AsyncHttpGetCampaignSpecificationTask task = new AsyncHttpGetCampaignSpecificationTask(getActivity(), campaignId) {
+      final AsyncHttpGetCampaignSpecificationTask task = new AsyncHttpGetCampaignSpecificationTask(getActivity(), campaignId) {
 
         @Override
         public void onResponseCodeMatching(Response<JSONObject> response) {
@@ -289,7 +288,6 @@ public class CampaignSpecificationFragment extends Fragment {
       };
 
       task.execute();
-
 
     } else if (arguments.containsKey(CAMPAIGN_JSON_TAG)) {
       try {

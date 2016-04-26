@@ -8,6 +8,7 @@ import com.goebl.david.Response;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -17,6 +18,8 @@ import java.net.HttpURLConnection;
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
 import dk.aau.sw808f16.datacollection.webutil.RequestHostResolver;
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
 
@@ -62,7 +65,22 @@ public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
 
     final Context context = weakContextReference.get();
     if (context != null) {
-      Toast.makeText(context, R.string.campaign_joined_message, Toast.LENGTH_SHORT).show();
+      try {
+        Campaign campaign = new Campaign(response.getBody());
+        Realm realm = Realm.getDefaultInstance();
+
+        realm.beginTransaction();
+
+        RealmResults<Campaign> results = realm.where(Campaign.class).findAll();
+        results.clear();
+        realm.copyToRealm(campaign);
+        realm.commitTransaction();
+        realm.close();
+
+        Toast.makeText(context, R.string.campaign_joined_message, Toast.LENGTH_SHORT).show();
+      } catch (JSONException exception) {
+        exception.printStackTrace();
+      }
     }
   }
 

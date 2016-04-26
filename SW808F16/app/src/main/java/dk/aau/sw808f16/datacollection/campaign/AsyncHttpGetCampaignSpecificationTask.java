@@ -6,16 +6,15 @@ import android.util.Log;
 import com.goebl.david.Request;
 import com.goebl.david.Response;
 
-
 import org.json.JSONObject;
 
 import java.net.HttpURLConnection;
+import org.json.JSONException;
 
 import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
 import dk.aau.sw808f16.datacollection.webutil.RequestHostResolver;
 
 public abstract class AsyncHttpGetCampaignSpecificationTask extends AsyncHttpWebbTask<JSONObject> {
-
 
   public AsyncHttpGetCampaignSpecificationTask(final Context context, final long campaignId) {
 
@@ -25,6 +24,17 @@ public abstract class AsyncHttpGetCampaignSpecificationTask extends AsyncHttpWeb
   @Override
   protected Response<JSONObject> sendRequest(Request webb) {
     return webb.asJsonObject();
+  }
+
+  @Override
+  public void onResponseCodeMatching(final Response<JSONObject> response) {
+    try {
+      final Campaign campaign = new Campaign(response.getBody());
+      campaign.log("CampaignSpecification");
+
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
   }
 
   @Override

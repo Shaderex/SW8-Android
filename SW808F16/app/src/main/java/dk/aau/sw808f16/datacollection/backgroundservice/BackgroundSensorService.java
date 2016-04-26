@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AccelerometerSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.SensorProvider;
@@ -42,6 +43,7 @@ import io.realm.RealmResults;
 
 public final class BackgroundSensorService extends Service {
   public static final String SNAPSHOT_REALM_NAME = "snapshot.realm";
+  private static final String REALM_NAME = DataCollectionApplication.TAG + ".realm";
   private ServiceHandler serviceHandler;
 
   private final ExecutorService sensorThreadPool;
@@ -88,6 +90,24 @@ public final class BackgroundSensorService extends Service {
   public void onCreate() {
     super.onCreate();
 
+    // Realm configuration
+    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(BackgroundSensorService.this)
+        .name(REALM_NAME)
+        .encryptionKey(getSecretKey())
+        .build();
+    Realm.setDefaultConfiguration(realmConfiguration);
+
+    Realm realm = Realm.getDefaultInstance();
+
+    RealmResults<Campaign> campaigns = realm.where(Campaign.class).findAll();
+
+    Log.d("SavedCampaign", "amount: " + campaigns.size());
+    if (campaigns.size() > 0) {
+      campaigns.first().log("SavedCampaign");
+    }
+
+    realm.close();
+
     final SensorManager sensorManager = (SensorManager) getApplicationContext().getSystemService(SENSOR_SERVICE);
 
     // Initialize SensorProvider instances with the shared thread pool
@@ -116,16 +136,12 @@ public final class BackgroundSensorService extends Service {
         List<Sample> accelerometerSamples;
 
         try {
-          Snapshot snapshot = new Snapshot();
+          Snapshot snapshot = Snapshot.Create();
 
           accelerometerSamples = accelerometerSensorProvider.retrieveSamplesForDuration(2 * 60 * 1000, 1000, 500, 500).get();
           snapshot.addSamples(SensorType.ACCELEROMETER, accelerometerSamples);
 
-          final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(BackgroundSensorService.this)
-              .name(BackgroundSensorService.SNAPSHOT_REALM_NAME)
-              .encryptionKey(getSecretKey())
-              .build();
-          final Realm realm = Realm.getInstance(realmConfiguration);
+          final Realm realm = Realm.getDefaultInstance();
 
           realm.beginTransaction();
 
