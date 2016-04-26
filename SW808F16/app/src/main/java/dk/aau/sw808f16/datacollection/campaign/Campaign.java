@@ -49,6 +49,8 @@ public class Campaign extends RealmObject implements JsonObjectAble {
   }
 
   public Campaign(final JSONObject jsonObject) throws JSONException {
+    this();
+
     this.setIdentifier(jsonObject.getInt("id"));
     this.setName(jsonObject.getString("name"));
     this.setDescription(jsonObject.getString("description"));

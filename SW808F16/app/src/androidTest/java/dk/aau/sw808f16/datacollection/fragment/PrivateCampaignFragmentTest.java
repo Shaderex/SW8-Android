@@ -48,8 +48,9 @@ public class PrivateCampaignFragmentTest extends ActivityUnitTestCase<MainActivi
   }
 
   public void testIfComponentsArePresent() {
+
     final View editText = getActivity().findViewById(R.id.private_campaign_edit_text);
-    final View joinButton = getActivity().findViewById(R.id.private_campaign_join_button);
+    final View joinButton = getActivity().findViewById(R.id.private_campaign_init_confirmation_button);
 
     Assert.assertNotNull(editText);
     Assert.assertNotNull(joinButton);

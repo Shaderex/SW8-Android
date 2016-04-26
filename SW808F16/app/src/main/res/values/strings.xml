@@ -17,4 +17,16 @@
     <string name="unexpected_response_from_server">Unexpected response from server</string>
     <string name="private_campaign_button">Private campaign</string>
     <string name="public_campaign_button">Public campaigns</string>
+    <string name="campaign_specification_fragment_title">Campaign Specification</string>
+    <string name="campaign_specification_name_title">Name:</string>
+    <string name="continue_message">Continue</string>
+    <string name="campaign_joined_message">Campaign joined successfully</string>
+    <string name="unable_to_join_campaign_message">Unable to join campaign</string>
+    <string name="private_campaign_invalid_campaign_id_message">Please enter a valid campaign ID</string>
+    <string name="unable_to_locate_campaign_message">Unable to locate a campaign with the specified ID</string>
+    <string name="generic_something_went_wrong_message">Something went wrong, try again</string>
+    <string name="open">open</string>
+    <string name="close">Close</string>
+    <string name="CURRENTLY_CHECKED_CAMPAIGN_ID_KEY">CURRENTLY_CHECKED_CAMPAIGN_ID_KEY</string>
+    <string name="welcome_message">Welcome to DataCollection</string>
 </resources>
