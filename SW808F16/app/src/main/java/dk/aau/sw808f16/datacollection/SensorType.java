@@ -12,7 +12,7 @@ public enum SensorType {
   PROXIMITY(7),
   WIFI(8);
 
-  private int identifier;
+  private final int identifier;
 
   SensorType(final int id) {
     this.identifier = id;

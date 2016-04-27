@@ -19,11 +19,8 @@ import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 
 public class AmbientLightSensorProvider extends SensorProvider<FloatMeasurement> {
 
-  private Context context;
-
   public AmbientLightSensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
-    this.context = context;
   }
 
   @Override
@@ -46,6 +43,6 @@ public class AmbientLightSensorProvider extends SensorProvider<FloatMeasurement>
 
   @Override
   public boolean isSensorAvailable() {
-    return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_LIGHT);
+    return contextWeakReference.get().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_LIGHT);
   }
 }

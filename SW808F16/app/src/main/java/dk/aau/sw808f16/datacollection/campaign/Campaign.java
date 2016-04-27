@@ -49,6 +49,8 @@ public class Campaign extends RealmObject implements JsonObjectAble {
   }
 
   public Campaign(final JSONObject jsonObject) throws JSONException {
+    this();
+
     this.setIdentifier(jsonObject.getInt("id"));
     this.setName(jsonObject.getString("name"));
     this.setDescription(jsonObject.getString("description"));
@@ -249,11 +251,13 @@ public class Campaign extends RealmObject implements JsonObjectAble {
     Log.d(logTag, "sampleFrequency: " + this.getSampleFrequency());
     Log.d(logTag, "measurementFrequency: " + this.getMeasurementFrequency());
 
-    String questions = "";
-    for (Question question : this.getQuestionnaire().getQuestions()) {
-      questions += question.getIdentifier() + ": " + question.getQuestion() + ",";
+    if (this.getQuestionnaire() != null) {
+      String questions = "";
+      for (Question question : this.getQuestionnaire().getQuestions()) {
+        questions += question.getIdentifier() + ": " + question.getQuestion() + ",";
+      }
+      Log.d("CampaignSpecification", "questions: " + questions);
     }
-    Log.d("CampaignSpecification", "questions: " + questions);
   }
 
   public List<RealmObject> children() {

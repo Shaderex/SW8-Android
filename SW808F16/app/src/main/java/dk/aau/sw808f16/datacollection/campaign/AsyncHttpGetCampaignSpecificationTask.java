@@ -9,15 +9,17 @@ import com.goebl.david.Response;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.HttpURLConnection;
+
 import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
 import dk.aau.sw808f16.datacollection.webutil.RequestHostResolver;
 
 public abstract class AsyncHttpGetCampaignSpecificationTask extends AsyncHttpWebbTask<JSONObject> {
 
-
   public AsyncHttpGetCampaignSpecificationTask(final Context context, final long campaignId) {
 
-    super(AsyncHttpWebbTask.Method.GET, RequestHostResolver.resolveHostForRequest(context, "/campaigns/" + campaignId), 200);
+    super(AsyncHttpWebbTask.Method.GET,
+        RequestHostResolver.resolveHostForRequest(context, "/campaigns/" + campaignId), HttpURLConnection.HTTP_OK);
   }
 
   @Override
@@ -26,19 +28,18 @@ public abstract class AsyncHttpGetCampaignSpecificationTask extends AsyncHttpWeb
   }
 
   @Override
-  public void onResponseCodeMatching(Response<JSONObject> response) {
+  public void onResponseCodeMatching(final Response<JSONObject> response) {
     try {
-      Campaign campaign = new Campaign(response.getBody());
+      final Campaign campaign = new Campaign(response.getBody());
       campaign.log("CampaignSpecification");
 
-      onResult(campaign);
-    } catch (JSONException e) {
-      e.printStackTrace();
+    } catch (JSONException exception) {
+      exception.printStackTrace();
     }
   }
 
   @Override
-  public void onResponseCodeNotMatching(Response<JSONObject> response) {
+  public void onResponseCodeNotMatching(final Response<JSONObject> response) {
     Log.d("CampaignSpecification", "Did not get the correct response code");
   }
 
@@ -47,5 +48,4 @@ public abstract class AsyncHttpGetCampaignSpecificationTask extends AsyncHttpWeb
     Log.d("CampaignSpecification", "Unable to connect to the server");
   }
 
-  public abstract void onResult(Campaign campaign);
 }

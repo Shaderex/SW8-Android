@@ -14,11 +14,8 @@ import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 
 public class ProximitySensorProvider extends SensorProvider<FloatMeasurement> {
 
-  private final Timer proximitySamplingTimer;
-
   public ProximitySensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
-    proximitySamplingTimer = new Timer(true);
   }
 
   @Override

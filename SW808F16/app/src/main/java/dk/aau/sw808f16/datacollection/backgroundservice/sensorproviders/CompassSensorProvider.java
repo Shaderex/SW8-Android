@@ -25,7 +25,6 @@ public class CompassSensorProvider extends SensorProvider<FloatMeasurement> {
   protected EventListenerRegistrationManager createRegManager() {
 
 
-
     return new EventListenerRegistrationManager() {
 
       final HandlerThread thread = new HandlerThread("CompassSensorProvider HandlerThread");
@@ -81,7 +80,7 @@ public class CompassSensorProvider extends SensorProvider<FloatMeasurement> {
         @Override
         public void onAccuracyChanged(final Sensor sensor, final int accuracy) {
         }
-      };;
+      };
 
       final SensorEventListener initialAccelerometerListener = new SensorEventListener() {
         @Override
@@ -154,8 +153,10 @@ public class CompassSensorProvider extends SensorProvider<FloatMeasurement> {
       public void register(final int frequency) {
 
         thread.start();
-        sensorManager.registerListener(initialAccelerometerListener, accelerometerSensor, SensorManager.SENSOR_DELAY_FASTEST, new Handler(thread.getLooper()));
-        sensorManager.registerListener(initialMagneticFieldListener, magneticFieldSensor, SensorManager.SENSOR_DELAY_FASTEST, new Handler(thread.getLooper()));
+        sensorManager.registerListener(initialAccelerometerListener, accelerometerSensor,
+            SensorManager.SENSOR_DELAY_FASTEST, new Handler(thread.getLooper()));
+        sensorManager.registerListener(initialMagneticFieldListener, magneticFieldSensor,
+            SensorManager.SENSOR_DELAY_FASTEST, new Handler(thread.getLooper()));
       }
 
       @Override

@@ -39,7 +39,7 @@ public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollect
   }
 
   public void testServiceStoresSnapshotEncrypted() throws InterruptedException {
-    // Wait in order to guarantee that the service have gathered sensor data
+    // Wait in order to guarantee that the service has gathered sensor data
     Thread.sleep(3 * 60 * 1000);
 
     final RealmConfiguration realmConfiguration =

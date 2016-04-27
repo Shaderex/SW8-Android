@@ -77,7 +77,7 @@ public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
         realm.commitTransaction();
         realm.close();
 
-        Toast.makeText(context, "Det duede mega godt", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, R.string.campaign_joined_message, Toast.LENGTH_SHORT).show();
       } catch (JSONException exception) {
         exception.printStackTrace();
       }
@@ -88,7 +88,7 @@ public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
   public void onResponseCodeNotMatching(final Response<JSONObject> response) {
     final Context context = weakContextReference.get();
     if (context != null) {
-      Toast.makeText(context, response.getErrorBody().toString(), Toast.LENGTH_SHORT).show();
+      Toast.makeText(context, R.string.unable_to_join_campaign_message, Toast.LENGTH_SHORT).show();
     }
   }
 
