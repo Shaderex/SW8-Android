@@ -117,7 +117,10 @@ public final class BackgroundSensorService extends Service {
   @Override
   public int onStartCommand(final Intent intent, final int flags, final int startId) {
 
-    Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
+    Toast.makeText(this, "BackgroundSensorService was started", Toast.LENGTH_SHORT).show();
+
+    return START_STICKY;
+    /*
 
     // Check if device is subscribed to a campaign and then continue that campaign
     Realm realm = null;
@@ -286,6 +289,7 @@ public final class BackgroundSensorService extends Service {
 
     // If we get killed, after returning from here, restart
     return START_STICKY;
+    */
   }
 
   private byte[] getSecretKey() {
