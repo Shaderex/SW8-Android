@@ -219,17 +219,28 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
     snapshot.addSample(SensorType.BAROMETER, barometerSample);
     snapshot.addSample(SensorType.COMPASS, largeCompassSample);
 
+    final List<Question> questions = new ArrayList<Question>() {
+      {
+        new Question("Annie are you okay?", 1);
+        new Question("Are you okay Annie?", 2);
+      }
+    };
+    final Questionnaire questionnaire = new Questionnaire(questions);
+
+    snapshot.setQuestionnaire(questionnaire);
+
     final JSONObject snapshotJsonObject = snapshot.toJsonObject();
     final String snapshotJsonObjectStringRepresentation = snapshotJsonObject.toString();
 
     assertNotNull(snapshotJsonObjectStringRepresentation);
 
-    assertTrue(snapshotJsonObjectStringRepresentation.contains("measurements"));
-    assertTrue(snapshotJsonObjectStringRepresentation.contains("compass"));
-    assertTrue(snapshotJsonObjectStringRepresentation.contains("gyroscope"));
-    assertTrue(snapshotJsonObjectStringRepresentation.contains("barometer"));
-    assertTrue(snapshotJsonObjectStringRepresentation.contains("accelerometer"));
-    assertTrue(snapshotJsonObjectStringRepresentation.contains("timestamp"));
+    assertTrue("Does not contain measurements", snapshotJsonObjectStringRepresentation.contains("measurements"));
+    assertTrue("Does not contain compass", snapshotJsonObjectStringRepresentation.contains("compass"));
+    assertTrue("Does not contain gyroscope", snapshotJsonObjectStringRepresentation.contains("gyroscope"));
+    assertTrue("Does not contain barometer", snapshotJsonObjectStringRepresentation.contains("barometer"));
+    assertTrue("Does not contain accelerometer", snapshotJsonObjectStringRepresentation.contains("accelerometer"));
+    assertTrue("Does not contain timestamp", snapshotJsonObjectStringRepresentation.contains("timestamp"));
+    assertTrue("Does not contain questionnaire", snapshotJsonObjectStringRepresentation.contains("questionnaire"));
   }
 
   public void testCanBecomeJsonAndRealmAndJson() throws JSONException {
@@ -253,6 +264,16 @@ public class SnapshotTest extends ApplicationTestCase<DataCollectionApplication>
     originalSnapshot.addSample(SensorType.GYROSCOPE, gyroscopeSample);
     originalSnapshot.addSample(SensorType.BAROMETER, barometerSample);
     originalSnapshot.addSample(SensorType.COMPASS, largeCompassSample);
+
+    final List<Question> questions = new ArrayList<Question>() {
+      {
+        new Question("Annie are you okay?", 1);
+        new Question("Are you okay Annie?", 2);
+      }
+    };
+    final Questionnaire questionnaire = new Questionnaire(questions);
+
+    originalSnapshot.setQuestionnaire(questionnaire);
 
     final JSONObject originalSnapshotJsonObject = originalSnapshot.toJsonObject();
     final String originalSnapshotJsonObjectStringRepresentation = originalSnapshotJsonObject.toString();

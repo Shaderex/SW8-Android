@@ -150,7 +150,7 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
     addSampleListToJsonObject(jsonObject, "locationSamples", locationSamples);
     addSampleListToJsonObject(jsonObject, "proximitySamples", proximitySamples);
     addSampleListToJsonObject(jsonObject, "wifiSamples", wifiSamples);
-    jsonObject.put("questionnaire", getQuestionnaire().toJsonObject());
+    jsonObject.put("questionnaire", (questionnaire != null ?  questionnaire.toJsonObject() : null));
 
     return jsonObject;
   }
