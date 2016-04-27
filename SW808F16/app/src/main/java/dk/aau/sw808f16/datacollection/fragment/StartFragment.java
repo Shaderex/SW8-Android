@@ -11,9 +11,7 @@ import dk.aau.sw808f16.datacollection.R;
 public class StartFragment extends Fragment {
 
   public static StartFragment newInstance() {
-    final StartFragment newFragment = new StartFragment();
-
-    return newFragment;
+    return new StartFragment();
   }
 
   @Override
