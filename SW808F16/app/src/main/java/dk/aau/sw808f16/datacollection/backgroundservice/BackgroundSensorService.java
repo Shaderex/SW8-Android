@@ -23,7 +23,7 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -52,7 +52,6 @@ public final class BackgroundSensorService extends Service {
   public static final String SNAPSHOT_REALM_NAME = "snapshot.realm";
   private static final String REALM_NAME = DataCollectionApplication.TAG + ".realm";
   private ServiceHandler serviceHandler;
-  private Realm realm;
 
   private final ExecutorService sensorThreadPool;
 
@@ -68,23 +67,15 @@ public final class BackgroundSensorService extends Service {
   }
 
   private final class ServiceHandler extends Handler {
+
     public ServiceHandler(final Looper looper) {
       super(looper);
     }
 
     @Override
     public void handleMessage(final Message msg) {
-      // Normally we would do some work here, like download a file.
-      // For our sample, we just sleep for 5 seconds.
-      try {
-        Thread.sleep(5000);
-      } catch (InterruptedException exception) {
-        // Restore interrupt status.
-        Thread.currentThread().interrupt();
-      }
-      // Stop the service using the startId, so that we don't stop
-      // the service in the middle of handling another job
-      //stopSelf(msg.arg1);
+
+
     }
   }
 
@@ -102,15 +93,8 @@ public final class BackgroundSensorService extends Service {
         .name(REALM_NAME)
         .encryptionKey(getSecretKey())
         .build();
+
     Realm.setDefaultConfiguration(realmConfiguration);
-    realm = Realm.getDefaultInstance();
-
-    RealmResults<Campaign> campaigns = realm.where(Campaign.class).findAll();
-
-    Log.d("SavedCampaign", "amount: " + campaigns.size());
-    if (campaigns.size() > 0) {
-      campaigns.first().log("SavedCampaign");
-    }
 
     final SensorManager sensorManager = (SensorManager) getApplicationContext().getSystemService(SENSOR_SERVICE);
 
@@ -132,7 +116,26 @@ public final class BackgroundSensorService extends Service {
 
   @Override
   public int onStartCommand(final Intent intent, final int flags, final int startId) {
+
     Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
+
+    // Check if device is subscribed to a campaign and then continue that campaign
+    Realm realm = null;
+
+    try {
+      realm = Realm.getDefaultInstance();
+
+      final Campaign campaign = realm.where(Campaign.class).findFirst();
+
+      if (campaign != null) {
+        activateCampaign(campaign);
+      }
+    } finally {
+      if (realm != null) {
+        realm.close();
+      }
+    }
+
 
     final Runnable addSnapshotRunnable = new Runnable() {
       @Override
@@ -149,13 +152,14 @@ public final class BackgroundSensorService extends Service {
         }
 
         try {
-          Snapshot snapshot = Snapshot.Create();
+
+          final Snapshot snapshot = Snapshot.Create();
 
           accelerometerSamples = accelerometerSensorProvider.retrieveSamplesForDuration(2 * 60 * 1000, 1000, 500, 500).get();
           snapshot.addSamples(SensorType.ACCELEROMETER, accelerometerSamples);
           Questionnaire questionnaire = new Questionnaire(campaign.getQuestionnaire());
 
-          for(Question question : questionnaire.getQuestions()) {
+          for (Question question : questionnaire.getQuestions()) {
             questionnaire.getNextQuestion().setAnswer(true);
           }
 
@@ -211,7 +215,6 @@ public final class BackgroundSensorService extends Service {
           try {
             final String campaignString = campaign.toJsonObject().toString();
             final int campaignIdentifer = campaign.getIdentifier();
-
 
             // Send the campaign to the server
             final AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, requestUrl, 200) {
@@ -304,7 +307,6 @@ public final class BackgroundSensorService extends Service {
 
   @Override
   public void onDestroy() {
-    realm.close();
     Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
   }
 
@@ -323,5 +325,28 @@ public final class BackgroundSensorService extends Service {
 
     return sensorProviderCount;
   }
+
+  private final HashSet<Campaign> activeCampaigns = new HashSet<>();
+
+  private void activateCampaign(final Campaign campaign)
+  {
+    serviceHandler.post(new Runnable() {
+      @Override
+      public void run() {
+
+
+
+      }
+    });
+  }
+
+  private void cancelCampaign(final Campaign campaign)
+  {
+
+
+  }
+
+
+
 
 }
