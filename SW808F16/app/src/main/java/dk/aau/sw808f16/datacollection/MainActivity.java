@@ -40,7 +40,7 @@ public class MainActivity extends Activity implements HeartRateConsentListener {
 
     CURRENT_CAMPAIGN("Current campaign") {
       @Override
-      void open(final MainActivity activity) {
+      public void open(final MainActivity activity) {
 
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
         final long currentlyActiveCampaignId = preferences.getLong(activity.getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), -1);
@@ -57,7 +57,7 @@ public class MainActivity extends Activity implements HeartRateConsentListener {
     },
     PUBLIC_CAMPAIGNS("Public Campaigns") {
       @Override
-      void open(final MainActivity activity) {
+      public void open(final MainActivity activity) {
 
         final Fragment fragment = PublicCampaignFragment.newInstance();
         activity.setContent(fragment);
@@ -65,7 +65,7 @@ public class MainActivity extends Activity implements HeartRateConsentListener {
     },
     PRIVATE_CAMPAIGNS("Private Campaigns") {
       @Override
-      void open(final MainActivity activity) {
+      public void open(final MainActivity activity) {
 
         final Fragment fragment = PrivateCampaignFragment.newInstance();
         activity.setContent(fragment);
@@ -78,7 +78,7 @@ public class MainActivity extends Activity implements HeartRateConsentListener {
       this.name = string;
     }
 
-    abstract void open(final MainActivity activity);
+    public abstract void open(final MainActivity activity);
 
     @Override
     public String toString() {

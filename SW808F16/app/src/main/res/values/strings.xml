@@ -28,6 +28,7 @@
     <string name="open">open</string>
     <string name="close">Close</string>
     <string name="CURRENTLY_CHECKED_CAMPAIGN_ID_KEY">CURRENTLY_CHECKED_CAMPAIGN_ID_KEY</string>
-    <string name="welcome_message">Welcome to DataCollection</string>
+    <string name="welcome_message">Start contributing today</string>
+    <string name="browse_campaigns">Browse Campaigns</string>
     <string name="CAMPAIGN_CONFIRMATION_FRAGMENT_KEY">CAMPAIGN_CONFIRMATION_FRAGMENT_KEY</string>
 </resources>
