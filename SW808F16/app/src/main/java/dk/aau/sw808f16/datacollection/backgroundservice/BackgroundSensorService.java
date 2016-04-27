@@ -23,10 +23,10 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,7 +37,8 @@ import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AccelerometerSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.SensorProvider;
 import dk.aau.sw808f16.datacollection.campaign.Campaign;
-import dk.aau.sw808f16.datacollection.snapshot.JsonValueAble;
+import dk.aau.sw808f16.datacollection.questionaire.models.Question;
+import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
 import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
@@ -51,6 +52,7 @@ public final class BackgroundSensorService extends Service {
   public static final String SNAPSHOT_REALM_NAME = "snapshot.realm";
   private static final String REALM_NAME = DataCollectionApplication.TAG + ".realm";
   private ServiceHandler serviceHandler;
+  private Realm realm;
 
   private final ExecutorService sensorThreadPool;
 
@@ -82,7 +84,7 @@ public final class BackgroundSensorService extends Service {
       }
       // Stop the service using the startId, so that we don't stop
       // the service in the middle of handling another job
-      stopSelf(msg.arg1);
+      //stopSelf(msg.arg1);
     }
   }
 
@@ -96,14 +98,12 @@ public final class BackgroundSensorService extends Service {
   public void onCreate() {
     super.onCreate();
 
-    // Realm configuration
     final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(BackgroundSensorService.this)
         .name(REALM_NAME)
         .encryptionKey(getSecretKey())
         .build();
     Realm.setDefaultConfiguration(realmConfiguration);
-
-    Realm realm = Realm.getDefaultInstance();
+    realm = Realm.getDefaultInstance();
 
     RealmResults<Campaign> campaigns = realm.where(Campaign.class).findAll();
 
@@ -111,8 +111,6 @@ public final class BackgroundSensorService extends Service {
     if (campaigns.size() > 0) {
       campaigns.first().log("SavedCampaign");
     }
-
-    realm.close();
 
     final SensorManager sensorManager = (SensorManager) getApplicationContext().getSystemService(SENSOR_SERVICE);
 
@@ -141,20 +139,27 @@ public final class BackgroundSensorService extends Service {
       public void run() {
         List<Sample> accelerometerSamples;
 
-        final Realm realm = Realm.getDefaultInstance();
         // Find the campaign from the database
+        Realm realm = Realm.getDefaultInstance();
         Campaign campaign = realm.where(Campaign.class).findFirst();
-        if(campaign ==  null) {
+
+        if (campaign == null) {
           realm.close();
           return;
         }
+
         try {
           Snapshot snapshot = Snapshot.Create();
 
-          accelerometerSamples = accelerometerSensorProvider.retrieveSamplesForDuration(2000, 1000, 500, 500).get();
+          accelerometerSamples = accelerometerSensorProvider.retrieveSamplesForDuration(2 * 60 * 1000, 1000, 500, 500).get();
           snapshot.addSamples(SensorType.ACCELEROMETER, accelerometerSamples);
+          Questionnaire questionnaire = new Questionnaire(campaign.getQuestionnaire());
 
+          for(Question question : questionnaire.getQuestions()) {
+            questionnaire.getNextQuestion().setAnswer(true);
+          }
 
+          snapshot.setQuestionnaire(questionnaire);
 
           realm.beginTransaction();
           // Attach the newly created snapshot so that it will also be saved
@@ -163,8 +168,8 @@ public final class BackgroundSensorService extends Service {
           realm.copyToRealmOrUpdate(campaign);
 
           realm.commitTransaction();
-
           realm.close();
+
         } catch (InterruptedException | ExecutionException exception) {
           exception.printStackTrace();
         }
@@ -178,7 +183,7 @@ public final class BackgroundSensorService extends Service {
         final Thread thread = new Thread(addSnapshotRunnable);
         thread.start();
       }
-    }, 0, 5000);
+    }, 0, 5 * 60 * 1000);
 
     // Send the campaign to the server every x minutes
     new Timer().scheduleAtFixedRate(new TimerTask() {
@@ -190,8 +195,7 @@ public final class BackgroundSensorService extends Service {
           Log.d("CampaignSyncLog", "Unable to upload without network");
           return; // Take no further actions
         }
-
-        Realm realm = Realm.getDefaultInstance();
+        final Realm realm = Realm.getDefaultInstance();
         RealmResults<Campaign> results = realm.where(Campaign.class).findAll();
 
 
@@ -206,7 +210,9 @@ public final class BackgroundSensorService extends Service {
 
           try {
             final String campaignString = campaign.toJsonObject().toString();
-            realm.close();
+            final int campaignIdentifer = campaign.getIdentifier();
+
+
             // Send the campaign to the server
             final AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, requestUrl, 200) {
               @Override
@@ -235,9 +241,9 @@ public final class BackgroundSensorService extends Service {
               @Override
               public void onResponseCodeMatching(Response<String> response) {
                 Log.d("CampaignSyncLog", "All campaigns were uploaded");
-                Realm realm = Realm.getDefaultInstance();
+                final Realm realm = Realm.getDefaultInstance();
                 realm.beginTransaction();
-                RealmResults<Campaign> campaigns = realm.where(Campaign.class).equalTo("identifier", campaign.getIdentifier()).findAll();
+                RealmResults<Campaign> campaigns = realm.where(Campaign.class).equalTo("identifier", campaignIdentifer).findAll();
 
                 Campaign campaign = campaigns.get(0);
 
@@ -265,8 +271,9 @@ public final class BackgroundSensorService extends Service {
             exception.printStackTrace();
           }
         }
+        realm.close();
       }
-    }, 0, 10 * 60 * 1000);
+    }, 0, 5 * 1000);
 
     // For each start request, send a message to start a job and deliver the
     // start ID so we know which request we're stopping when we finish the job
@@ -297,6 +304,7 @@ public final class BackgroundSensorService extends Service {
 
   @Override
   public void onDestroy() {
+    realm.close();
     Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
   }
 

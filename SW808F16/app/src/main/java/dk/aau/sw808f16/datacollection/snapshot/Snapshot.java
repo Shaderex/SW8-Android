@@ -146,6 +146,7 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
     addSampleListToJsonObject(jsonObject, "locationSamples", locationSamples);
     addSampleListToJsonObject(jsonObject, "proximitySamples", proximitySamples);
     addSampleListToJsonObject(jsonObject, "wifiSamples", wifiSamples);
+    jsonObject.put("questionnaire", getQuestionnaire().toJsonObject());
 
     return jsonObject;
   }
@@ -184,6 +185,8 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
 
     List<RealmObject> children = new ArrayList<>();
     children.add(this);
+
+    populateMapIfNull();
 
     for (List<Sample> sampleList: sensorSampleMap.values()) {
       for (Sample sample : sampleList) {
