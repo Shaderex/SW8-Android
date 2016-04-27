@@ -1,9 +1,12 @@
 package dk.aau.sw808f16.datacollection.snapshot;
 
+import android.annotation.SuppressLint;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -16,10 +19,12 @@ import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 
+@SuppressWarnings("CanBeFinal")
 public class Snapshot extends RealmObject implements JsonObjectAble {
 
   private Label label;
   private long timestamp;
+
   private RealmList<Sample> accelerometerSamples = new RealmList<>();
   private RealmList<Sample> ambientLightSamples = new RealmList<>();
   private RealmList<Sample> barometerSamples = new RealmList<>();
@@ -52,11 +57,11 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
     return label;
   }
 
-  public void setLabel(Label label) {
+  public void setLabel(final Label label) {
     this.label = label;
   }
 
-  public void addSample(SensorType sensorType, Sample sample) {
+  public void addSample(final SensorType sensorType, final Sample sample) {
     populateMapIfNull();
     if (sensorSampleMap.containsKey(sensorType)) {
       sensorSampleMap.get(sensorType).add(sample);
@@ -65,7 +70,7 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
     }
   }
 
-  public List<Sample> getSamples(SensorType sensorType) {
+  public List<Sample> getSamples(final SensorType sensorType) {
     populateMapIfNull();
     if (sensorSampleMap.containsKey(sensorType)) {
       return sensorSampleMap.get(sensorType);
@@ -74,14 +79,14 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
     }
   }
 
-  public void addSamples(SensorType sensorType, List<Sample> samples) {
+  public void addSamples(final SensorType sensorType, final List<Sample> samples) {
     for (final Sample sample : samples) {
       addSample(sensorType, sample);
     }
   }
 
   @Override
-  public boolean equals(Object object) {
+  public boolean equals(final Object object) {
 
     if (this == object) {
       return true;
@@ -145,6 +150,7 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
     addSampleListToJsonObject(jsonObject, "locationSamples", locationSamples);
     addSampleListToJsonObject(jsonObject, "proximitySamples", proximitySamples);
     addSampleListToJsonObject(jsonObject, "wifiSamples", wifiSamples);
+    jsonObject.put("questionnaire", (questionnaire != null ?  questionnaire.toJsonObject() : null));
 
     return jsonObject;
   }
@@ -177,5 +183,21 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
 
   public Questionnaire getQuestionnaire() {
     return questionnaire;
+  }
+
+  public List<RealmObject> children() {
+
+    List<RealmObject> children = new ArrayList<>();
+    children.add(this);
+
+    populateMapIfNull();
+
+    for (List<Sample> sampleList: sensorSampleMap.values()) {
+      for (Sample sample : sampleList) {
+        children.addAll(sample.children());
+      }
+    }
+
+    return children;
   }
 }

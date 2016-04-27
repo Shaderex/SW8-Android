@@ -16,29 +16,36 @@ import android.widget.Toast;
 
 import com.goebl.david.Request;
 import com.goebl.david.Response;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.iid.InstanceID;
 
 import org.json.JSONException;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
+import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AccelerometerSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.SensorProvider;
 import dk.aau.sw808f16.datacollection.campaign.Campaign;
+import dk.aau.sw808f16.datacollection.questionaire.models.Question;
+import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
 import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
 import dk.aau.sw808f16.datacollection.webutil.RequestHostResolver;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.RealmObject;
 import io.realm.RealmResults;
 
 public final class BackgroundSensorService extends Service {
@@ -60,23 +67,15 @@ public final class BackgroundSensorService extends Service {
   }
 
   private final class ServiceHandler extends Handler {
+
     public ServiceHandler(final Looper looper) {
       super(looper);
     }
 
     @Override
     public void handleMessage(final Message msg) {
-      // Normally we would do some work here, like download a file.
-      // For our sample, we just sleep for 5 seconds.
-      try {
-        Thread.sleep(5000);
-      } catch (InterruptedException exception) {
-        // Restore interrupt status.
-        Thread.currentThread().interrupt();
-      }
-      // Stop the service using the startId, so that we don't stop
-      // the service in the middle of handling another job
-      stopSelf(msg.arg1);
+
+
     }
   }
 
@@ -90,23 +89,12 @@ public final class BackgroundSensorService extends Service {
   public void onCreate() {
     super.onCreate();
 
-    // Realm configuration
     final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(BackgroundSensorService.this)
         .name(REALM_NAME)
         .encryptionKey(getSecretKey())
         .build();
+
     Realm.setDefaultConfiguration(realmConfiguration);
-
-    Realm realm = Realm.getDefaultInstance();
-
-    RealmResults<Campaign> campaigns = realm.where(Campaign.class).findAll();
-
-    Log.d("SavedCampaign", "amount: " + campaigns.size());
-    if (campaigns.size() > 0) {
-      campaigns.first().log("SavedCampaign");
-    }
-
-    realm.close();
 
     final SensorManager sensorManager = (SensorManager) getApplicationContext().getSystemService(SENSOR_SERVICE);
 
@@ -128,38 +116,67 @@ public final class BackgroundSensorService extends Service {
 
   @Override
   public int onStartCommand(final Intent intent, final int flags, final int startId) {
-    Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
+
+    Toast.makeText(this, "BackgroundSensorService was started", Toast.LENGTH_SHORT).show();
+
+    return START_STICKY;
+    /*
+
+    // Check if device is subscribed to a campaign and then continue that campaign
+    Realm realm = null;
+
+    try {
+      realm = Realm.getDefaultInstance();
+
+      final Campaign campaign = realm.where(Campaign.class).findFirst();
+
+      if (campaign != null) {
+        activateCampaign(campaign);
+      }
+    } finally {
+      if (realm != null) {
+        realm.close();
+      }
+    }
+
 
     final Runnable addSnapshotRunnable = new Runnable() {
       @Override
       public void run() {
         List<Sample> accelerometerSamples;
 
+        // Find the campaign from the database
+        Realm realm = Realm.getDefaultInstance();
+        Campaign campaign = realm.where(Campaign.class).findFirst();
+
+        if (campaign == null) {
+          realm.close();
+          return;
+        }
+
         try {
-          Snapshot snapshot = Snapshot.Create();
+
+          final Snapshot snapshot = Snapshot.Create();
 
           accelerometerSamples = accelerometerSensorProvider.retrieveSamplesForDuration(2 * 60 * 1000, 1000, 500, 500).get();
           snapshot.addSamples(SensorType.ACCELEROMETER, accelerometerSamples);
+          Questionnaire questionnaire = new Questionnaire(campaign.getQuestionnaire());
 
-          final Realm realm = Realm.getDefaultInstance();
-
-          realm.beginTransaction();
-
-          // Find the campaign from the database
-          // Todo: Acquire this campaign somewhere else!
-          Campaign campaign = realm.where(Campaign.class).equalTo("identifier", 1).findFirst();
-          if (campaign == null) {
-            campaign = new Campaign(1); // If it does not exist yet, create it
+          for (Question question : questionnaire.getQuestions()) {
+            questionnaire.getNextQuestion().setAnswer(true);
           }
 
+          snapshot.setQuestionnaire(questionnaire);
+
+          realm.beginTransaction();
           // Attach the newly created snapshot so that it will also be saved
           campaign.addSnapshot(snapshot);
 
           realm.copyToRealmOrUpdate(campaign);
 
           realm.commitTransaction();
-
           realm.close();
+
         } catch (InterruptedException | ExecutionException exception) {
           exception.printStackTrace();
         }
@@ -173,7 +190,7 @@ public final class BackgroundSensorService extends Service {
         final Thread thread = new Thread(addSnapshotRunnable);
         thread.start();
       }
-    }, 0, 5000);
+    }, 0, 5 * 60 * 1000);
 
     // Send the campaign to the server every x minutes
     new Timer().scheduleAtFixedRate(new TimerTask() {
@@ -185,14 +202,9 @@ public final class BackgroundSensorService extends Service {
           Log.d("CampaignSyncLog", "Unable to upload without network");
           return; // Take no further actions
         }
-
-        // Find all stored campaigns
-        final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(BackgroundSensorService.this)
-            .name(BackgroundSensorService.SNAPSHOT_REALM_NAME)
-            .encryptionKey(getSecretKey())
-            .build();
-        final Realm realm = Realm.getInstance(realmConfiguration);
+        final Realm realm = Realm.getDefaultInstance();
         RealmResults<Campaign> results = realm.where(Campaign.class).findAll();
+
 
         if (results.size() == 0) {
           Log.d("CampaignSyncLog", "There are no campaigns to be uploaded");
@@ -203,58 +215,71 @@ public final class BackgroundSensorService extends Service {
           final String requestUrl = RequestHostResolver.resolveHostForRequest(BackgroundSensorService.this,
               "/campaigns/" + campaign.getIdentifier() + "/snapshots");
 
-          final CountDownLatch requestHandled = new CountDownLatch(1);
-          final CountDownLatch requestSuccessful = new CountDownLatch(1);
-
           try {
             final String campaignString = campaign.toJsonObject().toString();
+            final int campaignIdentifer = campaign.getIdentifier();
 
             // Send the campaign to the server
             final AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, requestUrl, 200) {
               @Override
               protected Response<String> sendRequest(Request webb) {
-                final Response<String> jsonString = webb.param("snapshots", campaignString).asString();
-                Log.d("Service-status", campaignString);
-                return jsonString;
+                Context context = BackgroundSensorService.this;
+                try {
+                  final InstanceID instanceId = InstanceID.getInstance(context);
+                  final String token = instanceId.getToken(
+                      context.getString(R.string.defaultSenderID),
+                      GoogleCloudMessaging.INSTANCE_ID_SCOPE,
+                      null
+                  );
+                  final Response<String> jsonString =
+                      webb.param("snapshots", campaignString)
+                          .param("device_id", token)
+                          .asString();
+
+                  Log.d("Service-status", campaignString);
+                  return jsonString;
+                } catch (IOException e) {
+                  e.printStackTrace();
+                  return null;
+                }
               }
 
               @Override
               public void onResponseCodeMatching(Response<String> response) {
                 Log.d("CampaignSyncLog", "All campaigns were uploaded");
-                requestSuccessful.countDown();
-                requestHandled.countDown();
+                final Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
+                RealmResults<Campaign> campaigns = realm.where(Campaign.class).equalTo("identifier", campaignIdentifer).findAll();
+
+                Campaign campaign = campaigns.get(0);
+
+                for (Snapshot snapshot : campaign.getSnapshots()) {
+                  for (RealmObject obj : snapshot.children()) {
+                    obj.removeFromRealm();
+                  }
+                }
+
+                realm.commitTransaction();
+                realm.close();
               }
 
               @Override
               public void onResponseCodeNotMatching(Response<String> response) {
-                requestHandled.countDown();
               }
 
               @Override
               public void onConnectionFailure() {
-                requestHandled.countDown();
               }
             };
             task.execute();
 
-            // Wait until the request is done
-            requestHandled.await();
-
-            // Check if the request is successful
-            if (requestSuccessful.getCount() == 0) {
-              // Remove the campaign that was successfully uploaded
-              realm.beginTransaction();
-              campaign.removeFromRealm();
-              realm.commitTransaction();
-            }
-          } catch (JSONException | InterruptedException exception) {
+          } catch (JSONException exception) {
             exception.printStackTrace();
           }
         }
-
         realm.close();
       }
-    }, 0, 10 * 60 * 1000);
+    }, 0, 5 * 1000);
 
     // For each start request, send a message to start a job and deliver the
     // start ID so we know which request we're stopping when we finish the job
@@ -264,6 +289,7 @@ public final class BackgroundSensorService extends Service {
 
     // If we get killed, after returning from here, restart
     return START_STICKY;
+    */
   }
 
   private byte[] getSecretKey() {
@@ -303,5 +329,28 @@ public final class BackgroundSensorService extends Service {
 
     return sensorProviderCount;
   }
+
+  private final HashSet<Campaign> activeCampaigns = new HashSet<>();
+
+  private void activateCampaign(final Campaign campaign)
+  {
+    serviceHandler.post(new Runnable() {
+      @Override
+      public void run() {
+
+
+
+      }
+    });
+  }
+
+  private void cancelCampaign(final Campaign campaign)
+  {
+
+
+  }
+
+
+
 
 }

@@ -1,16 +1,17 @@
 package dk.aau.sw808f16.datacollection.fragment;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.Toast;
 
 import com.goebl.david.Response;
 
@@ -18,16 +19,15 @@ import org.json.JSONObject;
 
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.campaign.AsyncHttpCampaignJoinTask;
-import dk.aau.sw808f16.datacollection.campaign.Campaign;
 
-public class PrivateCampaignConfirmationFragment extends Fragment {
+public class CampaignConfirmationFragment extends Fragment {
 
   private static final String CAMPAIGN_ID_TAG = "CAMPAIGN_ID_TAG";
   private static final String CAMPAIGN_SPECIFICATION_FRAGMENT_KEY = "CAMPAIGN_SPECIFICATION_FRAGMENT_KEY";
 
-  public static PrivateCampaignConfirmationFragment newInstance(final long campaignId) {
+  public static CampaignConfirmationFragment newInstance(final long campaignId) {
 
-    final PrivateCampaignConfirmationFragment newFragment = new PrivateCampaignConfirmationFragment();
+    final CampaignConfirmationFragment newFragment = new CampaignConfirmationFragment();
 
     final Bundle args = new Bundle();
     args.putLong(CAMPAIGN_ID_TAG, campaignId);
@@ -62,13 +62,25 @@ public class PrivateCampaignConfirmationFragment extends Fragment {
         .addToBackStack(CAMPAIGN_SPECIFICATION_FRAGMENT_KEY)
         .commit();
 
-    final Button submitBtn = (Button) view.findViewById(R.id.private_campaign_join_button);
+    final Button joinBtn = (Button) view.findViewById(R.id.private_campaign_join_button);
 
-    submitBtn.setOnClickListener(new View.OnClickListener() {
+    joinBtn.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(final View view) {
 
-        final AsyncHttpCampaignJoinTask joinCampaignTask = new AsyncHttpCampaignJoinTask(getActivity(), campaignId);
+        final Context context = getActivity();
+
+        final AsyncHttpCampaignJoinTask joinCampaignTask = new AsyncHttpCampaignJoinTask(context, campaignId) {
+          @Override
+          public void onResponseCodeMatching(final Response<JSONObject> response) {
+            super.onResponseCodeMatching(response);
+
+            final SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+            editor.putLong(context.getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), campaignId);
+            editor.apply();
+          }
+        };
+
         joinCampaignTask.execute();
 
         getFragmentManager().popBackStackImmediate();

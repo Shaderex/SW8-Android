@@ -19,11 +19,16 @@ public class ConfirmSaveSelectionFragment extends DialogFragment {
     builder.setMessage(R.string.confirm_save_selection)
         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
           public void onClick(final DialogInterface dialog, final int id) {
+
+            dismiss();
+
             ((SaveConfirmedCampaign) getParentFragment()).onConfirmedCampaignSave();
           }
         })
         .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
           public void onClick(final DialogInterface dialog, final int id) {
+
+            dismiss();
           }
         });
     // Create the AlertDialog object and return it

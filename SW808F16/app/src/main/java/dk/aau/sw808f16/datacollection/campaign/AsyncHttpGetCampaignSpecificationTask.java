@@ -6,10 +6,10 @@ import android.util.Log;
 import com.goebl.david.Request;
 import com.goebl.david.Response;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.HttpURLConnection;
-import org.json.JSONException;
 
 import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
 import dk.aau.sw808f16.datacollection.webutil.RequestHostResolver;
@@ -18,7 +18,8 @@ public abstract class AsyncHttpGetCampaignSpecificationTask extends AsyncHttpWeb
 
   public AsyncHttpGetCampaignSpecificationTask(final Context context, final long campaignId) {
 
-    super(AsyncHttpWebbTask.Method.GET, RequestHostResolver.resolveHostForRequest(context, "/campaigns/" + campaignId), HttpURLConnection.HTTP_OK);
+    super(AsyncHttpWebbTask.Method.GET,
+        RequestHostResolver.resolveHostForRequest(context, "/campaigns/" + campaignId), HttpURLConnection.HTTP_OK);
   }
 
   @Override
@@ -32,8 +33,8 @@ public abstract class AsyncHttpGetCampaignSpecificationTask extends AsyncHttpWeb
       final Campaign campaign = new Campaign(response.getBody());
       campaign.log("CampaignSpecification");
 
-    } catch (JSONException e) {
-      e.printStackTrace();
+    } catch (JSONException exception) {
+      exception.printStackTrace();
     }
   }
 
