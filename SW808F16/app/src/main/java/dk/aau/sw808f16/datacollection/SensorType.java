@@ -10,7 +10,11 @@ public enum SensorType {
   GYROSCOPE(5),
   LOCATION(6),
   PROXIMITY(7),
-  WIFI(8);
+  WIFI(8),
+  WRIST_ACCELEROMETER(9),
+  GALVANIC_SKIN(10),
+  UV(11),
+  HEARTBEAT(12);
 
   private final int identifier;
 

@@ -10,6 +10,7 @@ import android.os.HandlerThread;
 
 import java.util.concurrent.ExecutorService;
 
+import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.LocationMeasurement;
 
 public class LocationSensorProvider extends SensorProvider<LocationMeasurement> {
@@ -78,5 +79,10 @@ public class LocationSensorProvider extends SensorProvider<LocationMeasurement> 
     }
 
     return gpsEnabled;
+  }
+
+  @Override
+  public SensorType getSensorType() {
+    return SensorType.LOCATION;
   }
 }

@@ -9,6 +9,7 @@ import android.hardware.SensorManager;
 
 import java.util.concurrent.ExecutorService;
 
+import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
 
 public class GyroscopeSensorProvider extends SensorProvider<FloatTripleMeasurement> {
@@ -37,5 +38,10 @@ public class GyroscopeSensorProvider extends SensorProvider<FloatTripleMeasureme
   @Override
   public boolean isSensorAvailable() {
     return contextWeakReference.get().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_GYROSCOPE);
+  }
+
+  @Override
+  public SensorType getSensorType() {
+    return SensorType.GYROSCOPE;
   }
 }

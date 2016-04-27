@@ -14,6 +14,7 @@ import android.os.HandlerThread;
 
 import java.util.concurrent.ExecutorService;
 
+import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.WifiMeasurement;
 
 public class WifiSensorProvider extends SensorProvider<WifiMeasurement> {
@@ -80,5 +81,10 @@ public class WifiSensorProvider extends SensorProvider<WifiMeasurement> {
   @Override
   public boolean isSensorAvailable() {
     return ((WifiManager) contextWeakReference.get().getSystemService(Context.WIFI_SERVICE)).getWifiState() == WifiManager.WIFI_STATE_ENABLED;
+  }
+
+  @Override
+  public SensorType getSensorType() {
+    return SensorType.WIFI;
   }
 }

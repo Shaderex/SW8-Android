@@ -215,20 +215,22 @@ public class Campaign extends RealmObject implements JsonObjectAble {
         for (String sensorTypeString : sensorTypeStrings) {
           this.sensors.add(SensorType.getSensorTypeById(Integer.parseInt(sensorTypeString)));
         }
+
       }
     }
     return sensors;
   }
 
   public void setSensors(List<SensorType> sensors) {
-    this.sensorString = "";
+    String sensorString = "";
 
-    for (int i = 0; i < sensors.size() - 1; i++) {
-      this.sensorString += sensors.get(i).getIdentifier() + ",";
+    if (!sensors.isEmpty()) {
+      for (int i = 0; i < sensors.size() - 1; i++) {
+        sensorString += sensors.get(i).getIdentifier() + ",";
+      }
+      sensorString += sensors.get(sensors.size() - 1).getIdentifier();
     }
-
-    this.sensorString += sensors.get(sensors.size() - 1).getIdentifier();
-
+    this.sensorString = sensorString;
     this.sensors = sensors;
   }
 

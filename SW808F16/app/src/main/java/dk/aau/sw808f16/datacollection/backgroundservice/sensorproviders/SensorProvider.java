@@ -18,6 +18,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
 public abstract class SensorProvider<MeasurementType> {
@@ -160,6 +161,8 @@ public abstract class SensorProvider<MeasurementType> {
   }
 
   public abstract boolean isSensorAvailable();
+
+  public abstract SensorType getSensorType();
 
   interface EventListenerRegistrationManager {
     void register(final int frequency);

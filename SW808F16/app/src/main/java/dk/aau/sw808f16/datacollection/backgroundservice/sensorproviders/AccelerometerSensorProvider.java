@@ -9,6 +9,7 @@ import android.hardware.SensorManager;
 
 import java.util.concurrent.ExecutorService;
 
+import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
 
 public class AccelerometerSensorProvider extends SensorProvider<FloatTripleMeasurement> {
@@ -36,5 +37,10 @@ public class AccelerometerSensorProvider extends SensorProvider<FloatTripleMeasu
   @Override
   public boolean isSensorAvailable() {
     return contextWeakReference.get().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_ACCELEROMETER);
+  }
+
+  @Override
+  public SensorType getSensorType() {
+    return SensorType.ACCELEROMETER;
   }
 }

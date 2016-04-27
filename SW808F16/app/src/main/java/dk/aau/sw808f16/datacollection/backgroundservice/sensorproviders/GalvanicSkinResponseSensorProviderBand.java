@@ -12,11 +12,17 @@ import com.microsoft.band.sensors.GsrSampleRate;
 
 import java.util.concurrent.ExecutorService;
 
+import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.IntegerMeasurement;
 
 public class GalvanicSkinResponseSensorProviderBand extends SensorProviderBand<IntegerMeasurement> {
   public GalvanicSkinResponseSensorProviderBand(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
+  }
+
+  @Override
+  public SensorType getSensorType() {
+    return SensorType.GALVANIC_SKIN;
   }
 
   @Override

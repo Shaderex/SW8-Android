@@ -11,6 +11,7 @@ import android.os.HandlerThread;
 
 import java.util.concurrent.ExecutorService;
 
+import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 
 public class CompassSensorProvider extends SensorProvider<FloatMeasurement> {
@@ -173,6 +174,11 @@ public class CompassSensorProvider extends SensorProvider<FloatMeasurement> {
   @Override
   public boolean isSensorAvailable() {
     return contextWeakReference.get().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_COMPASS);
+  }
+
+  @Override
+  public SensorType getSensorType() {
+    return SensorType.COMPASS;
   }
 
   private static float sensorDataToOrientation(final float[] sensorData) {
