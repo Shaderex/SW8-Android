@@ -94,8 +94,7 @@
                 <ListView
                     android:id="@+id/fragment_campaign_specification_listing"
                     android:layout_width="match_parent"
-                    android:layout_weight="10"
-                    android:layout_height="0dp"
+                    android:layout_height="200dp"
                     tools:listitem="@layout/fragment_campaign_specification_question_item" />
 
 

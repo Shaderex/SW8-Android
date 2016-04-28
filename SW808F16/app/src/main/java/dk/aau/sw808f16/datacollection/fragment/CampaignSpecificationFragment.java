@@ -3,6 +3,7 @@ package dk.aau.sw808f16.datacollection.fragment;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.widget.ContentLoadingProgressBar;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -208,17 +209,14 @@ public class CampaignSpecificationFragment extends Fragment {
             final ListView lv = (ListView) parent.findViewById(R.id.fragment_campaign_specification_listing);
 
             List<String> questions = new ArrayList<>();
-            questions.add("Adder badder");
             for (Question question : campaign.getQuestionnaire().getQuestions()) {
                 questions.add(question.getQuestion());
             }
-            // This is the array adapter, it takes the context of the activity as a
-            // first parameter, the type of list view as a second parameter and your
-            // array as a third parameter.
             ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(parent.getContext(), R.layout.fragment_campaign_specification_question_item, questions);
 
             lv.setAdapter(arrayAdapter);
 
+            // TODO Set the height of the listview smart here (or use another layout, its set as 200dp fixed in the xml file atm)
 
         } catch (JSONException e) {
             e.printStackTrace();
