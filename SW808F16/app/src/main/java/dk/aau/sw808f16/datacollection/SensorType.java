@@ -9,8 +9,12 @@ public enum SensorType {
   COMPASS(4, "Compass", SensorCategory.LOCATION),
   GYROSCOPE(5, "Gyroscope", SensorCategory.MOVEMENT),
   LOCATION(6, "GPS", SensorCategory.LOCATION),
-  PROXIMITY(7, "PROXIMITY", SensorCategory.MISC),
-  WIFI(8, "Wi-Fi", SensorCategory.LOCATION);
+  PROXIMITY(7, "Proximity", SensorCategory.MISC),
+  WIFI(8, "Wi-Fi", SensorCategory.LOCATION),
+  WRIST_ACCELEROMETER(9, "Wrist Accelerometer", SensorCategory.MOVEMENT),
+  GALVANIC_SKIN(10, "Galvanic Skin Response", SensorCategory.PERSONAL_INFORMATION),
+  UV(11, "UV Lightning", SensorCategory.MISC),
+  HEARTBEAT(12, "Heart Rate", SensorCategory.PERSONAL_INFORMATION);
 
   public enum SensorCategory {
     LOCATION,

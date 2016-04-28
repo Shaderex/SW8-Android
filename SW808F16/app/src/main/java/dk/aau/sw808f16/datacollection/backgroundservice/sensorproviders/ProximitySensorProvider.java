@@ -10,6 +10,7 @@ import android.hardware.SensorManager;
 import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 
+import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 
 public class ProximitySensorProvider extends SensorProvider<FloatMeasurement> {
@@ -38,5 +39,10 @@ public class ProximitySensorProvider extends SensorProvider<FloatMeasurement> {
   @Override
   public boolean isSensorAvailable() {
     return contextWeakReference.get().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_PROXIMITY);
+  }
+
+  @Override
+  public SensorType getSensorType() {
+    return SensorType.PROXIMITY;
   }
 }

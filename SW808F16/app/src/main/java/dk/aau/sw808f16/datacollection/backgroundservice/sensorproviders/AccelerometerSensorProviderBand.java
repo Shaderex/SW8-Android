@@ -11,11 +11,17 @@ import com.microsoft.band.sensors.SampleRate;
 
 import java.util.concurrent.ExecutorService;
 
+import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
 
 public class AccelerometerSensorProviderBand extends SensorProviderBand<FloatTripleMeasurement> {
   public AccelerometerSensorProviderBand(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
+  }
+
+  @Override
+  public SensorType getSensorType() {
+    return SensorType.WRIST_ACCELEROMETER;
   }
 
   @Override

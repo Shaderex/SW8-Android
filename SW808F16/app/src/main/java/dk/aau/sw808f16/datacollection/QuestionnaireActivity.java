@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 import dk.aau.sw808f16.datacollection.questionaire.models.Question;
 import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
+import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
+import io.realm.Realm;
 
 public class QuestionnaireActivity extends Activity {
 
@@ -70,7 +72,28 @@ public class QuestionnaireActivity extends Activity {
 
       setResult(Activity.RESULT_OK, resultIntent);
 
+      Realm realm = Realm.getDefaultInstance();
+
+      Snapshot snapshot = realm.where(Snapshot.class).findFirst();
+      if (snapshot != null) {
+
+        realm.beginTransaction();
+        questionnaire = realm.copyToRealm(questionnaire);
+        realm.commitTransaction();
+
+
+        realm.beginTransaction();
+
+
+        snapshot.setQuestionnaire(questionnaire);
+        realm.copyToRealmOrUpdate(snapshot);
+        realm.commitTransaction();
+      }
+
+      realm.close();
+
       finishActivity(Activity.RESULT_OK);
+
       finish();
     }
   }

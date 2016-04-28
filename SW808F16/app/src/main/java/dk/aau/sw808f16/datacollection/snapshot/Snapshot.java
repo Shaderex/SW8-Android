@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -17,11 +18,13 @@ import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
+import io.realm.annotations.PrimaryKey;
 
 @SuppressWarnings("CanBeFinal")
 public class Snapshot extends RealmObject implements JsonObjectAble {
 
   private Label label;
+  @PrimaryKey
   private long timestamp;
 
   private RealmList<Sample> accelerometerSamples = new RealmList<>();
@@ -34,9 +37,11 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
   private RealmList<Sample> proximitySamples = new RealmList<>();
   private RealmList<Sample> wifiSamples = new RealmList<>();
 
+  private Questionnaire questionnaire;
+
   @Ignore
   private Map<SensorType, RealmList<Sample>> sensorSampleMap = null;
-  private Questionnaire questionnaire;
+
 
   @SuppressWarnings("deprecation")
   public static Snapshot Create() {
@@ -149,6 +154,7 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
     addSampleListToJsonObject(jsonObject, "locationSamples", locationSamples);
     addSampleListToJsonObject(jsonObject, "proximitySamples", proximitySamples);
     addSampleListToJsonObject(jsonObject, "wifiSamples", wifiSamples);
+    jsonObject.put("questionnaire", (questionnaire != null ?  questionnaire.toJsonObject() : null));
 
     return jsonObject;
   }
@@ -176,10 +182,26 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
   }
 
   public void setQuestionnaire(final Questionnaire questionnaire) {
-    this.questionnaire = new Questionnaire(questionnaire);
+    this.questionnaire = questionnaire;
   }
 
   public Questionnaire getQuestionnaire() {
     return questionnaire;
+  }
+
+  public List<RealmObject> children() {
+
+    List<RealmObject> children = new ArrayList<>();
+    children.add(this);
+
+    populateMapIfNull();
+
+    for (List<Sample> sampleList: sensorSampleMap.values()) {
+      for (Sample sample : sampleList) {
+        children.addAll(sample.children());
+      }
+    }
+
+    return children;
   }
 }

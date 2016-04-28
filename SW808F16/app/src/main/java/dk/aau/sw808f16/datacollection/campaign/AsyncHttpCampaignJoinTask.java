@@ -67,14 +67,17 @@ public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
     if (context != null) {
       try {
         Campaign campaign = new Campaign(response.getBody());
+
         Realm realm = Realm.getDefaultInstance();
-
         realm.beginTransaction();
-
         RealmResults<Campaign> results = realm.where(Campaign.class).findAll();
         results.clear();
         realm.copyToRealm(campaign);
         realm.commitTransaction();
+
+        // Manual testing logging
+        campaign.log("SavedCampaign");
+
         realm.close();
 
         Toast.makeText(context, R.string.campaign_joined_message, Toast.LENGTH_SHORT).show();

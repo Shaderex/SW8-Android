@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import dk.aau.sw808f16.datacollection.snapshot.JsonValueAble;
@@ -72,5 +73,15 @@ public class WifiMeasurement extends RealmObject implements JsonValueAble {
     jsonObject.put("scanResultMeasurements", scanResultMeasurementsJsonArray);
 
     return jsonObject.toString();
+  }
+
+  public List<RealmObject> children() {
+    List<RealmObject> children = new ArrayList<>();
+
+    children.add(this);
+
+    children.addAll(scanResultMeasurements);
+
+    return children;
   }
 }

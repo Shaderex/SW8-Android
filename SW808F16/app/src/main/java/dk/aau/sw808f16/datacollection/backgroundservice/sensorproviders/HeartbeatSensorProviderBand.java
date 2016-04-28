@@ -10,11 +10,17 @@ import com.microsoft.band.sensors.BandHeartRateEventListener;
 
 import java.util.concurrent.ExecutorService;
 
+import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.HeartRateMeasurement;
 
 public class HeartbeatSensorProviderBand extends SensorProviderBand<HeartRateMeasurement> {
   public HeartbeatSensorProviderBand(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
+  }
+
+  @Override
+  public SensorType getSensorType() {
+    return SensorType.HEARTBEAT;
   }
 
   @Override

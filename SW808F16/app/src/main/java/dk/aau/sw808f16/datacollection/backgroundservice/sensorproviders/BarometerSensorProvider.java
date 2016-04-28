@@ -9,6 +9,7 @@ import android.hardware.SensorManager;
 
 import java.util.concurrent.ExecutorService;
 
+import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 
 public class BarometerSensorProvider extends SensorProvider<FloatMeasurement> {
@@ -38,5 +39,10 @@ public class BarometerSensorProvider extends SensorProvider<FloatMeasurement> {
   @Override
   public boolean isSensorAvailable() {
     return contextWeakReference.get().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_BAROMETER);
+  }
+
+  @Override
+  public SensorType getSensorType() {
+    return SensorType.BAROMETER;
   }
 }

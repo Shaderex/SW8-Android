@@ -115,6 +115,7 @@ public class CampaignSpecificationFragment extends Fragment {
       final AsyncHttpGetCampaignSpecificationTask task = new AsyncHttpGetCampaignSpecificationTask(getActivity(), campaignId) {
         @Override
         public void onResponseCodeMatching(Response<JSONObject> response) {
+          super.onResponseCodeMatching(response);
           view.setVisibility(View.VISIBLE);
           updateCampaignSpecification(view, response.getBody());
           activityIndicator.hide();
