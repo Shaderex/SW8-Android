@@ -54,7 +54,7 @@ public class PrivateCampaignFragment extends Fragment {
 
             final FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
-                .replace(R.id.content_frame_layout, CampaignConfirmationFragment.newInstance(enteredCampaignId),
+                .replace(R.id.content_frame_layout, CampaignJoinFragment.newInstance(enteredCampaignId),
                     getString(R.string.CAMPAIGN_CONFIRMATION_FRAGMENT_KEY))
                 .addToBackStack(getString(R.string.CAMPAIGN_CONFIRMATION_FRAGMENT_KEY))
                 .commit();

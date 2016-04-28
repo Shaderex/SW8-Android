@@ -1,35 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
     <LinearLayout
-        android:id="@+id/confirm_button_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="10dp">
-
-        <Button
-            android:id="@+id/confirm_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/continue_message"/>
-    </LinearLayout>
-
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swipe_refresh_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/confirm_button_container"
-        android:layout_alignParentTop="true">
+        android:orientation="vertical">
 
-        <ListView
-            android:id="@+id/campaigns_list_view"
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_refresh_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-    </android.support.v4.widget.SwipeRefreshLayout>
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false">
+
+            <ListView
+                android:id="@+id/campaigns_list_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                tools:listitem="@layout/fragment_public_campaign_element"/>
+
+        </android.support.v4.widget.SwipeRefreshLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/light_blue_dark" />
+
+        <LinearLayout
+            android:id="@+id/confirm_button_container"
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/listPreferredItemHeight"
+            android:background="@color/light_blue"
+            android:clickable="true"
+            android:padding="@dimen/abc_control_padding_material">
+
+            <include
+                layout="@layout/fragment_public_campaign_element"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/empty_no_data"

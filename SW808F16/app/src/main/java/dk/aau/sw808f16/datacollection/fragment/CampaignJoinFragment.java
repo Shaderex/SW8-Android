@@ -1,6 +1,5 @@
 package dk.aau.sw808f16.datacollection.fragment;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
@@ -20,14 +19,14 @@ import org.json.JSONObject;
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.campaign.AsyncHttpCampaignJoinTask;
 
-public class CampaignConfirmationFragment extends Fragment {
+public class CampaignJoinFragment extends Fragment {
 
   private static final String CAMPAIGN_ID_TAG = "CAMPAIGN_ID_TAG";
   private static final String CAMPAIGN_SPECIFICATION_FRAGMENT_KEY = "CAMPAIGN_SPECIFICATION_FRAGMENT_KEY";
 
-  public static CampaignConfirmationFragment newInstance(final long campaignId) {
+  public static CampaignJoinFragment newInstance(final long campaignId) {
 
-    final CampaignConfirmationFragment newFragment = new CampaignConfirmationFragment();
+    final CampaignJoinFragment newFragment = new CampaignJoinFragment();
 
     final Bundle args = new Bundle();
     args.putLong(CAMPAIGN_ID_TAG, campaignId);

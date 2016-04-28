@@ -12,13 +12,10 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.goebl.david.Request;
 import com.goebl.david.Response;
@@ -36,23 +33,14 @@ import dk.aau.sw808f16.datacollection.webutil.RequestHostResolver;
 public class PublicCampaignFragment extends Fragment
     implements ConfirmSaveSelectionFragment.SaveConfirmedCampaign, SwipeRefreshLayout.OnRefreshListener {
 
-  private static final String CONFIRM_SAVE_SELECTION_FRAGMENT = "confirmSaveSelectionFragment";
-  private static final String CAMPAIGN_SPECIFICATION_FRAGMENT_KEY = "CAMPAIGN_SPECIFICATION_FRAGMENT_KEY";
+  private static final String JOIN_CAMPAIGN_FRAGMENT_KEY = "JOIN_CAMPAIGN_FRAGMENT_KEY";
+  private static final String PRIVATE_CAMPAIGN_FRAGMENT_KEY = "PRIVATE_CAMPAIGN_FRAGMENT_KEY";
 
   private long currentlyMarkedCampaign;
   private AsyncHttpWebbTask<JSONArray> currentGetCampaignsTask;
 
   public static PublicCampaignFragment newInstance() {
-
-    final PublicCampaignFragment newFragment = new PublicCampaignFragment();
-
-    /*
-        Bundle args = new Bundle();
-        args.putInt(DRAWABLE_RESOURCE_ID_TAG, drawableResourcesId);
-        newFragment.setArguments(args);
-    */
-
-    return newFragment;
+    return new PublicCampaignFragment();
   }
 
   @Override
@@ -80,18 +68,35 @@ public class PublicCampaignFragment extends Fragment
 
   @Override
   public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
-
     final View view = inflater.inflate(R.layout.fragment_public_campaign, container, false);
 
     final SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_container);
     swipeRefreshLayout.setOnRefreshListener(this);
 
-    final Button continueButton = (Button) view.findViewById(R.id.confirm_button);
+    final LinearLayout continueButton = (LinearLayout) view.findViewById(R.id.confirm_button_container).findViewById(R.id.campaign_text_container);
+
+    final TextView campaignIdTextView = (TextView) continueButton.findViewById(R.id.campaign_id_text_view);
+    campaignIdTextView.setText("Know what you're doing?");
+    campaignIdTextView.setTextColor(getResources().getColor(R.color.white));
+
+    final TextView campaignTitleTextView = (TextView) continueButton.findViewById(R.id.campaign_by_line);
+    campaignTitleTextView.setText("Join a specific campaign by clicking here");
+    campaignTitleTextView.setTextColor(getResources().getColor(R.color.white));
+
+    final ImageButton infoButton = (ImageButton) continueButton.findViewById(R.id.info_button);
+    infoButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_keyboard_arrow_right_white_48dp));
+
     continueButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(final View view) {
 
-        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        final PrivateCampaignFragment fragment = PrivateCampaignFragment.newInstance();
+        getFragmentManager().beginTransaction()
+            .replace(R.id.content_frame_layout, fragment, PRIVATE_CAMPAIGN_FRAGMENT_KEY)
+            .addToBackStack(PRIVATE_CAMPAIGN_FRAGMENT_KEY)
+            .commit();
+
+        /*final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         // Spawn dialog if there is already a marked campaign
         if (currentlyMarkedCampaign == -1 && preferences.getLong(getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), -1L) == -1L) {
@@ -110,6 +115,7 @@ public class PublicCampaignFragment extends Fragment
         } else {
           onConfirmedCampaignSave();
         }
+        */
 
       }
     });
@@ -119,11 +125,9 @@ public class PublicCampaignFragment extends Fragment
 
   @Override
   public void onConfirmedCampaignSave() {
-
-
     final FragmentManager fragmentManager = getFragmentManager();
     fragmentManager.beginTransaction()
-        .replace(R.id.content_frame_layout, CampaignConfirmationFragment.newInstance(currentlyMarkedCampaign),
+        .replace(R.id.content_frame_layout, CampaignJoinFragment.newInstance(currentlyMarkedCampaign),
             getString(R.string.CAMPAIGN_CONFIRMATION_FRAGMENT_KEY))
         .addToBackStack(getString(R.string.CAMPAIGN_CONFIRMATION_FRAGMENT_KEY))
         .commit();
@@ -131,7 +135,6 @@ public class PublicCampaignFragment extends Fragment
 
   @Override
   public void onRefresh() {
-
     final SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) getView().findViewById(R.id.swipe_refresh_container);
 
     if (currentGetCampaignsTask != null) {
@@ -159,7 +162,6 @@ public class PublicCampaignFragment extends Fragment
 
       @Override
       public void onResponseCodeMatching(final Response<JSONArray> response) {
-
         final JSONArray data = response.getBody();
         final ListView listView = (ListView) getView().findViewById(R.id.campaigns_list_view);
 
@@ -167,41 +169,45 @@ public class PublicCampaignFragment extends Fragment
           listView.getEmptyView().setVisibility(View.GONE);
         }
 
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        currentlyMarkedCampaign = preferences.getLong(getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), -1);
+
         listView.setEmptyView(getView().findViewById(R.id.empty_no_data));
 
         listView.setAdapter(adapter);
         adapter.setData(data);
+
         refreshLayout.setRefreshing(false);
       }
 
       @Override
       public void onResponseCodeNotMatching(final Response<JSONArray> response) {
-
         final ListView listView = (ListView) getView().findViewById(R.id.campaigns_list_view);
 
         if (listView.getEmptyView() != null) {
           listView.getEmptyView().setVisibility(View.GONE);
         }
+
+        currentGetCampaignsTask = null;
 
         listView.setEmptyView(getView().findViewById(R.id.empty_unexpected_response));
         listView.setAdapter(adapter);
         refreshLayout.setRefreshing(false);
-        currentGetCampaignsTask = null;
       }
 
       @Override
       public void onConnectionFailure() {
-
         final ListView listView = (ListView) getView().findViewById(R.id.campaigns_list_view);
 
         if (listView.getEmptyView() != null) {
           listView.getEmptyView().setVisibility(View.GONE);
         }
 
+        currentGetCampaignsTask = null;
+
         listView.setEmptyView(getView().findViewById(R.id.empty_no_connection));
         listView.setAdapter(adapter);
         refreshLayout.setRefreshing(false);
-        currentGetCampaignsTask = null;
       }
     };
 
@@ -209,10 +215,7 @@ public class PublicCampaignFragment extends Fragment
   }
 
   public class JsonCampaignsAdapter extends BaseAdapter {
-
     public JSONArray data;
-
-    private CheckBox lastMarkedCheckBox;
 
     JsonCampaignsAdapter() {
     }
@@ -256,91 +259,50 @@ public class PublicCampaignFragment extends Fragment
 
     class ViewHolder {
       TextView idTextView;
-      TextView titleTextView;
+      TextView byLineTextView;
       LinearLayout campaignTextContainer;
-      CheckBox campaignCheckBox;
       ImageButton infoButton;
     }
 
     @Override
     public View getView(final int position, View convertView, final ViewGroup parent) {
-
       final JSONObject campaignObject = (JSONObject) getItem(position);
 
       final ViewHolder holder;
 
-      if (convertView == null) {
-
-        convertView = getActivity().getLayoutInflater().inflate(R.layout.fragment_public_campaign_element, null);
-
-        holder = new ViewHolder();
-
-        holder.idTextView = (TextView) convertView.findViewById(R.id.campaign_id_text_view);
-        holder.titleTextView = (TextView) convertView.findViewById(R.id.campaign_title_text_view);
-        holder.campaignCheckBox = (CheckBox) convertView.findViewById(R.id.campaign_check_box);
-        holder.campaignTextContainer = (LinearLayout) convertView.findViewById(R.id.campaign_text_container);
-        holder.infoButton = (ImageButton) convertView.findViewById(R.id.info_button);
-
-        convertView.setTag(holder);
-      } else {
-        holder = (ViewHolder) convertView.getTag();
-      }
-
       try {
-        holder.idTextView.setText("" + campaignObject.getLong("id"));
-        holder.titleTextView.setText(campaignObject.getString("name"));
+        if (convertView == null) {
+          convertView = getActivity().getLayoutInflater().inflate(R.layout.fragment_public_campaign_element, null);
 
-        if (currentlyMarkedCampaign == campaignObject.getLong("id")) {
-          holder.campaignCheckBox.setChecked(true);
-          lastMarkedCheckBox = holder.campaignCheckBox;
+          holder = new ViewHolder();
+          holder.idTextView = (TextView) convertView.findViewById(R.id.campaign_id_text_view);
+          holder.byLineTextView = (TextView) convertView.findViewById(R.id.campaign_by_line);
+          holder.campaignTextContainer = (LinearLayout) convertView.findViewById(R.id.campaign_text_container);
+          holder.infoButton = (ImageButton) convertView.findViewById(R.id.info_button);
+
+          convertView.setTag(holder);
         } else {
-          holder.campaignCheckBox.setChecked(false);
+          holder = (ViewHolder) convertView.getTag();
         }
 
-        final View.OnClickListener markCheckBoxListener = new View.OnClickListener() {
-          @Override
-          public void onClick(final View clickedView) {
+        // Mark the view if the campaign is joined
+        if (currentlyMarkedCampaign == campaignObject.getInt("id")) {
+          holder.campaignTextContainer.setBackgroundColor(getResources().getColor(R.color.light_blue_light));
+        } else {
+          holder.campaignTextContainer.setBackgroundColor(getResources().getColor(R.color.white));
+        }
 
-            final CheckBox checkBox = (CheckBox) clickedView;
-
-            if (lastMarkedCheckBox != null && lastMarkedCheckBox != checkBox) {
-              lastMarkedCheckBox.setChecked(false);
-            }
-
-            if (checkBox.isChecked()) {
-              try {
-                lastMarkedCheckBox = checkBox;
-                currentlyMarkedCampaign = campaignObject.getLong("id");
-              } catch (JSONException exception) {
-                exception.printStackTrace();
-                currentlyMarkedCampaign = -1;
-                lastMarkedCheckBox = null;
-              }
-            } else {
-              currentlyMarkedCampaign = -1;
-              lastMarkedCheckBox = null;
-            }
-          }
-        };
-
-        holder.campaignCheckBox.setOnClickListener(markCheckBoxListener);
+        holder.idTextView.setText(campaignObject.getString("name"));
+        holder.byLineTextView.setText("by Someone");
         holder.campaignTextContainer.setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(final View view) {
-            holder.campaignCheckBox.performClick();
-          }
-        });
-
-        holder.infoButton.setOnClickListener(new View.OnClickListener() {
-          @Override
-          public void onClick(final View view) {
-            final CampaignSpecificationFragment fragment;
             try {
-              fragment = CampaignSpecificationFragment.newInstance(campaignObject.getLong("id"));
+              final CampaignJoinFragment fragment = CampaignJoinFragment.newInstance(campaignObject.getLong("id"));
 
               getFragmentManager().beginTransaction()
-                  .replace(R.id.content_frame_layout, fragment, CAMPAIGN_SPECIFICATION_FRAGMENT_KEY)
-                  .addToBackStack(CAMPAIGN_SPECIFICATION_FRAGMENT_KEY)
+                  .replace(R.id.content_frame_layout, fragment, JOIN_CAMPAIGN_FRAGMENT_KEY)
+                  .addToBackStack(JOIN_CAMPAIGN_FRAGMENT_KEY)
                   .commit();
             } catch (JSONException exception) {
               exception.printStackTrace();
