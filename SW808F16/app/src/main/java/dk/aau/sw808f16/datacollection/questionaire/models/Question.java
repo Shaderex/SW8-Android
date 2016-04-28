@@ -58,8 +58,9 @@ public class Question extends RealmObject implements Parcelable, JsonObjectAble 
   };
 
   public Question(Question question) {
-    this.question = question.question;
-    this.answer = question.answer;
+    this.question = question.getQuestion();
+    this.answer = question.getAnswer();
+    this.identifier = question.getIdentifier();
   }
 
   public Question(String question, long identifier) {

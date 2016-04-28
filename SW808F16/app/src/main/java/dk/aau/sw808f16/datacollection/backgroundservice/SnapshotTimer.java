@@ -1,5 +1,12 @@
 package dk.aau.sw808f16.datacollection.backgroundservice;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.util.Pair;
 
@@ -10,14 +17,16 @@ import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import dk.aau.sw808f16.datacollection.QuestionnaireActivity;
+import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.SensorProvider;
 import dk.aau.sw808f16.datacollection.campaign.Campaign;
-import dk.aau.sw808f16.datacollection.questionaire.models.Question;
 import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
 import io.realm.Realm;
+import io.realm.Sort;
 
 public class SnapshotTimer {
 
@@ -25,9 +34,11 @@ public class SnapshotTimer {
   private final List<SensorProvider> sensorProviders;
   private static boolean isRunning = false;
   private final Timer timer = new Timer();
+  private final Context context;
 
-  public SnapshotTimer(final List<SensorProvider> sensorProviders) {
+  public SnapshotTimer(final Context context, final List<SensorProvider> sensorProviders) {
     this.sensorProviders = sensorProviders;
+    this.context = context;
   }
 
   public void start() {
@@ -61,8 +72,6 @@ public class SnapshotTimer {
     @Override
     public void run() {
 
-      final long startTime = System.currentTimeMillis();
-
       Realm realm = Realm.getDefaultInstance();
       Campaign campaign = realm.where(Campaign.class).findFirst();
 
@@ -73,7 +82,13 @@ public class SnapshotTimer {
       final long campaignIdentifier = campaign.getIdentifier();
       Questionnaire questionnaire = new Questionnaire(campaign.getQuestionnaire());
 
-      // TODO Open the Questionnaire (using with the questions stored above) and get the users answer (if before)
+      Snapshot snapshot = Snapshot.Create();
+
+      realm.beginTransaction();
+      realm.copyToRealm(snapshot);
+      realm.commitTransaction();
+
+      startQuestionnaire(questionnaire);
 
       final List<Pair<SensorType, Future<List<Sample>>>> sensorFutures = new ArrayList<>();
 
@@ -89,46 +104,56 @@ public class SnapshotTimer {
         sensorFutures.add(new Pair<>(sensorType, samples));
       }
 
-      realm.close();
-
-      final Snapshot snapshot = Snapshot.Create();
 
       // Join in the gather sample threads
-      for (Pair<SensorType, Future<List<Sample>>> sensorTypeFuturePair : sensorFutures) {
+      List<Pair<SensorType, List<Sample>>> sensorSamplesForSnapshot = new ArrayList<>();
+      for (final Pair<SensorType, Future<List<Sample>>> sensorTypeFuturePair : sensorFutures) {
         try {
-          List<Sample> sager = sensorTypeFuturePair.second.get();
-          snapshot.addSamples(sensorTypeFuturePair.first, sager);
+          List<Sample> samples = sensorTypeFuturePair.second.get();
+          sensorSamplesForSnapshot.add(new Pair<>(sensorTypeFuturePair.first, samples));
         } catch (InterruptedException | ExecutionException exception) {
           exception.printStackTrace();
         }
       }
 
-      if (System.currentTimeMillis() - startTime > totalDuration) {
-        try {
-          Thread.sleep(System.currentTimeMillis() - startTime);
-        } catch (InterruptedException exception) {
-          exception.printStackTrace();
-        }
-      }
-
-      // TODO Open the Questionnaire (using with the questions stored above) and get the users answer (if after)
-
-      for (Question question : questionnaire.getQuestions()) {
-        questionnaire.getNextQuestion().setAnswer(true);
-      }
-
       realm = Realm.getDefaultInstance();
 
-      snapshot.setQuestionnaire(questionnaire);
+      realm.beginTransaction();
+      snapshot = realm.where(Snapshot.class).findAllSorted("timestamp", Sort.DESCENDING).first();
+
+      for (final Pair<SensorType, List<Sample>> sensorSamples : sensorSamplesForSnapshot) {
+        snapshot.addSamples(sensorSamples.first, sensorSamples.second);
+      }
 
       Log.d("SnapshotTimer", "Added snapshot to campaign with ID: " + campaignIdentifier);
-      realm.beginTransaction();
+
       campaign = realm.where(Campaign.class).findFirst();
       campaign.addSnapshot(snapshot);
       realm.copyToRealm(campaign);
       realm.commitTransaction();
       realm.close();
     }
+  }
+
+  private void startQuestionnaire(final Questionnaire questionnaire) {
+    final Intent intent = new Intent(context, QuestionnaireActivity.class);
+    intent.putExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER, questionnaire);
+    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    final PendingIntent pendingIntent = PendingIntent.getActivity(context, 0 /* Request code */, intent,
+        PendingIntent.FLAG_ONE_SHOT);
+
+    final Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+    final NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
+        .setSmallIcon(R.mipmap.ic_launcher)
+        .setContentTitle("Questionnaire")
+        .setVibrate(new long[] {10, 100, 200, 40, 55, 200})
+        .setSound(defaultSoundUri)
+        .setContentIntent(pendingIntent);
+
+    final NotificationManager notificationManager =
+        (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+    notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
   }
 
 }

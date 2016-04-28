@@ -65,7 +65,7 @@ public abstract class SensorProvider<MeasurementType> {
     }
 
     final CountDownLatch latch = new CountDownLatch(1);
-    final Sample sensorValues = new Sample();
+    final Sample sensorValues = Sample.Create();
 
     final TimerTask sampleTimerTask = new TimerTask() {
       @Override

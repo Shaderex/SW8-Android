@@ -104,7 +104,7 @@ public final class BackgroundSensorService extends Service {
     // wifiSensorProvider = new WifiSensorProvider(this, sensorThreadPool, sensorManager);
     // locationSensorProvider = new LocationSensorProvider(this, sensorThreadPool, sensorManager);
 
-    snapshotTimer = new SnapshotTimer(getSensorProviders());
+    snapshotTimer = new SnapshotTimer(this, getSensorProviders());
 
     // Start up the thread running the service.  Note that we create a
     // separate thread because the service normally runs in the process's

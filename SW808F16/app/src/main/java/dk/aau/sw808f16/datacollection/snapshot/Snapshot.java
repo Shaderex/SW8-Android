@@ -18,11 +18,13 @@ import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
+import io.realm.annotations.PrimaryKey;
 
 @SuppressWarnings("CanBeFinal")
 public class Snapshot extends RealmObject implements JsonObjectAble {
 
   private Label label;
+  @PrimaryKey
   private long timestamp;
 
   private RealmList<Sample> accelerometerSamples = new RealmList<>();
@@ -35,9 +37,11 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
   private RealmList<Sample> proximitySamples = new RealmList<>();
   private RealmList<Sample> wifiSamples = new RealmList<>();
 
+  private Questionnaire questionnaire;
+
   @Ignore
   private Map<SensorType, RealmList<Sample>> sensorSampleMap = null;
-  private Questionnaire questionnaire;
+
 
   @SuppressWarnings("deprecation")
   public static Snapshot Create() {
@@ -178,7 +182,7 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
   }
 
   public void setQuestionnaire(final Questionnaire questionnaire) {
-    this.questionnaire = new Questionnaire(questionnaire);
+    this.questionnaire = questionnaire;
   }
 
   public Questionnaire getQuestionnaire() {
