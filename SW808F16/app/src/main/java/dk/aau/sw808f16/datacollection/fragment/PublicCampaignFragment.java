@@ -289,7 +289,7 @@ public class PublicCampaignFragment extends Fragment
         if (currentlyMarkedCampaign == campaignObject.getInt("id")) {
           holder.campaignTextContainer.setBackgroundColor(getResources().getColor(R.color.light_blue_light));
         } else {
-          holder.campaignTextContainer.setBackgroundColor(getResources().getColor(R.color.white));
+          holder.campaignTextContainer.setBackgroundColor(getResources().getColor(R.color.background_floating_material_light));
         }
 
         holder.idTextView.setText(campaignObject.getString("name"));

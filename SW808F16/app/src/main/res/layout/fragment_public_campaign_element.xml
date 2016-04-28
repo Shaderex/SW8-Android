@@ -8,11 +8,10 @@
     android:clickable="true"
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:orientation="horizontal"
-    android:padding="@dimen/abc_control_padding_material">
+    android:paddingStart="@dimen/activity_padding">
 
     <LinearLayout
-        android:layout_weight="1"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:gravity="center_vertical"
         android:orientation="vertical">
@@ -21,12 +20,12 @@
             android:id="@+id/campaign_id_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/abc_action_bar_subtitle_bottom_margin_material"
             android:clickable="false"
             android:gravity="center_vertical"
             android:textSize="@dimen/abc_text_size_body_2_material"
             android:textStyle="bold"
-            tools:text="campaign_id_text_view"
-            android:layout_marginBottom="@dimen/abc_action_bar_subtitle_bottom_margin_material"/>
+            tools:text="campaign_id_text_view"/>
 
         <TextView
             android:id="@+id/campaign_by_line"
@@ -38,12 +37,17 @@
             tools:text="campaign_title_text_view"/>
     </LinearLayout>
 
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
     <ImageButton
-        android:clickable="false"
         android:id="@+id/info_button"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:background="@android:color/transparent"
+        android:clickable="false"
         android:src="@drawable/ic_keyboard_arrow_right_black_48dp"/>
 
 </LinearLayout>
