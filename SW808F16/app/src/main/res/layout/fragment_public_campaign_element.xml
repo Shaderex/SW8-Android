@@ -42,12 +42,10 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
-    <ImageButton
+    <ImageView
         android:id="@+id/info_button"
-        android:layout_width="wrap_content"
+        android:layout_width="48dp"
         android:layout_height="match_parent"
-        android:background="@android:color/transparent"
-        android:clickable="false"
-        android:src="@drawable/ic_keyboard_arrow_right_black_48dp"/>
+        android:src="@drawable/ic_keyboard_arrow_right_black_24dp"/>
 
 </LinearLayout>

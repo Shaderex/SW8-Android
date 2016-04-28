@@ -1,6 +1,7 @@
 package dk.aau.sw808f16.datacollection;
 
-import android.app.Activity;
+
+import android.support.v7.app.ActionBarActivity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.SharedPreferences;
@@ -34,262 +35,262 @@ import dk.aau.sw808f16.datacollection.fragment.PrivateCampaignFragment;
 import dk.aau.sw808f16.datacollection.fragment.PublicCampaignFragment;
 import dk.aau.sw808f16.datacollection.fragment.StartFragment;
 
-public class MainActivity extends Activity implements HeartRateConsentListener {
+public class MainActivity extends ActionBarActivity implements HeartRateConsentListener {
 
-  public enum DrawerMenuItems {
+    public enum DrawerMenuItems {
 
-    CURRENT_CAMPAIGN("Current campaign") {
-      @Override
-      public void open(final MainActivity activity) {
+        CURRENT_CAMPAIGN("Current campaign") {
+            @Override
+            public void open(final MainActivity activity) {
 
-        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
-        final long currentlyActiveCampaignId = preferences.getLong(activity.getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), -1);
+                final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+                final long currentlyActiveCampaignId = preferences.getLong(activity.getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), -1);
 
-        if (currentlyActiveCampaignId != -1) {
+                if (currentlyActiveCampaignId != -1) {
 
-          final Fragment fragment = CampaignSpecificationFragment.newInstance(currentlyActiveCampaignId);
-          activity.setContent(fragment);
+                    final Fragment fragment = CampaignSpecificationFragment.newInstance(currentlyActiveCampaignId);
+                    activity.setContent(fragment);
 
-        } else {
-          Toast.makeText(activity, "You are not subscribed to any campaign", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(activity, "You are not subscribed to any campaign", Toast.LENGTH_LONG).show();
+                }
+            }
+        },
+        PUBLIC_CAMPAIGNS("Public Campaigns") {
+            @Override
+            public void open(final MainActivity activity) {
+
+                final Fragment fragment = PublicCampaignFragment.newInstance();
+                activity.setContent(fragment);
+            }
+        },
+        PRIVATE_CAMPAIGNS("Private Campaigns") {
+            @Override
+            public void open(final MainActivity activity) {
+
+                final Fragment fragment = PrivateCampaignFragment.newInstance();
+                activity.setContent(fragment);
+            }
+        };
+
+        public final String name;
+
+        DrawerMenuItems(final String string) {
+            this.name = string;
         }
-      }
-    },
-    PUBLIC_CAMPAIGNS("Public Campaigns") {
-      @Override
-      public void open(final MainActivity activity) {
 
-        final Fragment fragment = PublicCampaignFragment.newInstance();
-        activity.setContent(fragment);
-      }
-    },
-    PRIVATE_CAMPAIGNS("Private Campaigns") {
-      @Override
-      public void open(final MainActivity activity) {
+        public abstract void open(final MainActivity activity);
 
-        final Fragment fragment = PrivateCampaignFragment.newInstance();
-        activity.setContent(fragment);
-      }
-    };
-
-    public final String name;
-
-    DrawerMenuItems(final String string) {
-      this.name = string;
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 
-    public abstract void open(final MainActivity activity);
+    private static final String START_FRAGMENT_KEY = "START_FRAGMENT_KEY";
+
+    private DrawerLayout drawerLayout;
+    private ActionBarDrawerToggle drawerToggle;
 
     @Override
-    public String toString() {
-      return name;
-    }
-  }
+    protected void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-  private static final String START_FRAGMENT_KEY = "START_FRAGMENT_KEY";
+        setContentView(R.layout.activity_main);
 
-  private DrawerLayout drawerLayout;
-  private ActionBarDrawerToggle drawerToggle;
+        final FragmentManager fragmentManager = getFragmentManager();
 
-  @Override
-  protected void onCreate(final Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
+        fragmentManager.beginTransaction()
+                .replace(R.id.content_frame_layout, StartFragment.newInstance(), START_FRAGMENT_KEY).commit();
 
-    setContentView(R.layout.activity_main);
+        final Thread getConsent = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    getConnectedBandClient();
 
-    final FragmentManager fragmentManager = getFragmentManager();
+                    if (bandClient != null && bandClient.getSensorManager().getCurrentHeartRateConsent() != UserConsent.GRANTED) {
+                        // user has not consented, request consent
+                        // the calling class is an Activity and implements
+                        // HeartRateConsentListener
+                        bandClient.getSensorManager().requestHeartRateConsent(MainActivity.this, MainActivity.this);
+                    }
 
-    fragmentManager.beginTransaction()
-        .replace(R.id.content_frame_layout, StartFragment.newInstance(), START_FRAGMENT_KEY).commit();
+                    bandClient = null;
+                } catch (InterruptedException | BandException exception) {
+                    exception.printStackTrace();
+                }
+            }
+        });
 
-    final Thread getConsent = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          getConnectedBandClient();
+        getConsent.start();
 
-          if (bandClient != null && bandClient.getSensorManager().getCurrentHeartRateConsent() != UserConsent.GRANTED) {
-            // user has not consented, request consent
-            // the calling class is an Activity and implements
-            // HeartRateConsentListener
-            bandClient.getSensorManager().requestHeartRateConsent(MainActivity.this, MainActivity.this);
-          }
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerToggle = new ActionBarDrawerToggle(
+                this,                  /* host Activity */
+                drawerLayout,         /* DrawerLayout object */
+                R.string.open,  /* "open drawer" description */
+                R.string.close  /* "close drawer" description */
+        ) {
 
-          bandClient = null;
-        } catch (InterruptedException | BandException exception) {
-          exception.printStackTrace();
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                super.onDrawerSlide(drawerView, slideOffset);
+            }
+
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+            }
+
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+            }
+        };
+
+        // Set the drawer toggle as the DrawerListener
+        drawerLayout.setDrawerListener(drawerToggle);
+        drawerLayout.setScrimColor(Color.TRANSPARENT);
+
+        final ListView listView = (ListView) drawerLayout.findViewById(R.id.left_drawer);
+        listView.setAdapter(new DrawerButtonsAdapter());
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
+                drawerLayout.closeDrawers();
+                ((DrawerMenuItems) (parent.getAdapter()).getItem(position)).open(MainActivity.this);
+
+            }
+        });
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
         }
-      }
-    });
+    }
 
-    getConsent.start();
+    public class DrawerButtonsAdapter extends BaseAdapter {
 
-    drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-    drawerToggle = new ActionBarDrawerToggle(
-        this,                  /* host Activity */
-        drawerLayout,         /* DrawerLayout object */
-        R.string.open,  /* "open drawer" description */
-        R.string.close  /* "close drawer" description */
-    ) {
+        private final DrawerMenuItems[] items = DrawerMenuItems.values();
 
-      @Override
-      public void onDrawerSlide(View drawerView, float slideOffset) {
-        super.onDrawerSlide(drawerView, slideOffset);
-      }
+        @Override
+        public int getCount() {
+            return items.length;
+        }
 
-      /** Called when a drawer has settled in a completely closed state. */
-      public void onDrawerClosed(View view) {
-        super.onDrawerClosed(view);
-      }
+        @Override
+        public Object getItem(final int position) {
+            return items[position];
+        }
 
-      /** Called when a drawer has settled in a completely open state. */
-      public void onDrawerOpened(View drawerView) {
-        super.onDrawerOpened(drawerView);
-      }
-    };
+        @Override
+        public long getItemId(final int position) {
+            return position;
+        }
 
-    // Set the drawer toggle as the DrawerListener
-    drawerLayout.setDrawerListener(drawerToggle);
-    drawerLayout.setScrimColor(Color.TRANSPARENT);
+        @Override
+        public boolean hasStableIds() {
+            return true;
+        }
 
-    final ListView listView = (ListView) drawerLayout.findViewById(R.id.left_drawer);
-    listView.setAdapter(new DrawerButtonsAdapter());
+        class ViewHolder {
+            TextView menuNameTextView;
+        }
 
-    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-      @Override
-      public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
+        @Override
+        public View getView(final int position, View convertView, final ViewGroup parent) {
+
+            final DrawerMenuItems item = items[position];
+
+            final ViewHolder holder;
+
+            if (convertView == null) {
+
+                convertView = getLayoutInflater().inflate(R.layout.drawer_menu_item, null);
+
+                holder = new ViewHolder();
+                holder.menuNameTextView = (TextView) convertView.findViewById(R.id.menu_item_text_view);
+
+                convertView.setTag(holder);
+            } else {
+                holder = (ViewHolder) convertView.getTag();
+            }
+
+            holder.menuNameTextView.setText(item.name);
+
+            return convertView;
+        }
+    }
+
+    @Override
+    protected void onPostCreate(final Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        drawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(final Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        drawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        // Pass the event to ActionBarDrawerToggle, if it returns
+        // true, then it has handled the app icon touch event
+        if (drawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
+        return true;
+    }
+
+    protected void setContent(final Fragment fragment) {
+        final FragmentManager fm = getFragmentManager();
+
+        fm.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        fm.popBackStackImmediate();
+
+        fm.beginTransaction().replace(R.id.content_frame_layout, fragment).addToBackStack(null).commit();
+
         drawerLayout.closeDrawers();
-        ((DrawerMenuItems) (parent.getAdapter()).getItem(position)).open(MainActivity.this);
-
-      }
-    });
-
-    if (getActionBar() != null) {
-      getActionBar().setDisplayHomeAsUpEnabled(true);
-      getActionBar().setHomeButtonEnabled(true);
-    }
-  }
-
-  public class DrawerButtonsAdapter extends BaseAdapter {
-
-    private final DrawerMenuItems[] items = DrawerMenuItems.values();
-
-    @Override
-    public int getCount() {
-      return items.length;
     }
 
     @Override
-    public Object getItem(final int position) {
-      return items[position];
+    public void userAccepted(boolean accepted) {
+        // handle user's heart rate consent decision
     }
 
-    @Override
-    public long getItemId(final int position) {
-      return position;
+    private BandClient bandClient;
+
+    protected boolean getConnectedBandClient() throws InterruptedException, BandException {
+        if (bandClient == null) {
+            BandInfo[] devices = BandClientManager.getInstance().getPairedBands();
+            if (devices.length == 0) {
+                Log.d("Band2", "Band isn't paired with your phone (from " + this.getClass().getName() + ").");
+                return false;
+            }
+            bandClient = BandClientManager.getInstance().create(this, devices[0]);
+        } else if (ConnectionState.CONNECTED == bandClient.getConnectionState()) {
+            return true;
+        }
+
+        Log.d("Band2", "Band is connecting...  (from " + this.getClass().getName() + ")");
+        final ConnectionState result = bandClient.connect().await();
+
+        Log.d("Band2", "Band connection status: " + result + " (from " + this.getClass().getName() + ")");
+
+        return ConnectionState.CONNECTED == result;
     }
-
-    @Override
-    public boolean hasStableIds() {
-      return true;
-    }
-
-    class ViewHolder {
-      TextView menuNameTextView;
-    }
-
-    @Override
-    public View getView(final int position, View convertView, final ViewGroup parent) {
-
-      final DrawerMenuItems item = items[position];
-
-      final ViewHolder holder;
-
-      if (convertView == null) {
-
-        convertView = getLayoutInflater().inflate(R.layout.drawer_menu_item, null);
-
-        holder = new ViewHolder();
-        holder.menuNameTextView = (TextView) convertView.findViewById(R.id.menu_item_text_view);
-
-        convertView.setTag(holder);
-      } else {
-        holder = (ViewHolder) convertView.getTag();
-      }
-
-      holder.menuNameTextView.setText(item.name);
-
-      return convertView;
-    }
-  }
-
-  @Override
-  protected void onPostCreate(final Bundle savedInstanceState) {
-    super.onPostCreate(savedInstanceState);
-
-    // Sync the toggle state after onRestoreInstanceState has occurred.
-    drawerToggle.syncState();
-  }
-
-  @Override
-  public void onConfigurationChanged(final Configuration newConfig) {
-    super.onConfigurationChanged(newConfig);
-    drawerToggle.onConfigurationChanged(newConfig);
-  }
-
-  @Override
-  public boolean onOptionsItemSelected(final MenuItem item) {
-    // Pass the event to ActionBarDrawerToggle, if it returns
-    // true, then it has handled the app icon touch event
-    if (drawerToggle.onOptionsItemSelected(item)) {
-      return true;
-    }
-
-    return super.onOptionsItemSelected(item);
-  }
-
-  @Override
-  public boolean onCreateOptionsMenu(final Menu menu) {
-    super.onCreateOptionsMenu(menu);
-
-    return true;
-  }
-
-  protected void setContent(final Fragment fragment) {
-    final FragmentManager fm = getFragmentManager();
-
-    fm.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-    fm.popBackStackImmediate();
-
-    fm.beginTransaction().replace(R.id.content_frame_layout, fragment).addToBackStack(null).commit();
-
-    drawerLayout.closeDrawers();
-  }
-
-  @Override
-  public void userAccepted(boolean accepted) {
-    // handle user's heart rate consent decision
-  }
-
-  private BandClient bandClient;
-
-  protected boolean getConnectedBandClient() throws InterruptedException, BandException {
-    if (bandClient == null) {
-      BandInfo[] devices = BandClientManager.getInstance().getPairedBands();
-      if (devices.length == 0) {
-        Log.d("Band2", "Band isn't paired with your phone (from " + this.getClass().getName() + ").");
-        return false;
-      }
-      bandClient = BandClientManager.getInstance().create(this, devices[0]);
-    } else if (ConnectionState.CONNECTED == bandClient.getConnectionState()) {
-      return true;
-    }
-
-    Log.d("Band2", "Band is connecting...  (from " + this.getClass().getName() + ")");
-    final ConnectionState result = bandClient.connect().await();
-
-    Log.d("Band2", "Band connection status: " + result + " (from " + this.getClass().getName() + ")");
-
-    return ConnectionState.CONNECTED == result;
-  }
 }

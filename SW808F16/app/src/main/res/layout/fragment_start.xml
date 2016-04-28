@@ -39,11 +39,11 @@
 
     <Button
         android:id="@+id/browse_campaign_button"
-        style="@style/Widget.AppCompat.Light.ActionButton"
         android:layout_width="wrap_content"
+        android:padding="18dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="@drawable/raised_button_background"
+        android:backgroundTint="@color/light_blue"
         android:elevation="8dp"
         android:text="@string/browse_campaigns"
         android:textColor="@color/white"/>

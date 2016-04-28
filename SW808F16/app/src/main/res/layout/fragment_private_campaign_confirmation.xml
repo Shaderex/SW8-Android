@@ -5,9 +5,14 @@
     <Button
         android:id="@+id/private_campaign_join_button"
         android:layout_width="match_parent"
+        android:padding="18dp"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:backgroundTint="@color/light_blue"
+        android:elevation="8dp"
         android:layout_alignParentBottom="true"
-        android:text="@string/private_campaign_join"/>
+        android:text="@string/private_campaign_join"
+        android:textColor="@color/white"/>
 
     <FrameLayout
         android:id="@+id/campaign_specification_fragment_container"

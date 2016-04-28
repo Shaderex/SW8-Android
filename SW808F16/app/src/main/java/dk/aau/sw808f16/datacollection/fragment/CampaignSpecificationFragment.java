@@ -10,9 +10,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.goebl.david.Response;
@@ -29,213 +31,229 @@ import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.campaign.AsyncHttpGetCampaignSpecificationTask;
 import dk.aau.sw808f16.datacollection.campaign.Campaign;
+import dk.aau.sw808f16.datacollection.questionaire.models.Question;
 
 public class CampaignSpecificationFragment extends Fragment {
 
-  public Menu menu;
+    public Menu menu;
 
-  public static final String CAMPAIGN_ID_TAG = "CAMPAIGN_ID_TAG";
-  public static final String CAMPAIGN_JSON_TAG = "CAMPAIGN_JSON_TAG";
+    public static final String CAMPAIGN_ID_TAG = "CAMPAIGN_ID_TAG";
+    public static final String CAMPAIGN_JSON_TAG = "CAMPAIGN_JSON_TAG";
 
-  public static CampaignSpecificationFragment newInstance(final long campaignID) {
-    final CampaignSpecificationFragment newFragment = new CampaignSpecificationFragment();
+    public static CampaignSpecificationFragment newInstance(final long campaignID) {
+        final CampaignSpecificationFragment newFragment = new CampaignSpecificationFragment();
 
-    final Bundle args = new Bundle();
-    args.putLong(CAMPAIGN_ID_TAG, campaignID);
-    newFragment.setArguments(args);
+        final Bundle args = new Bundle();
+        args.putLong(CAMPAIGN_ID_TAG, campaignID);
+        newFragment.setArguments(args);
 
-    return newFragment;
-  }
-
-  public static CampaignSpecificationFragment newInstance(final Campaign campaign) {
-    final CampaignSpecificationFragment newFragment = new CampaignSpecificationFragment();
-    final Bundle args = new Bundle();
-
-    try {
-      args.putString(CAMPAIGN_JSON_TAG, campaign.toJsonObject().toString());
-    } catch (JSONException exception) {
-      exception.printStackTrace();
-    }
-    newFragment.setArguments(args);
-
-    return newFragment;
-  }
-
-  @Override
-  public void onCreate(final Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-
-    setHasOptionsMenu(true);
-  }
-
-  @Override
-  public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
-    super.onCreateOptionsMenu(menu, inflater);
-    this.menu = menu;
-    inflater.inflate(R.menu.main_action_bar, menu);
-  }
-
-  @Override
-  public boolean onOptionsItemSelected(final MenuItem item) {
-    return super.onOptionsItemSelected(item);
-  }
-
-  private void updateHeadline(final View parent, final int headlineResourceIdentifier, final String headline, final String description) {
-    final LinearLayout headlineView = (LinearLayout) parent.findViewById(headlineResourceIdentifier);
-
-    final TextView headlineTextView = (TextView) headlineView.findViewById(R.id.specification_headline);
-    headlineTextView.setText(headline);
-
-    final TextView descriptionTextView = (TextView) headlineView.findViewById(R.id.specification_description);
-    descriptionTextView.setText(description);
-  }
-
-  @Override
-  public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
-    final Bundle arguments = getArguments();
-
-    if (arguments == null) {
-      return null;
+        return newFragment;
     }
 
-    final View view = inflater.inflate(R.layout.fragment_campaign_specification, container, false);
-    final ContentLoadingProgressBar activityIndicator = (ContentLoadingProgressBar) view.findViewById(R.id.activity_indicator);
-    final ListView campaignSpecificationListing = (ListView) view.findViewById(R.id.fragment_campaign_specification_listing);
+    public static CampaignSpecificationFragment newInstance(final Campaign campaign) {
+        final CampaignSpecificationFragment newFragment = new CampaignSpecificationFragment();
+        final Bundle args = new Bundle();
 
-    // Set headlines
-    updateHeadline(view, R.id.information_gathered_headline, "Information Gathered", "The following information will be collected");
-    updateHeadline(view, R.id.measurements_headline, "Measurements", "Will affect the battery consumption");
-    updateHeadline(view, R.id.questions_headline, "Questions", "You will be asked questions such as");
+        try {
+            args.putString(CAMPAIGN_JSON_TAG, campaign.toJsonObject().toString());
+        } catch (JSONException exception) {
+            exception.printStackTrace();
+        }
+        newFragment.setArguments(args);
 
-    activityIndicator.show();
+        return newFragment;
+    }
 
-    if (arguments.containsKey(CAMPAIGN_ID_TAG)) {
-      final long campaignId = arguments.getLong(CAMPAIGN_ID_TAG);
+    @Override
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-      final AsyncHttpGetCampaignSpecificationTask task = new AsyncHttpGetCampaignSpecificationTask(getActivity(), campaignId) {
-        @Override
-        public void onResponseCodeMatching(Response<JSONObject> response) {
-          super.onResponseCodeMatching(response);
-          view.setVisibility(View.VISIBLE);
-          updateCampaignSpecification(view, response.getBody());
-          activityIndicator.hide();
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        this.menu = menu;
+        inflater.inflate(R.menu.main_action_bar, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void updateHeadline(final View parent, final int headlineResourceIdentifier, final String headline, final String description) {
+        final LinearLayout headlineView = (LinearLayout) parent.findViewById(headlineResourceIdentifier);
+
+        final TextView headlineTextView = (TextView) headlineView.findViewById(R.id.specification_headline);
+        headlineTextView.setText(headline);
+
+        final TextView descriptionTextView = (TextView) headlineView.findViewById(R.id.specification_description);
+        descriptionTextView.setText(description);
+    }
+
+    @Override
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
+        final Bundle arguments = getArguments();
+
+        if (arguments == null) {
+            return null;
         }
 
-        @Override
-        public void onResponseCodeNotMatching(final Response<JSONObject> response) {
-          super.onResponseCodeNotMatching(response);
+        final View view = inflater.inflate(R.layout.fragment_campaign_specification, container, false);
+        final ContentLoadingProgressBar activityIndicator = (ContentLoadingProgressBar) view.findViewById(R.id.activity_indicator);
+        final ListView campaignSpecificationListing = (ListView) view.findViewById(R.id.fragment_campaign_specification_listing);
 
-          view.setVisibility(View.VISIBLE);
+        // Set headlines
+        updateHeadline(view, R.id.information_gathered_headline, "Information Gathered", "The following information will be collected");
+        updateHeadline(view, R.id.measurements_headline, "Measurements", "Will affect the battery consumption");
+        updateHeadline(view, R.id.questions_headline, "Questions", "You will be asked questions such as");
 
-          final TextView errorMessageTextView = (TextView) getView().findViewById(R.id.error_message_textview);
+        activityIndicator.show();
 
-          activityIndicator.hide();
+        if (arguments.containsKey(CAMPAIGN_ID_TAG)) {
+            final long campaignId = arguments.getLong(CAMPAIGN_ID_TAG);
 
-          switch (response.getStatusCode()) {
-            case HttpURLConnection.HTTP_NOT_FOUND: {
+            final AsyncHttpGetCampaignSpecificationTask task = new AsyncHttpGetCampaignSpecificationTask(getActivity(), campaignId) {
+                @Override
+                public void onResponseCodeMatching(Response<JSONObject> response) {
+                    super.onResponseCodeMatching(response);
+                    view.setVisibility(View.VISIBLE);
+                    updateCampaignSpecification(view, response.getBody());
+                    activityIndicator.hide();
+                }
 
-              errorMessageTextView.setText(R.string.unable_to_locate_campaign_message);
-              break;
+                @Override
+                public void onResponseCodeNotMatching(final Response<JSONObject> response) {
+                    super.onResponseCodeNotMatching(response);
+
+                    view.setVisibility(View.VISIBLE);
+
+                    final TextView errorMessageTextView = (TextView) getView().findViewById(R.id.error_message_textview);
+
+                    activityIndicator.hide();
+
+                    switch (response.getStatusCode()) {
+                        case HttpURLConnection.HTTP_NOT_FOUND: {
+
+                            errorMessageTextView.setText(R.string.unable_to_locate_campaign_message);
+                            break;
+                        }
+                        default: {
+                            errorMessageTextView.setText(R.string.generic_something_went_wrong_message);
+                            break;
+                        }
+                    }
+
+                    errorMessageTextView.setVisibility(View.VISIBLE);
+                }
+            };
+
+            view.setVisibility(View.INVISIBLE);
+            task.execute();
+
+        } else if (arguments.containsKey(CAMPAIGN_JSON_TAG)) {
+            try {
+                updateCampaignSpecification(view, new JSONObject(arguments.getString(CAMPAIGN_JSON_TAG)));
+                activityIndicator.hide();
+            } catch (JSONException exception) {
+                exception.printStackTrace();
             }
-            default: {
-              errorMessageTextView.setText(R.string.generic_something_went_wrong_message);
-              break;
+        } else {
+            return null;
+        }
+
+        return view;
+    }
+
+    private void updateCampaignSpecification(final View parent, final JSONObject campaignSpecification) {
+        Log.d("data", campaignSpecification.toString());
+
+        try {
+            final Campaign campaign = new Campaign(campaignSpecification);
+
+            final String campaignTitle = campaign.getName();
+            final TextView campaignTitleTextView = (TextView) parent.findViewById(R.id.campaign_specification_title);
+            campaignTitleTextView.setText(campaignTitle);
+
+            final String campaignAuthor = campaignSpecification.getJSONObject("user").getString("name");
+            final TextView campaignAuthorTextView = (TextView) parent.findViewById(R.id.campaign_specification_by_line);
+            campaignAuthorTextView.setText("by " + campaignAuthor);
+
+            final String campaignDescription = campaign.getDescription();
+            final TextView campaignDescriptionTextView = (TextView) parent.findViewById(R.id.campaign_specification_description);
+            campaignDescriptionTextView.setText(campaignDescription);
+
+            HashMap<SensorType.SensorCategory, List<SensorType>> sensorsUsed = new HashMap<>();
+            for (final SensorType sensor : campaign.getSensors()) {
+                if (sensorsUsed.get(sensor.getCategory()) == null) {
+                    sensorsUsed.put(sensor.getCategory(), new ArrayList<SensorType>());
+                }
+                sensorsUsed.get(sensor.getCategory()).add(sensor);
             }
-          }
 
-          errorMessageTextView.setVisibility(View.VISIBLE);
+            updateCampaignMeasurementsCategory(parent, R.id.measurement_category_location, R.drawable.ic_room_black_24dp, "Location", sensorsUsed.get(SensorType.SensorCategory.LOCATION));
+            updateCampaignMeasurementsCategory(parent, R.id.measurement_category_movement, R.drawable.ic_directions_run_black_24dp, "Movement", sensorsUsed.get(SensorType.SensorCategory.MOVEMENT));
+            updateCampaignMeasurementsCategory(parent, R.id.measurement_category_personal_information, R.drawable.ic_favorite_black_24dp, "Personal Information", sensorsUsed.get(SensorType.SensorCategory.PERSONAL_INFORMATION));
+
+            final int sampleDuration = campaignSpecification.getInt("sample_duration");
+            final int sampleFrequency = campaignSpecification.getInt("sample_frequency");
+            final int measurementFrequency = campaignSpecification.getInt("measurement_frequency");
+            final int measurementsPerHour = (int) ((double) 3600000 / (double) sampleFrequency * (double) sampleDuration / (double) measurementFrequency);
+
+            final TextView measurementsRateTextView = (TextView) parent.findViewById(R.id.measurements_rate);
+            measurementsRateTextView.setText(measurementsPerHour + " measurements per hour");
+
+            final ListView lv = (ListView) parent.findViewById(R.id.fragment_campaign_specification_listing);
+
+            List<String> questions = new ArrayList<>();
+            questions.add("Adder badder");
+            for (Question question : campaign.getQuestionnaire().getQuestions()) {
+                questions.add(question.getQuestion());
+            }
+            // This is the array adapter, it takes the context of the activity as a
+            // first parameter, the type of list view as a second parameter and your
+            // array as a third parameter.
+            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(parent.getContext(), R.layout.fragment_campaign_specification_question_item, questions);
+
+            lv.setAdapter(arrayAdapter);
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-      };
-
-      view.setVisibility(View.INVISIBLE);
-      task.execute();
-
-    } else if (arguments.containsKey(CAMPAIGN_JSON_TAG)) {
-      try {
-        updateCampaignSpecification(view, new JSONObject(arguments.getString(CAMPAIGN_JSON_TAG)));
-        activityIndicator.hide();
-      } catch (JSONException exception) {
-        exception.printStackTrace();
-      }
-    } else {
-      return null;
     }
 
-    return view;
-  }
+    private void updateCampaignMeasurementsCategory(final View parent,
+                                                    final int categoryResource,
+                                                    final int indicatorResource,
+                                                    final String headline,
+                                                    final List<SensorType> sensors) {
 
-  private void updateCampaignSpecification(final View parent, final JSONObject campaignSpecification) {
-    Log.d("data", campaignSpecification.toString());
+        final LinearLayout categoryView = (LinearLayout) parent.findViewById(categoryResource);
 
-    try {
-      final Campaign campaign = new Campaign(campaignSpecification);
-
-      final String campaignTitle = campaign.getName();
-      final TextView campaignTitleTextView = (TextView) parent.findViewById(R.id.campaign_specification_title);
-      campaignTitleTextView.setText(campaignTitle);
-
-      final String campaignAuthor = campaignSpecification.getJSONObject("user").getString("name");
-      final TextView campaignAuthorTextView = (TextView) parent.findViewById(R.id.campaign_specification_by_line);
-      campaignAuthorTextView.setText("by " + campaignAuthor);
-
-      final String campaignDescription = campaign.getDescription();
-      final TextView campaignDescriptionTextView = (TextView) parent.findViewById(R.id.campaign_specification_description);
-      campaignDescriptionTextView.setText(campaignDescription);
-
-      HashMap<SensorType.SensorCategory, List<SensorType>> sensorsUsed = new HashMap<>();
-      for (final SensorType sensor : campaign.getSensors()) {
-        if (sensorsUsed.get(sensor.getCategory()) == null) {
-          sensorsUsed.put(sensor.getCategory(), new ArrayList<SensorType>());
+        // If no description is provided, do not display the view
+        if (sensors == null || sensors.size() == 0) {
+            categoryView.setVisibility(View.GONE);
+            return;
         }
-        sensorsUsed.get(sensor.getCategory()).add(sensor);
-      }
 
-      updateCampaignMeasurementsCategory(parent, R.id.measurement_category_location, R.drawable.ic_room_black_36dp, "Location", sensorsUsed.get(SensorType.SensorCategory.LOCATION));
-      updateCampaignMeasurementsCategory(parent, R.id.measurement_category_movement, R.drawable.ic_directions_run_black_36dp, "Movement", sensorsUsed.get(SensorType.SensorCategory.MOVEMENT));
-      updateCampaignMeasurementsCategory(parent, R.id.measurement_category_personal_information, R.drawable.ic_favorite_black_36dp, "Personal Information", sensorsUsed.get(SensorType.SensorCategory.PERSONAL_INFORMATION));
+        final ImageView indicatorImageView = (ImageView) categoryView.findViewById(R.id.category_indicator);
+        indicatorImageView.setImageDrawable(getResources().getDrawable(indicatorResource));
 
-      final int sampleDuration = campaignSpecification.getInt("sample_duration");
-      final int sampleFrequency = campaignSpecification.getInt("sample_frequency");
-      final int measurementFrequency = campaignSpecification.getInt("measurement_frequency");
-      final int measurementsPerHour = (int) ((double) 3600000 / (double) sampleFrequency * (double) sampleDuration / (double) measurementFrequency);
+        final TextView headlineTextView = (TextView) categoryView.findViewById(R.id.category_headline);
+        headlineTextView.setText(headline);
 
-      final TextView measurementsRateTextView = (TextView) parent.findViewById(R.id.measurements_rate);
-      measurementsRateTextView.setText(measurementsPerHour + " measurements per hour");
-
-    } catch (JSONException e) {
-      e.printStackTrace();
+        final TextView descriptionTextView = (TextView) categoryView.findViewById(R.id.category_description);
+        String sensorString = "";
+        for (int i = 0; i < sensors.size(); i++) {
+            SensorType type = sensors.get(i);
+            sensorString += type.toString();
+            if (i != sensors.size() - 1) {
+                sensorString += ", ";
+            }
+        }
+        descriptionTextView.setText(sensorString);
     }
-  }
-
-  private void updateCampaignMeasurementsCategory(final View parent,
-                                                  final int categoryResource,
-                                                  final int indicatorResource,
-                                                  final String headline,
-                                                  final List<SensorType> sensors) {
-
-    final LinearLayout categoryView = (LinearLayout) parent.findViewById(categoryResource);
-
-    // If no description is provided, do not display the view
-    if (sensors == null || sensors.size() == 0) {
-      categoryView.setVisibility(View.GONE);
-      return;
-    }
-
-    final ImageView indicatorImageView = (ImageView) categoryView.findViewById(R.id.category_indicator);
-    indicatorImageView.setImageDrawable(getResources().getDrawable(indicatorResource));
-
-    final TextView headlineTextView = (TextView) categoryView.findViewById(R.id.category_headline);
-    headlineTextView.setText(headline);
-
-    final TextView descriptionTextView = (TextView) categoryView.findViewById(R.id.category_description);
-    String sensorString = "";
-    for (int i = 0; i < sensors.size(); i++) {
-      SensorType type = sensors.get(i);
-      sensorString += type.toString();
-      if(i != sensors.size() - 1) {
-        sensorString += ", ";
-      }
-    }
-    descriptionTextView.setText(sensorString);
-  }
 }
