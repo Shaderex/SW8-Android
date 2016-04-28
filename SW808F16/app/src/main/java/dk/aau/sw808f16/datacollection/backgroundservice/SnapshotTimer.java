@@ -60,15 +60,20 @@ public class SnapshotTimer {
 
     @Override
     public void run() {
+
+      final long startTime = System.currentTimeMillis();
+
       Realm realm = Realm.getDefaultInstance();
       Campaign campaign = realm.where(Campaign.class).findFirst();
 
-      long totalDuration = campaign.getSnapshotLength();
-      long sampleDuration = campaign.getSampleDuration();
-      long sampleFrequency = campaign.getSampleFrequency();
-      long measurementFrequency = campaign.getMeasurementFrequency();
-      long campaignIdentifier = campaign.getIdentifier();
+      final long totalDuration = campaign.getSnapshotLength();
+      final long sampleDuration = campaign.getSampleDuration();
+      final long sampleFrequency = campaign.getSampleFrequency();
+      final long measurementFrequency = campaign.getMeasurementFrequency();
+      final long campaignIdentifier = campaign.getIdentifier();
       Questionnaire questionnaire = new Questionnaire(campaign.getQuestionnaire());
+
+      // TODO Open the Questionnaire (using with the questions stored above) and get the users answer (if before)
 
       final List<Pair<SensorType, Future<List<Sample>>>> sensorFutures = new ArrayList<>();
 
@@ -88,14 +93,20 @@ public class SnapshotTimer {
 
       final Snapshot snapshot = Snapshot.Create();
 
-      // TODO Open the Questionnaire (using with the questions stored above) and get the users answer (if before)
-
       // Join in the gather sample threads
       for (Pair<SensorType, Future<List<Sample>>> sensorTypeFuturePair : sensorFutures) {
         try {
           List<Sample> sager = sensorTypeFuturePair.second.get();
           snapshot.addSamples(sensorTypeFuturePair.first, sager);
         } catch (InterruptedException | ExecutionException exception) {
+          exception.printStackTrace();
+        }
+      }
+
+      if (System.currentTimeMillis() - startTime > totalDuration) {
+        try {
+          Thread.sleep(System.currentTimeMillis() - startTime);
+        } catch (InterruptedException exception) {
           exception.printStackTrace();
         }
       }
