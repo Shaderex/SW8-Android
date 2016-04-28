@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -287,13 +288,18 @@ public class PublicCampaignFragment extends Fragment
 
         // Mark the view if the campaign is joined
         if (currentlyMarkedCampaign == campaignObject.getInt("id")) {
-          holder.campaignTextContainer.setBackgroundColor(getResources().getColor(R.color.light_blue_light));
+          //holder.campaignTextContainer.setBackgroundColor(getResources().getColor(R.color.light_blue_light));
+          holder.idTextView.setTextColor(getResources().getColor(R.color.light_blue));
+          holder.byLineTextView.setTextColor(getResources().getColor(R.color.light_blue));
         } else {
-          holder.campaignTextContainer.setBackgroundColor(getResources().getColor(R.color.background_floating_material_light));
+          holder.idTextView.setTextColor(getResources().getColor(R.color.abc_primary_text_material_light));
+          holder.byLineTextView.setTextColor(getResources().getColor(R.color.abc_primary_text_material_light));
+          //holder.campaignTextContainer.setBackgroundColor(getResources().getColor(R.color.background_floating_material_light));
         }
 
+        Log.d("data", campaignObject.toString());
         holder.idTextView.setText(campaignObject.getString("name"));
-        holder.byLineTextView.setText("by Someone");
+        holder.byLineTextView.setText("by " + campaignObject.getJSONObject("user").getString("name"));
         holder.campaignTextContainer.setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(final View view) {
