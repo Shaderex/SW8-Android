@@ -23,22 +23,37 @@ public class SnapshotTimer {
 
   private static final long INITIAL_TIMER_DELAY = 0;
   private final List<SensorProvider> sensorProviders;
+  private static boolean isRunning = false;
+  private final Timer timer = new Timer();
 
   public SnapshotTimer(final List<SensorProvider> sensorProviders) {
     this.sensorProviders = sensorProviders;
   }
 
   public void start() {
-    Realm realm = Realm.getDefaultInstance();
-    Campaign campaign = realm.where(Campaign.class).findFirst();
 
-    Log.d("SnapshotTimer", "Starting a snapshot timer for campaign with id " + campaign.getIdentifier());
-    long snapshotLength = campaign.getSnapshotLength();
+    if (!isRunning) {
+      Realm realm = Realm.getDefaultInstance();
+      Campaign campaign = realm.where(Campaign.class).findFirst();
 
-    realm.close();
+      Log.d("SnapshotTimer", "SnapshotTimer started for campaign ID: " + campaign.getIdentifier());
+      long snapshotLength = campaign.getSnapshotLength();
 
-    new Timer().scheduleAtFixedRate(new SnapshotTimerTask(), INITIAL_TIMER_DELAY, snapshotLength);
+      realm.close();
 
+      timer.scheduleAtFixedRate(new SnapshotTimerTask(), INITIAL_TIMER_DELAY, snapshotLength);
+      isRunning = true;
+    }
+
+  }
+
+  public void stop() {
+    if (isRunning) {
+
+      Log.d("SnapshotTimer", "SnapshotTimer stopped");
+      timer.cancel();
+      isRunning = false;
+    }
   }
 
   private class SnapshotTimerTask extends TimerTask {
@@ -52,6 +67,8 @@ public class SnapshotTimer {
       long sampleDuration = campaign.getSampleDuration();
       long sampleFrequency = campaign.getSampleFrequency();
       long measurementFrequency = campaign.getMeasurementFrequency();
+      long campaignIdentifier = campaign.getIdentifier();
+      Questionnaire questionnaire = new Questionnaire(campaign.getQuestionnaire());
 
       final List<Pair<SensorType, Future<List<Sample>>>> sensorFutures = new ArrayList<>();
 
@@ -67,7 +84,11 @@ public class SnapshotTimer {
         sensorFutures.add(new Pair<>(sensorType, samples));
       }
 
+      realm.close();
+
       final Snapshot snapshot = Snapshot.Create();
+
+      // TODO Open the Questionnaire (using with the questions stored above) and get the users answer (if before)
 
       // Join in the gather sample threads
       for (Pair<SensorType, Future<List<Sample>>> sensorTypeFuturePair : sensorFutures) {
@@ -79,22 +100,23 @@ public class SnapshotTimer {
         }
       }
 
-      // TODO Open the Questionnaire and get the users answer
-      Questionnaire questionnaire = new Questionnaire(campaign.getQuestionnaire());
+      // TODO Open the Questionnaire (using with the questions stored above) and get the users answer (if after)
 
       for (Question question : questionnaire.getQuestions()) {
         questionnaire.getNextQuestion().setAnswer(true);
       }
 
+      realm = Realm.getDefaultInstance();
+
       snapshot.setQuestionnaire(questionnaire);
 
-      Log.d("SnapshotTimer", "Added snapshot to campaign with ID: " + campaign.getIdentifier());
+      Log.d("SnapshotTimer", "Added snapshot to campaign with ID: " + campaignIdentifier);
       realm.beginTransaction();
+      campaign = realm.where(Campaign.class).findFirst();
       campaign.addSnapshot(snapshot);
       realm.copyToRealm(campaign);
       realm.commitTransaction();
       realm.close();
-
     }
   }
 

@@ -13,7 +13,6 @@ import android.widget.Toast;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,10 +23,8 @@ import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AmbientL
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.BarometerSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.CompassSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.GyroscopeSensorProvider;
-import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.LocationSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.ProximitySensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.SensorProvider;
-import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.WifiSensorProvider;
 import dk.aau.sw808f16.datacollection.campaign.Campaign;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -47,11 +44,15 @@ public final class BackgroundSensorService extends Service {
   private CompassSensorProvider compassSensorProvider;
   private GyroscopeSensorProvider gyroscopeSensorProvider;
   private ProximitySensorProvider proximitySensorProvider;
-  private WifiSensorProvider wifiSensorProvider;
-  private LocationSensorProvider locationSensorProvider;
+  // TODO The LocationSensorProvider and WifiSensorProvider is broken (thread already started exception is thrown)
+  // private WifiSensorProvider wifiSensorProvider;
+  // private LocationSensorProvider locationSensorProvider;
 
+  private SnapshotTimer snapshotTimer;
+  private SynchronizationTimer synchronizationTimer;
 
   public BackgroundSensorService() {
+    synchronizationTimer = new SynchronizationTimer(this, SYNCHRONIZATION_INTERVAL);
     // The number of threads in the pool should correspond to the number of SensorProvider instances
     // this service maintains
     // Dynamically (Reflection) counts the number of SensorProvider instances this service maintains
@@ -99,8 +100,11 @@ public final class BackgroundSensorService extends Service {
     compassSensorProvider = new CompassSensorProvider(this, sensorThreadPool, sensorManager);
     gyroscopeSensorProvider = new GyroscopeSensorProvider(this, sensorThreadPool, sensorManager);
     proximitySensorProvider = new ProximitySensorProvider(this, sensorThreadPool, sensorManager);
-    wifiSensorProvider = new WifiSensorProvider(this, sensorThreadPool, sensorManager);
-    locationSensorProvider = new LocationSensorProvider(this, sensorThreadPool, sensorManager);
+    // TODO The LocationSensorProvider and WifiSensorProvider is broken (thread already started exception is thrown)
+    // wifiSensorProvider = new WifiSensorProvider(this, sensorThreadPool, sensorManager);
+    // locationSensorProvider = new LocationSensorProvider(this, sensorThreadPool, sensorManager);
+
+    snapshotTimer = new SnapshotTimer(getSensorProviders());
 
     // Start up the thread running the service.  Note that we create a
     // separate thread because the service normally runs in the process's
@@ -179,22 +183,24 @@ public final class BackgroundSensorService extends Service {
     return sensorProviderCount;
   }
 
-  private final HashSet<Campaign> activeCampaigns = new HashSet<>();
+  private List<SensorProvider> getSensorProviders() {
+    List<SensorProvider> sensorProvides = new ArrayList<>();
+    sensorProvides.add(accelerometerSensorProvider);
+    sensorProvides.add(ambientLightSensorProvider);
+    sensorProvides.add(barometerSensorProvider);
+    sensorProvides.add(compassSensorProvider);
+    sensorProvides.add(gyroscopeSensorProvider);
+    sensorProvides.add(proximitySensorProvider);
+    // TODO The LocationSensorProvider and WifiSensorProvider is broken (thread already started exception is thrown)
+    // sensorProvides.add(wifiSensorProvider);
+    // sensorProvides.add(locationSensorProvider);
+    return sensorProvides;
+  }
 
   private void activateCampaign(final Campaign campaign) {
     serviceHandler.post(new Runnable() {
       @Override
       public void run() {
-        List<SensorProvider> sensorProvides = new ArrayList<>();
-        sensorProvides.add(accelerometerSensorProvider);
-        sensorProvides.add(ambientLightSensorProvider);
-        sensorProvides.add(barometerSensorProvider);
-        sensorProvides.add(compassSensorProvider);
-        sensorProvides.add(gyroscopeSensorProvider);
-        sensorProvides.add(proximitySensorProvider);
-        sensorProvides.add(wifiSensorProvider);
-        sensorProvides.add(locationSensorProvider);
-        SnapshotTimer snapshotTimer = new SnapshotTimer(sensorProvides);
         snapshotTimer.start();
       }
     });
@@ -206,7 +212,7 @@ public final class BackgroundSensorService extends Service {
     serviceHandler.post(new Runnable() {
       @Override
       public void run() {
-        new SynchronizationTimer(BackgroundSensorService.this, SYNCHRONIZATION_INTERVAL).start();
+        synchronizationTimer.start();
       }
     });
   }
