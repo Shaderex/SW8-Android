@@ -36,8 +36,7 @@
             android:layout_width="match_parent"
             android:layout_height="?android:attr/listPreferredItemHeight"
             android:background="@color/light_blue"
-            android:clickable="true"
-            android:padding="@dimen/abc_control_padding_material">
+            android:clickable="true">
 
             <include
                 layout="@layout/fragment_public_campaign_element"/>
