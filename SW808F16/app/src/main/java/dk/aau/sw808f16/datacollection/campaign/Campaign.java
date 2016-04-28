@@ -258,7 +258,7 @@ public class Campaign extends RealmObject implements JsonObjectAble {
       for (Question question : this.getQuestionnaire().getQuestions()) {
         questions += question.getIdentifier() + ": " + question.getQuestion() + ",";
       }
-      Log.d("CampaignSpecification", "questions: " + questions);
+      Log.d(logTag, "questions: " + questions);
     }
   }
 
