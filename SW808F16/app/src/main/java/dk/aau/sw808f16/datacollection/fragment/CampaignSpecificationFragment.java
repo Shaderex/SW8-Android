@@ -259,6 +259,7 @@ public class CampaignSpecificationFragment extends Fragment {
 
         @Override
         public void onResponseCodeMatching(Response<JSONObject> response) {
+          super.onResponseCodeMatching(response);
           adapter.setCampaignSpecification(response.getBody());
           activityIndicator.hide();
         }
