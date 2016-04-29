@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -21,14 +21,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="@android:style/TextAppearance.Material.Headline"
-                tools:text="@string/campaign_specification_fragment_title" />
+                tools:text="@string/campaign_specification_fragment_title"/>
 
             <TextView
                 android:id="@+id/campaign_specification_by_line"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="@android:style/TextAppearance.Material.Medium"
-                tools:text="by Someone" />
+                tools:text="by Someone"/>
 
             <TextView
                 android:id="@+id/campaign_specification_description"
@@ -36,14 +36,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:textAppearance="@android:style/TextAppearance.Material.Caption"
-                tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce venenatis lectus sit amet est imperdiet aliquam. Nam nec mauris sed ex congue rhoncus in gravida nibh. Maecenas rhoncus mattis mauris non ultricies." />
+                tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce venenatis lectus sit amet est imperdiet aliquam. Nam nec mauris sed ex congue rhoncus in gravida nibh. Maecenas rhoncus mattis mauris non ultricies."/>
 
             <include
                 android:id="@+id/information_gathered_headline"
                 layout="@layout/fragment_campaign_specification_headline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin" />
+                android:layout_marginTop="@dimen/activity_vertical_margin"/>
 
             <!-- Location Category -->
             <include
@@ -51,7 +51,7 @@
                 layout="@layout/fragment_campaign_specification_measurements_category"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/content_area_padding" />
+                android:layout_marginTop="@dimen/content_area_padding"/>
 
             <!-- Movement Category -->
             <include
@@ -59,7 +59,7 @@
                 layout="@layout/fragment_campaign_specification_measurements_category"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/content_area_padding" />
+                android:layout_marginTop="@dimen/content_area_padding"/>
 
             <!-- Personal Information Category -->
             <include
@@ -67,35 +67,35 @@
                 layout="@layout/fragment_campaign_specification_measurements_category"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/content_area_padding" />
+                android:layout_marginTop="@dimen/content_area_padding"/>
 
             <include
                 android:id="@+id/measurements_headline"
                 layout="@layout/fragment_campaign_specification_headline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin" />
+                android:layout_marginTop="@dimen/activity_vertical_margin"/>
 
             <TextView
                 android:id="@+id/measurements_rate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="@android:style/TextAppearance.Material.Body1"
-                tools:text="2.218 measurements hourly" />
+                tools:text="2.218 measurements hourly"/>
 
             <include
                 android:id="@+id/questions_headline"
                 layout="@layout/fragment_campaign_specification_headline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin" />
+                android:layout_marginTop="@dimen/activity_vertical_margin"/>
 
 
-                <ListView
-                    android:id="@+id/fragment_campaign_specification_listing"
-                    android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    tools:listitem="@layout/fragment_campaign_specification_question_item" />
+            <ListView
+                android:id="@+id/fragment_campaign_specification_listing"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                tools:listitem="@layout/fragment_campaign_specification_question_item"/>
 
 
         </LinearLayout>
@@ -108,7 +108,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        tools:visibility="gone" />
+        tools:visibility="gone"/>
 
     <TextView
         android:id="@+id/error_message_textview"
@@ -117,6 +117,6 @@
         android:layout_centerInParent="true"
         android:gravity="center"
         android:padding="10dp"
-        android:visibility="gone" />
+        android:visibility="gone"/>
 
 </RelativeLayout>
