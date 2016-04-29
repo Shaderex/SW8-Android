@@ -1,7 +1,7 @@
 package dk.aau.sw808f16.datacollection.fragment;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;

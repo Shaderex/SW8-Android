@@ -25,6 +25,7 @@ import io.realm.RealmObject;
 import io.realm.RealmResults;
 
 public class SynchronizationTimer {
+
   private Context context;
   private static final long INITIAL_SYNC_DELAY = 1000;
   private long synchronizationInterval;
@@ -64,9 +65,9 @@ public class SynchronizationTimer {
         Log.d("SynchronizationTimer", "Unable to upload without network");
         return; // Take no further actions
       }
+
       final Realm realm = Realm.getDefaultInstance();
       RealmResults<Campaign> results = realm.where(Campaign.class).findAll();
-
 
       if (results.size() == 0) {
         Log.d("SynchronizationTimer", "There are no campaigns to be uploaded");
@@ -106,12 +107,13 @@ public class SynchronizationTimer {
             }
 
             @Override
-            public void onResponseCodeMatching(Response<String> response) {
+            public void onResponseCodeMatching(final Response<String> response) {
+
               final Realm realm = Realm.getDefaultInstance();
               realm.beginTransaction();
-              RealmResults<Campaign> campaigns = realm.where(Campaign.class).equalTo("identifier", campaignIdentifer).findAll();
+              final RealmResults<Campaign> campaigns = realm.where(Campaign.class).equalTo("identifier", campaignIdentifer).findAll();
 
-              Campaign campaign = campaigns.get(0);
+              final Campaign campaign = campaigns.get(0);
 
               for (Snapshot snapshot : campaign.getSnapshots()) {
                 for (RealmObject obj : snapshot.children()) {
@@ -129,13 +131,14 @@ public class SynchronizationTimer {
             }
 
             @Override
-            public void onResponseCodeNotMatching(Response<String> response) {
+            public void onResponseCodeNotMatching(final Response<String> response) {
             }
 
             @Override
             public void onConnectionFailure() {
             }
           };
+
           task.execute();
 
         } catch (JSONException exception) {

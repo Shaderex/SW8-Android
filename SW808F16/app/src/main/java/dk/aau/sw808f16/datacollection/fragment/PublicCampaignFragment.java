@@ -1,11 +1,11 @@
 package dk.aau.sw808f16.datacollection.fragment;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -33,7 +33,7 @@ import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
 import dk.aau.sw808f16.datacollection.webutil.RequestHostResolver;
 
 public class PublicCampaignFragment extends Fragment
-    implements ConfirmSaveSelectionFragment.SaveConfirmedCampaign, SwipeRefreshLayout.OnRefreshListener {
+    implements SwipeRefreshLayout.OnRefreshListener {
 
   private static final String JOIN_CAMPAIGN_FRAGMENT_KEY = "JOIN_CAMPAIGN_FRAGMENT_KEY";
   private static final String PRIVATE_CAMPAIGN_FRAGMENT_KEY = "PRIVATE_CAMPAIGN_FRAGMENT_KEY";
@@ -92,47 +92,16 @@ public class PublicCampaignFragment extends Fragment
       @Override
       public void onClick(final View view) {
 
-        final PrivateCampaignFragment fragment = PrivateCampaignFragment.newInstance();
-        getFragmentManager().beginTransaction()
-            .replace(R.id.content_frame_layout, fragment, PRIVATE_CAMPAIGN_FRAGMENT_KEY)
+        final FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction()
+            .replace(R.id.content_frame_layout, PrivateCampaignFragment.newInstance(),
+                PRIVATE_CAMPAIGN_FRAGMENT_KEY)
             .addToBackStack(PRIVATE_CAMPAIGN_FRAGMENT_KEY)
             .commit();
-
-        /*final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
-        // Spawn dialog if there is already a marked campaign
-        if (currentlyMarkedCampaign == -1 && preferences.getLong(getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), -1L) == -1L) {
-          Toast.makeText(getActivity(), R.string.select_campaign_first_message, Toast.LENGTH_SHORT).show();
-        } else if (currentlyMarkedCampaign == -1) {
-
-          // TODO: byt denne toast ud med en dialog der håndterer ting
-          Toast.makeText(getActivity(), R.string.unsubscribe_from_campaign_message, Toast.LENGTH_SHORT).show();
-
-        } else if (preferences.getLong(getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), -1) != -1) {
-
-          ConfirmSaveSelectionFragment confirmSaveSelectionFragment = new ConfirmSaveSelectionFragment();
-          confirmSaveSelectionFragment.show(getChildFragmentManager(), CONFIRM_SAVE_SELECTION_FRAGMENT);
-
-          getFragmentManager().executePendingTransactions();
-        } else {
-          onConfirmedCampaignSave();
-        }
-        */
-
       }
     });
 
     return view;
-  }
-
-  @Override
-  public void onConfirmedCampaignSave() {
-    final FragmentManager fragmentManager = getFragmentManager();
-    fragmentManager.beginTransaction()
-        .replace(R.id.content_frame_layout, CampaignJoinFragment.newInstance(currentlyMarkedCampaign),
-            getString(R.string.CAMPAIGN_CONFIRMATION_FRAGMENT_KEY))
-        .addToBackStack(getString(R.string.CAMPAIGN_CONFIRMATION_FRAGMENT_KEY))
-        .commit();
   }
 
   @Override
@@ -165,6 +134,7 @@ public class PublicCampaignFragment extends Fragment
       @Override
       public void onResponseCodeMatching(final Response<JSONArray> response) {
         final JSONArray data = response.getBody();
+
         final ListView listView = (ListView) getView().findViewById(R.id.campaigns_list_view);
 
         if (listView.getEmptyView() != null) {

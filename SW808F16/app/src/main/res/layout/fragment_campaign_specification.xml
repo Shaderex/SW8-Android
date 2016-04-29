@@ -6,15 +6,16 @@
                 android:orientation="vertical">
 
     <ScrollView
+        android:id="@+id/specification_scroller"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:padding="@dimen/activity_padding">
+        android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="@dimen/activity_padding">
 
             <TextView
                 android:id="@+id/campaign_specification_title"
@@ -90,16 +91,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/activity_vertical_margin"/>
 
-
-            <ListView
+            <LinearLayout
                 android:id="@+id/fragment_campaign_specification_listing"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                tools:listitem="@layout/fragment_campaign_specification_question_item"/>
-
-
+                android:layout_height="wrap_content"
+                android:orientation="vertical"/>
         </LinearLayout>
-
     </ScrollView>
 
     <android.support.v4.widget.ContentLoadingProgressBar
@@ -109,7 +106,6 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         tools:visibility="gone"/>
-
     <TextView
         android:id="@+id/error_message_textview"
         android:layout_width="match_parent"
@@ -118,5 +114,4 @@
         android:gravity="center"
         android:padding="10dp"
         android:visibility="gone"/>
-
 </RelativeLayout>

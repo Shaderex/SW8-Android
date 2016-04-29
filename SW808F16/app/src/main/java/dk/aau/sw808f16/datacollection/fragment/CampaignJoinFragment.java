@@ -1,17 +1,18 @@
 package dk.aau.sw808f16.datacollection.fragment;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.Toast;
 
+import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.goebl.david.Response;
 
 import org.json.JSONObject;
@@ -19,7 +20,7 @@ import org.json.JSONObject;
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.campaign.AsyncHttpCampaignJoinTask;
 
-public class CampaignJoinFragment extends Fragment {
+public class CampaignJoinFragment extends Fragment implements ConfirmSaveSelectionFragment.SaveConfirmedCampaign {
 
   private static final String CAMPAIGN_ID_TAG = "CAMPAIGN_ID_TAG";
   private static final String CAMPAIGN_SPECIFICATION_FRAGMENT_KEY = "CAMPAIGN_SPECIFICATION_FRAGMENT_KEY";
@@ -61,31 +62,51 @@ public class CampaignJoinFragment extends Fragment {
         .addToBackStack(CAMPAIGN_SPECIFICATION_FRAGMENT_KEY)
         .commit();
 
-    final Button joinBtn = (Button) view.findViewById(R.id.private_campaign_join_button);
+    final FloatingActionButton joinBtn = (FloatingActionButton) view.findViewById(R.id.private_campaign_join_button);
 
     joinBtn.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(final View view) {
 
-        final Context context = getActivity();
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        final AsyncHttpCampaignJoinTask joinCampaignTask = new AsyncHttpCampaignJoinTask(context, campaignId) {
-          @Override
-          public void onResponseCodeMatching(final Response<JSONObject> response) {
-            super.onResponseCodeMatching(response);
+        // Spawn dialog if there is already a marked campaign
+        if (preferences.getLong(getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), -1L) == -1L) {
 
-            final SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
-            editor.putLong(context.getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), campaignId);
-            editor.apply();
-          }
-        };
+          onConfirmedCampaignSave(campaignId);
 
-        joinCampaignTask.execute();
+        } else {
 
-        getFragmentManager().popBackStackImmediate();
+          final ConfirmSaveSelectionFragment confirmSaveSelectionFragment = ConfirmSaveSelectionFragment.newInstance(campaignId);
+          confirmSaveSelectionFragment.show(getChildFragmentManager(), null);
+          getFragmentManager().executePendingTransactions();
+        }
+
+
       }
     });
 
     return view;
+  }
+
+  @Override
+  public void onConfirmedCampaignSave(final long campaignId) {
+
+    final Context context = getActivity();
+
+    final AsyncHttpCampaignJoinTask joinCampaignTask = new AsyncHttpCampaignJoinTask(context, campaignId) {
+      @Override
+      public void onResponseCodeMatching(final Response<JSONObject> response) {
+        super.onResponseCodeMatching(response);
+
+        final SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        editor.putLong(context.getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), campaignId);
+        editor.apply();
+      }
+    };
+
+    joinCampaignTask.execute();
+    getFragmentManager().popBackStackImmediate();
+
   }
 }

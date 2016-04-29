@@ -1,9 +1,8 @@
 package dk.aau.sw808f16.datacollection.fragment;
 
-import android.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.ContentLoadingProgressBar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -13,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.goebl.david.Response;
@@ -100,9 +99,8 @@ public class CampaignSpecificationFragment extends Fragment {
       return null;
     }
 
-    final View view = inflater.inflate(R.layout.fragment_campaign_specification, container, false);
+    final ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_campaign_specification, container, false);
     final ContentLoadingProgressBar activityIndicator = (ContentLoadingProgressBar) view.findViewById(R.id.activity_indicator);
-    final ListView campaignSpecificationListing = (ListView) view.findViewById(R.id.fragment_campaign_specification_listing);
 
     // Set headlines
     updateHeadline(view, R.id.information_gathered_headline, "Information Gathered", "The following information will be collected");
@@ -130,6 +128,7 @@ public class CampaignSpecificationFragment extends Fragment {
           view.setVisibility(View.VISIBLE);
 
           final TextView errorMessageTextView = (TextView) getView().findViewById(R.id.error_message_textview);
+          final ScrollView scrollingView = (ScrollView) getView().findViewById(R.id.specification_scroller);
 
           activityIndicator.hide();
 
@@ -146,6 +145,7 @@ public class CampaignSpecificationFragment extends Fragment {
           }
 
           errorMessageTextView.setVisibility(View.VISIBLE);
+          scrollingView.setVisibility(View.GONE);
         }
       };
 
@@ -166,8 +166,7 @@ public class CampaignSpecificationFragment extends Fragment {
     return view;
   }
 
-  private void updateCampaignSpecification(final View parent, final JSONObject campaignSpecification) {
-    Log.d("data", campaignSpecification.toString());
+  private void updateCampaignSpecification(final ViewGroup parent, final JSONObject campaignSpecification) {
 
     try {
       final Campaign campaign = new Campaign(campaignSpecification);
@@ -184,12 +183,16 @@ public class CampaignSpecificationFragment extends Fragment {
       final TextView campaignDescriptionTextView = (TextView) parent.findViewById(R.id.campaign_specification_description);
       campaignDescriptionTextView.setText(campaignDescription);
 
-      HashMap<SensorType.SensorCategory, List<SensorType>> sensorsUsed = new HashMap<>();
+      final HashMap<SensorType.SensorCategory, List<SensorType>> sensorsUsed = new HashMap<>();
       for (final SensorType sensor : campaign.getSensors()) {
         if (sensorsUsed.get(sensor.getCategory()) == null) {
           sensorsUsed.put(sensor.getCategory(), new ArrayList<SensorType>());
         }
         sensorsUsed.get(sensor.getCategory()).add(sensor);
+      }
+
+      if (sensorsUsed.isEmpty()) {
+        parent.findViewById(R.id.measurements_headline).setVisibility(View.GONE);
       }
 
       updateCampaignMeasurementsCategory(parent, R.id.measurement_category_location, R.drawable.ic_room_black_24dp, "Location", sensorsUsed.get(SensorType.SensorCategory.LOCATION));
@@ -204,20 +207,26 @@ public class CampaignSpecificationFragment extends Fragment {
       final TextView measurementsRateTextView = (TextView) parent.findViewById(R.id.measurements_rate);
       measurementsRateTextView.setText(measurementsPerHour + " measurements per hour");
 
-      final ListView lv = (ListView) parent.findViewById(R.id.fragment_campaign_specification_listing);
+      final LinearLayout lv = (LinearLayout) parent.findViewById(R.id.fragment_campaign_specification_listing);
 
-      List<String> questions = new ArrayList<>();
+      final List<String> questions = new ArrayList<>();
       for (Question question : campaign.getQuestionnaire().getQuestions()) {
         questions.add(question.getQuestion());
       }
-      ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(parent.getContext(), R.layout.fragment_campaign_specification_question_item, questions);
 
-      lv.setAdapter(arrayAdapter);
+      if (questions.isEmpty()) {
+        parent.findViewById(R.id.questions_headline).setVisibility(View.GONE);
+      }
 
-      // TODO Set the height of the listview smart here (or use another layout, its set as 200dp fixed in the xml file atm)
+      final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(parent.getContext(), R.layout.fragment_campaign_specification_question_item, questions);
+      final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
-    } catch (JSONException e) {
-      e.printStackTrace();
+      for (int counter = 0; counter < arrayAdapter.getCount(); counter++) {
+        lv.addView(arrayAdapter.getView(counter, null, parent), layoutParams);
+      }
+
+    } catch (JSONException exception) {
+      exception.printStackTrace();
     }
   }
 

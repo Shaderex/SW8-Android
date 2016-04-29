@@ -2,14 +2,25 @@ package dk.aau.sw808f16.datacollection.fragment;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 
 import dk.aau.sw808f16.datacollection.R;
 
 public class ConfirmSaveSelectionFragment extends DialogFragment {
 
+  public static final String CAMPAIGN_ID_TAG = "CAMPAIGN_ID_TAG";
+
+  public static ConfirmSaveSelectionFragment newInstance(final long campaignID) {
+    final ConfirmSaveSelectionFragment newFragment = new ConfirmSaveSelectionFragment();
+
+    final Bundle args = new Bundle();
+    args.putLong(CAMPAIGN_ID_TAG, campaignID);
+    newFragment.setArguments(args);
+
+    return newFragment;
+  }
 
   @Override
   public Dialog onCreateDialog(final Bundle savedInstanceState) {
@@ -22,7 +33,7 @@ public class ConfirmSaveSelectionFragment extends DialogFragment {
 
             dismiss();
 
-            ((SaveConfirmedCampaign) getParentFragment()).onConfirmedCampaignSave();
+            ((SaveConfirmedCampaign) getParentFragment()).onConfirmedCampaignSave(getArguments().getLong(CAMPAIGN_ID_TAG));
           }
         })
         .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -36,7 +47,7 @@ public class ConfirmSaveSelectionFragment extends DialogFragment {
   }
 
   public interface SaveConfirmedCampaign {
-    void onConfirmedCampaignSave();
+    void onConfirmedCampaignSave(final long campaignId);
   }
 
 }
