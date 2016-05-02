@@ -1,13 +1,13 @@
 package dk.aau.sw808f16.datacollection.fragment;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.test.ActivityUnitTestCase;
 import android.view.ContextThemeWrapper;
 import android.view.View;
-import android.widget.ListView;
+import android.widget.LinearLayout;
 
 import junit.framework.Assert;
 
@@ -38,7 +38,7 @@ public class CampaignSpecificationFragmentTest extends ActivityUnitTestCase<Main
 
     final String key = "TEST_KEY";
 
-    final FragmentManager fragmentManager = getActivity().getFragmentManager();
+    final FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
     fragmentManager.beginTransaction().add(R.id.content_frame_layout, CampaignSpecificationFragment.newInstance(1), key).commit();
     fragmentManager.executePendingTransactions();
 
@@ -52,7 +52,7 @@ public class CampaignSpecificationFragmentTest extends ActivityUnitTestCase<Main
 
     final Campaign campaign = new Campaign();
 
-    final FragmentManager fragmentManager = getActivity().getFragmentManager();
+    final FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
     fragmentManager.beginTransaction().add(R.id.content_frame_layout, CampaignSpecificationFragment.newInstance(campaign), key).commit();
     fragmentManager.executePendingTransactions();
 
@@ -65,7 +65,7 @@ public class CampaignSpecificationFragmentTest extends ActivityUnitTestCase<Main
 
     final String key = "TEST_KEY";
 
-    final FragmentManager fragmentManager = getActivity().getFragmentManager();
+    final FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
     fragmentManager.beginTransaction().add(R.id.content_frame_layout, CampaignSpecificationFragment.newInstance(1), key).commit();
     fragmentManager.executePendingTransactions();
 
@@ -73,11 +73,11 @@ public class CampaignSpecificationFragmentTest extends ActivityUnitTestCase<Main
 
     final View view = fragment.getView();
 
-    final ListView listView = (ListView) view.findViewById(R.id.fragment_campaign_specification_listing);
+    final LinearLayout questions = (LinearLayout) view.findViewById(R.id.fragment_campaign_specification_questions_listing);
 
     Thread.sleep(2000);
 
-    Assert.assertTrue("There should be more than zero items in the list, there are: " + listView.getAdapter().getCount(), listView.getAdapter().getCount() > 0);
+    Assert.assertTrue("There should be more than zero items in the list, there are: ", questions.getChildCount() > 0);
   }
 
 }

@@ -1,6 +1,6 @@
 package dk.aau.sw808f16.datacollection;
 
-import android.app.FragmentManager;
+import android.support.v4.app.FragmentManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.test.ActivityUnitTestCase;
@@ -64,15 +64,18 @@ public class MainActivityTest extends ActivityUnitTestCase<MainActivity> {
 
     latch.await();
 
-    final FragmentManager fragmentManager = getActivity().getFragmentManager();
+    final FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
     fragmentManager.executePendingTransactions();
     final PrivateCampaignFragment privateFragment = (PrivateCampaignFragment) fragmentManager.findFragmentById(R.id.content_frame_layout);
 
+    Thread.sleep(1000);
+
     boolean b1 = privateFragment.isAdded();
     boolean b2 = !privateFragment.isHidden();
-    boolean b3 = privateFragment.getView() != null && privateFragment.getView().getVisibility() == View.VISIBLE;
+    boolean b3 = privateFragment.getView() != null;
+    boolean b4 = privateFragment.getView().getVisibility() == View.VISIBLE;
 
-    assertTrue(b1 && b2 && b3);
+    assertTrue(b1 && b2 && b3 && b4);
   }
 
   public void testClickedOnPublicButton() throws InterruptedException {
@@ -92,7 +95,7 @@ public class MainActivityTest extends ActivityUnitTestCase<MainActivity> {
 
     latch.await();
 
-    final FragmentManager fragmentManager = getActivity().getFragmentManager();
+    final FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
     fragmentManager.executePendingTransactions();
     final PublicCampaignFragment privateFragment = (PublicCampaignFragment) fragmentManager.findFragmentById(R.id.content_frame_layout);
 

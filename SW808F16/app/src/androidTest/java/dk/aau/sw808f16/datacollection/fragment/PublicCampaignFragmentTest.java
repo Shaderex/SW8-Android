@@ -1,7 +1,7 @@
 package dk.aau.sw808f16.datacollection.fragment;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.database.DataSetObserver;
@@ -49,7 +49,7 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
 
   public void testAddPublicCampaignFragmentToActivity() {
 
-    final FragmentManager fragmentManager = getActivity().getFragmentManager();
+    final FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
     fragmentManager.beginTransaction().add(R.id.content_frame_layout, PublicCampaignFragment.newInstance(), TEST_KEY).commit();
     fragmentManager.executePendingTransactions();
 
@@ -60,7 +60,7 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
 
   public void testPublicCampaignFragmentHasListView() {
 
-    final FragmentManager fragmentManager = getActivity().getFragmentManager();
+    final FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
     fragmentManager.beginTransaction().add(R.id.content_frame_layout, PublicCampaignFragment.newInstance(), TEST_KEY).commit();
     fragmentManager.executePendingTransactions();
 
@@ -136,7 +136,7 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
 
   public void testPublicCampaignFragmentIsListViewPopulatable() {
 
-    final FragmentManager fragmentManager = getActivity().getFragmentManager();
+    final FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
     fragmentManager.beginTransaction().add(R.id.content_frame_layout, PublicCampaignFragment.newInstance(), TEST_KEY).commit();
     fragmentManager.executePendingTransactions();
 

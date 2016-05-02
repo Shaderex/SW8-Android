@@ -207,7 +207,7 @@ public class CampaignSpecificationFragment extends Fragment {
       final TextView measurementsRateTextView = (TextView) parent.findViewById(R.id.measurements_rate);
       measurementsRateTextView.setText(measurementsPerHour + " measurements per hour");
 
-      final LinearLayout lv = (LinearLayout) parent.findViewById(R.id.fragment_campaign_specification_listing);
+      final LinearLayout lv = (LinearLayout) parent.findViewById(R.id.fragment_campaign_specification_questions_listing);
 
       final List<String> questions = new ArrayList<>();
       for (Question question : campaign.getQuestionnaire().getQuestions()) {

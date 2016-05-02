@@ -1,7 +1,7 @@
 package dk.aau.sw808f16.datacollection.fragment;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.test.ActivityUnitTestCase;
@@ -33,7 +33,7 @@ public class PrivateCampaignFragmentTest extends ActivityUnitTestCase<MainActivi
 
     final String key = "TEST_KEY";
 
-    final FragmentManager fragmentManager = getActivity().getFragmentManager();
+    final FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
     fragmentManager.beginTransaction().add(R.id.content_frame_layout, PrivateCampaignFragment.newInstance(), key).commit();
     fragmentManager.executePendingTransactions();
 
@@ -42,7 +42,7 @@ public class PrivateCampaignFragmentTest extends ActivityUnitTestCase<MainActivi
 
   public void testAddPrivateCampaignFragmentToActivity() {
 
-    final FragmentManager fragmentManager = getActivity().getFragmentManager();
+    final FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
     final Fragment fragment = fragmentManager.findFragmentById(R.id.content_frame_layout);
     Assert.assertEquals(fragment.getClass(), PrivateCampaignFragment.class);
   }
