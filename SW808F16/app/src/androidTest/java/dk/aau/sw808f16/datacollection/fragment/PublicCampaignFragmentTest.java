@@ -58,17 +58,6 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
     Assert.assertEquals(fragment.getClass(), PublicCampaignFragment.class);
   }
 
-  public void testPublicCampaignFragmentHasListView() {
-
-    final FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-    fragmentManager.beginTransaction().add(R.id.content_frame_layout, PublicCampaignFragment.newInstance(), TEST_KEY).commit();
-    fragmentManager.executePendingTransactions();
-
-    final Fragment fragment = fragmentManager.findFragmentById(R.id.content_frame_layout);
-    final ListView listView = (ListView) fragment.getView().findViewById(R.id.campaigns_list_view);
-    assertNotNull(listView);
-  }
-
   /*
   public void testPublicCampaignFragmentListViewEmptyViewVisible() throws InterruptedException {
 
@@ -133,95 +122,4 @@ public class PublicCampaignFragmentTest extends ActivityUnitTestCase<MainActivit
     || unexpected_response_emptyView.getVisibility() == View.GONE);
   }
   */
-
-  public void testPublicCampaignFragmentIsListViewPopulatable() {
-
-    final FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-    fragmentManager.beginTransaction().add(R.id.content_frame_layout, PublicCampaignFragment.newInstance(), TEST_KEY).commit();
-    fragmentManager.executePendingTransactions();
-
-    final PublicCampaignFragment fragment = (PublicCampaignFragment) fragmentManager.findFragmentById(R.id.content_frame_layout);
-    final ListView listView = (ListView) fragment.getView().findViewById(R.id.campaigns_list_view);
-
-    listView.setAdapter(new ListAdapter() {
-
-      final List<JSONObject> campaings = new ArrayList<>(Arrays.asList(new JSONObject(), new JSONObject()));
-
-      @Override
-      public boolean areAllItemsEnabled() {
-        return true;
-      }
-
-      @Override
-      public boolean isEnabled(int position) {
-        return true;
-      }
-
-      @Override
-      public void registerDataSetObserver(DataSetObserver observer) {
-
-      }
-
-      @Override
-      public void unregisterDataSetObserver(DataSetObserver observer) {
-
-      }
-
-      @Override
-      public int getCount() {
-        return campaings.size();
-      }
-
-      @Override
-      public Object getItem(int position) {
-        return campaings.get(position);
-      }
-
-      @Override
-      public long getItemId(int position) {
-        try {
-          return campaings.get(position).getInt("id");
-        } catch (JSONException exception) {
-          exception.printStackTrace();
-        }
-
-        return -1;
-      }
-
-      @Override
-      public boolean hasStableIds() {
-        return false;
-      }
-
-      @Override
-      public View getView(int position, View convertView, ViewGroup parent) {
-
-        final LinearLayout layout = new LinearLayout(parent.getContext());
-        final TextView textView = new TextView(parent.getContext());
-        textView.setText("test");
-        layout.addView(textView);
-
-        return layout;
-      }
-
-      @Override
-      public int getItemViewType(int position) {
-        return 1;
-      }
-
-      @Override
-      public int getViewTypeCount() {
-        return 1;
-      }
-
-      @Override
-      public boolean isEmpty() {
-        return campaings.isEmpty();
-      }
-    });
-
-
-  }
-
-
 }

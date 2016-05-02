@@ -59,25 +59,4 @@ public class CampaignSpecificationFragmentTest extends ActivityUnitTestCase<Main
     final Fragment fragment = fragmentManager.findFragmentById(R.id.content_frame_layout);
     Assert.assertEquals(fragment.getClass(), CampaignSpecificationFragment.class);
   }
-
-  // This test requires that there is a campaign specification on the server with an ID of 1
-  public void testCampaignSpecificationFragmentListIsPopulated() throws InterruptedException {
-
-    final String key = "TEST_KEY";
-
-    final FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-    fragmentManager.beginTransaction().add(R.id.content_frame_layout, CampaignSpecificationFragment.newInstance(1), key).commit();
-    fragmentManager.executePendingTransactions();
-
-    final Fragment fragment = fragmentManager.findFragmentById(R.id.content_frame_layout);
-
-    final View view = fragment.getView();
-
-    final LinearLayout questions = (LinearLayout) view.findViewById(R.id.fragment_campaign_specification_questions_listing);
-
-    Thread.sleep(2000);
-
-    Assert.assertTrue("There should be more than zero items in the list, there are: ", questions.getChildCount() > 0);
-  }
-
 }

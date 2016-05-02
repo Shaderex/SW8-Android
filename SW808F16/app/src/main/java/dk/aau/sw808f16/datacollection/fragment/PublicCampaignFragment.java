@@ -273,7 +273,7 @@ public class PublicCampaignFragment extends Fragment
 
         Log.d("data", campaignObject.toString());
         holder.idTextView.setText(campaignObject.getString("name"));
-        holder.byLineTextView.setText("by Someone");
+        holder.byLineTextView.setText(campaignObject.getString("user"));
         holder.campaignTextContainer.setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(final View view) {
