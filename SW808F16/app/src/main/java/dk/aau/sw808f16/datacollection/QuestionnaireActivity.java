@@ -7,18 +7,24 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import dk.aau.sw808f16.datacollection.campaign.Campaign;
 import dk.aau.sw808f16.datacollection.questionaire.models.Question;
 import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
 import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class QuestionnaireActivity extends Activity {
 
-  public static final String QUESTIONNAIRE_PARCEL_IDENTIFIER = "QUESTIONNAIRE_PARCEL_IDENTIFIER";
+  public static final String QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY = "QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY";
+  public static final String CAMPAIGN_ID_KEY = "CAMPAIGN_ID_KEY";
+  public static final String SNAPSHOT_TIMESTAMP_KEY = "SNAPSHOT_TIMESTAMP_KEY";
 
   // Questionnaire
   private Questionnaire questionnaire;
   private Question currentQuestion = null;
+  private long campaignID;
+  private long snapshotTimestamp;
 
   // Views
   private TextView questionText;
@@ -29,7 +35,9 @@ public class QuestionnaireActivity extends Activity {
     setContentView(R.layout.activity_questionnaire);
 
     Intent intent = getIntent();
-    questionnaire = intent.getParcelableExtra(QUESTIONNAIRE_PARCEL_IDENTIFIER);
+    questionnaire = intent.getParcelableExtra(QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY);
+    campaignID = intent.getParcelableExtra(CAMPAIGN_ID_KEY);
+    snapshotTimestamp = intent.getParcelableExtra(SNAPSHOT_TIMESTAMP_KEY);
 
     if (questionnaire == null) {
       throw new IllegalArgumentException("Illegal intent sent to activity. Questionnaire was null");
@@ -68,25 +76,31 @@ public class QuestionnaireActivity extends Activity {
       // There are no more questions
 
       final Intent resultIntent = new Intent();
-      resultIntent.putExtra(QUESTIONNAIRE_PARCEL_IDENTIFIER, questionnaire);
+      resultIntent.putExtra(QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY, questionnaire);
 
       setResult(Activity.RESULT_OK, resultIntent);
 
       Realm realm = Realm.getDefaultInstance();
+      final Campaign campaign = realm.where(Campaign.class).equalTo("identifier", campaignID).findFirst();
 
-      Snapshot snapshot = realm.where(Snapshot.class).findFirst();
+      Snapshot snapshot = null;
+
+      for(Snapshot ss : campaign.getSnapshots()) {
+        if(ss.getTimestamp() == snapshotTimestamp) {
+          snapshot = ss;
+          break;
+        }
+      }
+
       if (snapshot != null) {
 
         realm.beginTransaction();
         questionnaire = realm.copyToRealm(questionnaire);
         realm.commitTransaction();
 
-
         realm.beginTransaction();
-
-
         snapshot.setQuestionnaire(questionnaire);
-        realm.copyToRealmOrUpdate(snapshot);
+        realm.copyToRealmOrUpdate(campaign);
         realm.commitTransaction();
       }
 
@@ -102,7 +116,7 @@ public class QuestionnaireActivity extends Activity {
   public final void onBackPressed() {
 
     final Intent resultIntent = new Intent();
-    resultIntent.putExtra(QUESTIONNAIRE_PARCEL_IDENTIFIER, questionnaire);
+    resultIntent.putExtra(QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY, questionnaire);
 
     setResult(Activity.RESULT_CANCELED, resultIntent);
 

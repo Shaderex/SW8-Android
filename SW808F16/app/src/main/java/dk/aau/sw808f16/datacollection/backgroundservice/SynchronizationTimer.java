@@ -37,7 +37,7 @@ public class SynchronizationTimer {
     this.synchronizationInterval = synchronizationInterval;
   }
 
-  public void start() {
+  public synchronized void start() {
     if (!isRunning) {
       Log.d("SynchronizationTimer", "SynchronizationTimer started with " + synchronizationInterval + "ms interval between syncs");
 
@@ -47,7 +47,7 @@ public class SynchronizationTimer {
     }
   }
 
-  public void stop() {
+  public synchronized void stop() {
     if (isRunning) {
       Log.d("SynchronizationTimer", "SynchronizationTimer stopped");
       timer.cancel();

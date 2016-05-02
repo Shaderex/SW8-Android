@@ -56,7 +56,7 @@ public class DataCollectionApplication extends Application {
 
     if (checkPlayServices()) {
       // Start IntentService to register this application with GCM.
-      Intent intent = new Intent(this, RegistrationIntentService.class);
+      final Intent intent = new Intent(this, RegistrationIntentService.class);
       startService(intent);
     }
   }

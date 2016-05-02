@@ -33,7 +33,7 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
     };
 
     final Intent intent = new Intent(getInstrumentation().getTargetContext(), QuestionnaireActivity.class);
-    intent.putExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER, new Questionnaire(questions));
+    intent.putExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY, new Questionnaire(questions));
 
     //final ComponentName componentName = new ComponentName("dk.aau.sw808f16.datacollection", "MainActivity");
     //final Intent mainActivityIntent = Intent.makeMainActivity(componentName);
@@ -47,7 +47,7 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
   }
 
   public void testQuestionnaireParcelIdentifier() {
-    final String questionnaireParcelIdentifier = QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER;
+    final String questionnaireParcelIdentifier = QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY;
 
     assertNotNull(questionnaireParcelIdentifier);
   }
@@ -197,7 +197,7 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
     final Intent resultIntent = getFinishedActivityIntent();
     assertNotNull(resultIntent);
 
-    final Questionnaire resultQuestionnaire = resultIntent.getParcelableExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER);
+    final Questionnaire resultQuestionnaire = resultIntent.getParcelableExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY);
 
     assertNotNull(getStartedActivityRequest());
     assertEquals(Activity.RESULT_OK, getStartedActivityRequest());
@@ -222,7 +222,7 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
     final Intent resultIntent = this.getFinishedActivityIntent();
     assertNotNull(resultIntent);
 
-    final Questionnaire resultQuestionnaire = resultIntent.getParcelableExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER);
+    final Questionnaire resultQuestionnaire = resultIntent.getParcelableExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY);
 
     final int finishedActivityRequest = getFinishedActivityRequest();
 
@@ -245,7 +245,7 @@ public class QuestionnaireActivityTest extends ActivityUnitTestCase<Questionnair
     final Intent resultIntent = getFinishedActivityIntent();
     assertNotNull(resultIntent);
 
-    final Questionnaire resultQuestionnaire = resultIntent.getParcelableExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER);
+    final Questionnaire resultQuestionnaire = resultIntent.getParcelableExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY);
 
     assertNotNull(getFinishedActivityRequest());
     assertEquals(Activity.RESULT_CANCELED, getFinishedActivityRequest());

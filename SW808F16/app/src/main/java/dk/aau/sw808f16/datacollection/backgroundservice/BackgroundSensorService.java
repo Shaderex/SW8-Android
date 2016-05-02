@@ -30,6 +30,7 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
 public final class BackgroundSensorService extends Service {
+
   public static final String SNAPSHOT_REALM_NAME = "snapshot.realm";
   private static final String REALM_NAME = DataCollectionApplication.TAG + ".realm";
   private static final long SYNCHRONIZATION_INTERVAL = 5000;
@@ -44,6 +45,7 @@ public final class BackgroundSensorService extends Service {
   private CompassSensorProvider compassSensorProvider;
   private GyroscopeSensorProvider gyroscopeSensorProvider;
   private ProximitySensorProvider proximitySensorProvider;
+
   // TODO The LocationSensorProvider and WifiSensorProvider is broken (thread already started exception is thrown)
   // private WifiSensorProvider wifiSensorProvider;
   // private LocationSensorProvider locationSensorProvider;
@@ -52,7 +54,7 @@ public final class BackgroundSensorService extends Service {
   private SynchronizationTimer synchronizationTimer;
 
   public BackgroundSensorService() {
-    synchronizationTimer = new SynchronizationTimer(this, SYNCHRONIZATION_INTERVAL);
+
     // The number of threads in the pool should correspond to the number of SensorProvider instances
     // this service maintains
     // Dynamically (Reflection) counts the number of SensorProvider instances this service maintains
@@ -105,6 +107,7 @@ public final class BackgroundSensorService extends Service {
     // locationSensorProvider = new LocationSensorProvider(this, sensorThreadPool, sensorManager);
 
     snapshotTimer = new SnapshotTimer(this, getSensorProviders());
+    synchronizationTimer = new SynchronizationTimer(this, SYNCHRONIZATION_INTERVAL);
 
     // Start up the thread running the service.  Note that we create a
     // separate thread because the service normally runs in the process's
@@ -133,7 +136,19 @@ public final class BackgroundSensorService extends Service {
       final Campaign campaign = realm.where(Campaign.class).findFirst();
 
       if (campaign != null) {
-        activateCampaign(campaign);
+        serviceHandler.post(new Runnable() {
+          @Override
+          public void run() {
+            snapshotTimer.start();
+          }
+        });
+        serviceHandler.post(new Runnable() {
+          @Override
+          public void run() {
+            synchronizationTimer.start();
+          }
+        });
+
       }
     } finally {
       if (realm != null) {
@@ -142,7 +157,6 @@ public final class BackgroundSensorService extends Service {
     }
 
     return START_STICKY;
-
   }
 
   private byte[] getSecretKey() {
@@ -164,7 +178,10 @@ public final class BackgroundSensorService extends Service {
 
   @Override
   public void onDestroy() {
+
     Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
+    snapshotTimer.stop();
+    synchronizationTimer.stop();
   }
 
   private static int getNumberOfSensorProviders() {
@@ -184,37 +201,24 @@ public final class BackgroundSensorService extends Service {
   }
 
   private List<SensorProvider> getSensorProviders() {
-    List<SensorProvider> sensorProvides = new ArrayList<>();
-    sensorProvides.add(accelerometerSensorProvider);
-    sensorProvides.add(ambientLightSensorProvider);
-    sensorProvides.add(barometerSensorProvider);
-    sensorProvides.add(compassSensorProvider);
-    sensorProvides.add(gyroscopeSensorProvider);
-    sensorProvides.add(proximitySensorProvider);
-    // TODO The LocationSensorProvider and WifiSensorProvider is broken (thread already started exception is thrown)
-    // sensorProvides.add(wifiSensorProvider);
-    // sensorProvides.add(locationSensorProvider);
+
+    final List<SensorProvider> sensorProvides = new ArrayList<>();
+
+    for (final Field field : BackgroundSensorService.class.getDeclaredFields()) {
+
+      final Class type = field.getType();
+
+      if (SensorProvider.class.isAssignableFrom(type)) {
+        try {
+          sensorProvides.add((SensorProvider)field.get(this));
+        } catch (IllegalAccessException exception) {
+          exception.printStackTrace();
+        }
+      }
+    }
+
     return sensorProvides;
   }
 
-  private void activateCampaign(final Campaign campaign) {
-    serviceHandler.post(new Runnable() {
-      @Override
-      public void run() {
-        snapshotTimer.start();
-      }
-    });
-
-    startSynchronization();
-  }
-
-  private void startSynchronization() {
-    serviceHandler.post(new Runnable() {
-      @Override
-      public void run() {
-        synchronizationTimer.start();
-      }
-    });
-  }
 
 }

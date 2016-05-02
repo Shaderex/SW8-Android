@@ -33,7 +33,7 @@ public class SnapshotTimer {
   private static final long INITIAL_TIMER_DELAY = 0;
   private final List<SensorProvider> sensorProviders;
   private static boolean isRunning = false;
-  private final Timer timer = new Timer();
+  private Timer timer;
   private final Context context;
 
   public SnapshotTimer(final Context context, final List<SensorProvider> sensorProviders) {
@@ -41,7 +41,7 @@ public class SnapshotTimer {
     this.context = context;
   }
 
-  public void start() {
+  public synchronized void start() {
 
     if (!isRunning) {
       Realm realm = Realm.getDefaultInstance();
@@ -51,14 +51,14 @@ public class SnapshotTimer {
       long snapshotLength = campaign.getSnapshotLength();
 
       realm.close();
-
+      timer = new Timer();
       timer.scheduleAtFixedRate(new SnapshotTimerTask(), INITIAL_TIMER_DELAY, snapshotLength);
       isRunning = true;
     }
 
   }
 
-  public void stop() {
+  public synchronized void stop() {
     if (isRunning) {
 
       Log.d("SnapshotTimer", "SnapshotTimer stopped");
@@ -80,15 +80,17 @@ public class SnapshotTimer {
       final long sampleFrequency = campaign.getSampleFrequency();
       final long measurementFrequency = campaign.getMeasurementFrequency();
       final long campaignIdentifier = campaign.getIdentifier();
-      Questionnaire questionnaire = new Questionnaire(campaign.getQuestionnaire());
+      final Questionnaire questionnaire = new Questionnaire(campaign.getQuestionnaire());
 
       Snapshot snapshot = Snapshot.Create();
+      final long snapshotTimestamp = snapshot.getTimestamp();
 
       realm.beginTransaction();
-      realm.copyToRealm(snapshot);
+      campaign.addSnapshot(snapshot);
+      realm.copyToRealmOrUpdate(campaign);
       realm.commitTransaction();
 
-      startQuestionnaire(questionnaire);
+      startQuestionnaire(questionnaire, campaignIdentifier, snapshotTimestamp);
 
       final List<Pair<SensorType, Future<List<Sample>>>> sensorFutures = new ArrayList<>();
 
@@ -100,16 +102,18 @@ public class SnapshotTimer {
           continue;
         }
         // Start gathering the samples
-        Future<List<Sample>> samples = sensorProvider.retrieveSamplesForDuration(totalDuration, sampleFrequency, sampleDuration, measurementFrequency);
+        final Future<List<Sample>> samples = sensorProvider.retrieveSamplesForDuration(totalDuration, sampleFrequency, sampleDuration, measurementFrequency);
         sensorFutures.add(new Pair<>(sensorType, samples));
       }
 
+      realm.close();
 
       // Join in the gather sample threads
-      List<Pair<SensorType, List<Sample>>> sensorSamplesForSnapshot = new ArrayList<>();
+      final List<Pair<SensorType, List<Sample>>> sensorSamplesForSnapshot = new ArrayList<>();
+
       for (final Pair<SensorType, Future<List<Sample>>> sensorTypeFuturePair : sensorFutures) {
         try {
-          List<Sample> samples = sensorTypeFuturePair.second.get();
+          final List<Sample> samples = sensorTypeFuturePair.second.get();
           sensorSamplesForSnapshot.add(new Pair<>(sensorTypeFuturePair.first, samples));
         } catch (InterruptedException | ExecutionException exception) {
           exception.printStackTrace();
@@ -119,7 +123,7 @@ public class SnapshotTimer {
       realm = Realm.getDefaultInstance();
 
       realm.beginTransaction();
-      snapshot = realm.where(Snapshot.class).findAllSorted("timestamp", Sort.DESCENDING).first();
+      snapshot = realm.where(Snapshot.class).equalTo("timestamp", snapshotTimestamp).findFirst();
 
       for (final Pair<SensorType, List<Sample>> sensorSamples : sensorSamplesForSnapshot) {
         snapshot.addSamples(sensorSamples.first, sensorSamples.second);
@@ -135,9 +139,12 @@ public class SnapshotTimer {
     }
   }
 
-  private void startQuestionnaire(final Questionnaire questionnaire) {
+  private void startQuestionnaire(final Questionnaire questionnaire, final long campaignID, long snapshotTimestamp) {
     final Intent intent = new Intent(context, QuestionnaireActivity.class);
-    intent.putExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER, questionnaire);
+    intent.putExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY, questionnaire);
+    intent.putExtra(QuestionnaireActivity.CAMPAIGN_ID_KEY, campaignID);
+    intent.putExtra(QuestionnaireActivity.SNAPSHOT_TIMESTAMP_KEY, snapshotTimestamp);
+
     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     final PendingIntent pendingIntent = PendingIntent.getActivity(context, 0 /* Request code */, intent,
         PendingIntent.FLAG_ONE_SHOT);

@@ -57,6 +57,10 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
   public Snapshot() {
   }
 
+  public long getTimestamp() {
+    return timestamp;
+  }
+
   public Label getLabel() {
     return label;
   }
