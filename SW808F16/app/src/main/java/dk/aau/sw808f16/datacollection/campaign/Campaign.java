@@ -35,7 +35,13 @@ public class Campaign extends RealmObject implements JsonObjectAble {
 
   @Ignore
   private List<SensorType> sensors;
+  @Ignore
+  private QuestionnairePlacement questionnairePlacement;
+  private int placementId;
+
+
   private Questionnaire questionnaire;
+  private int campaignLength;
 
   public Campaign() {
     if (snapshots == null) {
@@ -59,6 +65,8 @@ public class Campaign extends RealmObject implements JsonObjectAble {
     this.setSampleDuration(jsonObject.getInt("sample_duration"));
     this.setSampleFrequency(jsonObject.getInt("sample_frequency"));
     this.setMeasurementFrequency(jsonObject.getInt("measurement_frequency"));
+    this.setCampaignLength(jsonObject.getInt("campaign_length"));
+    this.placementId = jsonObject.getInt("questionnaire_placement");
 
 
     JSONArray sensors = jsonObject.getJSONArray("sensors");
@@ -112,7 +120,7 @@ public class Campaign extends RealmObject implements JsonObjectAble {
         this.getSensors().equals(that.getSensors()) &&
         this.questionnaire != null ? this.questionnaire.equals(that.questionnaire) : that.questionnaire == null;
 
-    if (this.identifier != that.identifier) {
+    if (!isSame) {
       return false;
     } else {
       final List<Snapshot> ourSnapshots = this.getSnapshots();
@@ -252,6 +260,9 @@ public class Campaign extends RealmObject implements JsonObjectAble {
     Log.d(logTag, "sampleDuration: " + this.getSampleDuration());
     Log.d(logTag, "sampleFrequency: " + this.getSampleFrequency());
     Log.d(logTag, "measurementFrequency: " + this.getMeasurementFrequency());
+    Log.d(logTag, "campaignLength: " + this.getCampaignLength());
+    Log.d(logTag, "questionnairePlacement: " + this.getQuestionnairePlacement());
+
 
     if (this.getQuestionnaire() != null) {
       String questions = "";
@@ -270,5 +281,25 @@ public class Campaign extends RealmObject implements JsonObjectAble {
       children.addAll(snapshot.children());
     }
     return children;
+  }
+
+  public void setCampaignLength(int campaignLength) {
+    this.campaignLength = campaignLength;
+  }
+
+  public int getCampaignLength() {
+    return campaignLength;
+  }
+
+  public void setQuestionnairePlacement(QuestionnairePlacement questionnairePlacement) {
+    this.questionnairePlacement = questionnairePlacement;
+    this.placementId = questionnairePlacement.getIdentifier();
+  }
+
+  public QuestionnairePlacement getQuestionnairePlacement() {
+    if (this.questionnairePlacement == null) {
+      questionnairePlacement = QuestionnairePlacement.getQuestionnairePlacementById(placementId);
+    }
+    return questionnairePlacement;
   }
 }

@@ -102,6 +102,8 @@ public class CampaignTest extends ApplicationTestCase<DataCollectionApplication>
     campaign.setSampleDuration(10);
     campaign.setSampleFrequency(10);
     campaign.setMeasurementFrequency(10);
+    campaign.setCampaignLength(10);
+    campaign.setQuestionnairePlacement(QuestionnairePlacement.END);
     campaign.setSensors(new ArrayList<SensorType>() {
       {
         add(SensorType.AMBIENT_LIGHT);
@@ -231,4 +233,21 @@ public class CampaignTest extends ApplicationTestCase<DataCollectionApplication>
     assertEquals(expected, campaign.getQuestionnaire());
   }
 
+  public void testSetGetCampaignLength() {
+    Campaign campaign = new Campaign();
+
+    int expected = 1;
+    campaign.setCampaignLength(expected);
+
+    assertEquals(expected, campaign.getCampaignLength());
+  }
+
+  public void testSetGetQuestionnairePlacement() {
+    Campaign campaign = new Campaign();
+
+    QuestionnairePlacement expected = QuestionnairePlacement.END;
+    campaign.setQuestionnairePlacement(expected);
+
+    assertEquals(expected, campaign.getQuestionnairePlacement());
+  }
 }
