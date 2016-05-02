@@ -1,9 +1,9 @@
 package dk.aau.sw808f16.datacollection.fragment;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.test.ActivityUnitTestCase;
 import android.view.ContextThemeWrapper;
 import android.view.View;
@@ -45,14 +45,5 @@ public class PrivateCampaignFragmentTest extends ActivityUnitTestCase<MainActivi
     final FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
     final Fragment fragment = fragmentManager.findFragmentById(R.id.content_frame_layout);
     Assert.assertEquals(fragment.getClass(), PrivateCampaignFragment.class);
-  }
-
-  public void testIfComponentsArePresent() {
-
-    final View editText = getActivity().findViewById(R.id.private_campaign_edit_text);
-    final View joinButton = getActivity().findViewById(R.id.private_campaign_init_confirmation_button);
-
-    Assert.assertNotNull(editText);
-    Assert.assertNotNull(joinButton);
   }
 }

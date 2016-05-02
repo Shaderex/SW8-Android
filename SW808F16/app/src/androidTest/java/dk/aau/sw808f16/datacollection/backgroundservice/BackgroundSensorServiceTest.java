@@ -37,24 +37,4 @@ public class BackgroundSensorServiceTest extends ApplicationTestCase<DataCollect
     getContext().stopService(backgroundServiceIntent);
     assertTrue("The service should be running", isRunning);
   }
-
-  public void testServiceStoresSnapshotEncrypted() throws InterruptedException {
-    // Wait in order to guarantee that the service has gathered sensor data
-    Thread.sleep(3 * 60 * 1000);
-
-    final RealmConfiguration realmConfiguration =
-        new RealmConfiguration.Builder(getContext()).name(BackgroundSensorService.SNAPSHOT_REALM_NAME).build();
-
-    try {
-      final Realm realm = Realm.getInstance(realmConfiguration);
-
-      realm.where(Snapshot.class).findFirst();
-      realm.close();
-
-      fail("Did not throw illegal argument exception");
-    } catch (IllegalArgumentException exception) {
-      // We want this exception since we expect realm to throw this when reading an encrypted realm file.
-    }
-  }
-
 }
