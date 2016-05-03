@@ -1,6 +1,6 @@
 package dk.aau.sw808f16.datacollection.backgroundservice;
 
-import android.app.Service;
+import android.app.IntentService;
 import android.content.Intent;
 import android.hardware.SensorManager;
 import android.os.Binder;
@@ -18,6 +18,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
+import dk.aau.sw808f16.datacollection.MainActivity;
+import dk.aau.sw808f16.datacollection.QuestionnaireActivity;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AccelerometerSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AmbientLightSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.BarometerSensorProvider;
@@ -26,11 +28,13 @@ import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.Gyroscop
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.ProximitySensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.SensorProvider;
 import dk.aau.sw808f16.datacollection.campaign.Campaign;
+import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
-public final class BackgroundSensorService extends Service {
+public final class BackgroundSensorService extends IntentService implements QuestionaireResponder, ConfigurationResponder {
 
+  public static final String BINDER_REQUEST_SENDER_CLASS_KEY = "BINDER_REQUEST_SENDER_CLASS_KEY";
   public static final String SNAPSHOT_REALM_NAME = "snapshot.realm";
   private static final String REALM_NAME = DataCollectionApplication.TAG + ".realm";
   private static final long SYNCHRONIZATION_INTERVAL = 5000;
@@ -53,14 +57,44 @@ public final class BackgroundSensorService extends Service {
   private SnapshotTimer snapshotTimer;
   private SynchronizationTimer synchronizationTimer;
 
-  public BackgroundSensorService() {
-
+  public BackgroundSensorService(final String name) {
+    super(name);
     // The number of threads in the pool should correspond to the number of SensorProvider instances
     // this service maintains
     // Dynamically (Reflection) counts the number of SensorProvider instances this service maintains
     final int numberOfSensorProviders = getNumberOfSensorProviders();
     // Create a thread pool to be shared by all sensor providers
     sensorThreadPool = Executors.newFixedThreadPool(numberOfSensorProviders);
+  }
+
+  public class ConfigurationBinder extends Binder {
+
+    public ConfigurationResponder getResponder() {
+      return BackgroundSensorService.this;
+    }
+  }
+
+  public class QuestionnaireBinder extends Binder {
+
+    public QuestionaireResponder getResponder() {
+      return BackgroundSensorService.this;
+    }
+  }
+
+  @Override
+  public boolean notifyNewCampaign(final Campaign campaign) {
+
+
+    return false;
+  }
+
+  @Override
+  public boolean notifyQuestionaireCompleted(final Questionnaire questionnaire) {
+
+
+
+
+    return false;
   }
 
   private final class ServiceHandler extends Handler {
@@ -72,14 +106,26 @@ public final class BackgroundSensorService extends Service {
     @Override
     public void handleMessage(final Message msg) {
 
-
     }
   }
 
-  public class LocalBinder extends Binder {
-    public BackgroundSensorService getService() {
-      return BackgroundSensorService.this;
+  @Override
+  protected void onHandleIntent(final Intent intent) {
+
+  }
+
+  @Override
+  public IBinder onBind(final Intent intent) {
+
+    final String suitorName = intent.getStringExtra(BINDER_REQUEST_SENDER_CLASS_KEY);
+
+    if (suitorName.equals(QuestionnaireActivity.class.getName())) {
+      return new QuestionnaireBinder();
+    } else if (suitorName.equals(MainActivity.class.getName())) {
+      return new ConfigurationBinder();
     }
+
+    return null;
   }
 
   @Override
@@ -171,10 +217,6 @@ public final class BackgroundSensorService extends Service {
         0, -74, 47, 13, -124, 0, 117, 9};
   }
 
-  @Override
-  public IBinder onBind(final Intent intent) {
-    return new LocalBinder();
-  }
 
   @Override
   public void onDestroy() {
@@ -210,7 +252,7 @@ public final class BackgroundSensorService extends Service {
 
       if (SensorProvider.class.isAssignableFrom(type)) {
         try {
-          sensorProvides.add((SensorProvider)field.get(this));
+          sensorProvides.add((SensorProvider) field.get(this));
         } catch (IllegalAccessException exception) {
           exception.printStackTrace();
         }

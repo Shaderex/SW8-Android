@@ -15,12 +15,15 @@ import android.widget.Toast;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.goebl.david.Response;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.campaign.AsyncHttpCampaignJoinTask;
+import dk.aau.sw808f16.datacollection.campaign.Campaign;
+import dk.aau.sw808f16.datacollection.webutil.CampaignRegistrator;
 
-public class CampaignJoinFragment extends Fragment implements ConfirmSaveSelectionFragment.SaveConfirmedCampaign {
+public class CampaignJoinFragment extends Fragment implements ConfirmSaveSelectionFragment.SaveConfirmedCampaign, CampaignRegistrator {
 
   private static final String CAMPAIGN_ID_TAG = "CAMPAIGN_ID_TAG";
   private static final String CAMPAIGN_SPECIFICATION_FRAGMENT_KEY = "CAMPAIGN_SPECIFICATION_FRAGMENT_KEY";
@@ -102,11 +105,25 @@ public class CampaignJoinFragment extends Fragment implements ConfirmSaveSelecti
         final SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
         editor.putLong(context.getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), campaignId);
         editor.apply();
+
+        try {
+          registerCampaign(new Campaign(response.getBody()));
+        } catch (JSONException e) {
+          e.printStackTrace();
+        }
       }
     };
 
     joinCampaignTask.execute();
     getFragmentManager().popBackStackImmediate();
 
+  }
+
+  @Override
+  public void registerCampaign(final Campaign campaign) {
+
+    final CampaignRegistrator parentRegistrator = (CampaignRegistrator) getActivity();
+
+    parentRegistrator.registerCampaign(campaign);
   }
 }

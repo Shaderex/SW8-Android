@@ -148,9 +148,10 @@ public class Campaign extends RealmObject implements JsonObjectAble {
 
     JSONArray snapshotArray = new JSONArray();
     for (Snapshot snapshot : getSnapshots()) {
-      snapshotArray.put(snapshot.toJsonObject());
+      if(isSnapshotReady(snapshot)){
+        snapshotArray.put(snapshot.toJsonObject());
+      }
     }
-
     jsonObject.put("snapshots", snapshotArray);
 
     return jsonObject;
@@ -301,5 +302,9 @@ public class Campaign extends RealmObject implements JsonObjectAble {
       questionnairePlacement = QuestionnairePlacement.getQuestionnairePlacementById(placementId);
     }
     return questionnairePlacement;
+  }
+
+  private boolean isSnapshotReady(final Snapshot snapshot){
+    return true;
   }
 }

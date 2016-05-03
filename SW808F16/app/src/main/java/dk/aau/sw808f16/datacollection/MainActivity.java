@@ -1,9 +1,14 @@
 package dk.aau.sw808f16.datacollection;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -30,12 +35,16 @@ import com.microsoft.band.ConnectionState;
 import com.microsoft.band.UserConsent;
 import com.microsoft.band.sensors.HeartRateConsentListener;
 
+import dk.aau.sw808f16.datacollection.backgroundservice.BackgroundSensorService;
+import dk.aau.sw808f16.datacollection.backgroundservice.ConfigurationResponder;
+import dk.aau.sw808f16.datacollection.campaign.Campaign;
 import dk.aau.sw808f16.datacollection.fragment.CampaignSpecificationFragment;
 import dk.aau.sw808f16.datacollection.fragment.PrivateCampaignFragment;
 import dk.aau.sw808f16.datacollection.fragment.PublicCampaignFragment;
 import dk.aau.sw808f16.datacollection.fragment.StartFragment;
+import dk.aau.sw808f16.datacollection.webutil.CampaignRegistrator;
 
-public class MainActivity extends ActionBarActivity implements HeartRateConsentListener {
+public class MainActivity extends ActionBarActivity implements HeartRateConsentListener, CampaignRegistrator {
 
   public enum DrawerMenuItems {
 
@@ -93,6 +102,8 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
   private DrawerLayout drawerLayout;
   private ActionBarDrawerToggle drawerToggle;
+  private boolean isBoundToResponder = false;
+  private ConfigurationResponder configurationResponder;
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
@@ -171,6 +182,8 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
       getSupportActionBar().setDisplayHomeAsUpEnabled(true);
       getSupportActionBar().setHomeButtonEnabled(true);
     }
+
+    bindToResponder();
   }
 
   public class DrawerButtonsAdapter extends BaseAdapter {
@@ -276,6 +289,34 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
   @Override
   public void userAccepted(boolean accepted) {
     // handle user's heart rate consent decision
+  }
+
+  private void bindToResponder() {
+    final Intent serviceIntent = new Intent(this, BackgroundSensorService.class);
+    serviceIntent.putExtra(BackgroundSensorService.BINDER_REQUEST_SENDER_CLASS_KEY, this.getClass().getName());
+    bindService(serviceIntent, mConnection, Context.BIND_NOT_FOREGROUND);
+  }
+
+  private ServiceConnection mConnection = new ServiceConnection() {
+
+    @Override
+    public void onServiceConnected(final ComponentName className, final IBinder binder) {
+
+      // We've bound to LocalService, cast the IBinder and get LocalService instance
+      final BackgroundSensorService.ConfigurationBinder configurationBinder = (BackgroundSensorService.ConfigurationBinder) binder;
+      configurationResponder = configurationBinder.getResponder();
+      isBoundToResponder = true;
+    }
+
+    @Override
+    public void onServiceDisconnected(final ComponentName componentName) {
+      isBoundToResponder = false;
+      configurationResponder = null;
+    }
+  };
+
+  public void registerCampaign(final Campaign campaign) {
+    configurationResponder.notifyNewCampaign(campaign);
   }
 
   private BandClient bandClient;

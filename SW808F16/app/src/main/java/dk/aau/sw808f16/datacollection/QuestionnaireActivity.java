@@ -1,18 +1,23 @@
 package dk.aau.sw808f16.datacollection;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import dk.aau.sw808f16.datacollection.backgroundservice.BackgroundSensorService;
+import dk.aau.sw808f16.datacollection.backgroundservice.QuestionaireResponder;
 import dk.aau.sw808f16.datacollection.campaign.Campaign;
 import dk.aau.sw808f16.datacollection.questionaire.models.Question;
 import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
 import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
 import io.realm.Realm;
-import io.realm.RealmResults;
 
 public class QuestionnaireActivity extends Activity {
 
@@ -25,6 +30,8 @@ public class QuestionnaireActivity extends Activity {
   private Question currentQuestion = null;
   private long campaignID;
   private long snapshotTimestamp;
+  private boolean isBoundToResponder = false;
+  private QuestionaireResponder questionaireResponder;
 
   // Views
   private TextView questionText;
@@ -34,10 +41,10 @@ public class QuestionnaireActivity extends Activity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_questionnaire);
 
-    Intent intent = getIntent();
-    questionnaire = intent.getParcelableExtra(QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY);
-    campaignID = intent.getParcelableExtra(CAMPAIGN_ID_KEY);
-    snapshotTimestamp = intent.getParcelableExtra(SNAPSHOT_TIMESTAMP_KEY);
+    final Intent spawnerIntent = getIntent();
+    questionnaire = spawnerIntent.getParcelableExtra(QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY);
+    campaignID = spawnerIntent.getParcelableExtra(CAMPAIGN_ID_KEY);
+    snapshotTimestamp = spawnerIntent.getParcelableExtra(SNAPSHOT_TIMESTAMP_KEY);
 
     if (questionnaire == null) {
       throw new IllegalArgumentException("Illegal intent sent to activity. Questionnaire was null");
@@ -66,7 +73,33 @@ public class QuestionnaireActivity extends Activity {
         goToNextQuestion();
       }
     });
+
+    bindToResponder();
   }
+
+  private void bindToResponder() {
+    final Intent serviceIntent = new Intent(this, BackgroundSensorService.class);
+    serviceIntent.putExtra(BackgroundSensorService.BINDER_REQUEST_SENDER_CLASS_KEY, this.getClass().getName());
+    bindService(serviceIntent, mConnection, Context.BIND_NOT_FOREGROUND);
+  }
+
+  private ServiceConnection mConnection = new ServiceConnection() {
+
+    @Override
+    public void onServiceConnected(final ComponentName className, final IBinder binder) {
+
+      // We've bound to LocalService, cast the IBinder and get LocalService instance
+      final BackgroundSensorService.QuestionnaireBinder questionnaireBinder = (BackgroundSensorService.QuestionnaireBinder) binder;
+      questionaireResponder = questionnaireBinder.getResponder();
+      isBoundToResponder = true;
+    }
+
+    @Override
+    public void onServiceDisconnected(final ComponentName componentName) {
+      isBoundToResponder = false;
+      questionaireResponder = null;
+    }
+  };
 
   private void goToNextQuestion() {
     try {
@@ -85,14 +118,18 @@ public class QuestionnaireActivity extends Activity {
 
       Snapshot snapshot = null;
 
-      for(Snapshot ss : campaign.getSnapshots()) {
-        if(ss.getTimestamp() == snapshotTimestamp) {
+      for (Snapshot ss : campaign.getSnapshots()) {
+        if (ss.getTimestamp() == snapshotTimestamp) {
           snapshot = ss;
           break;
         }
       }
 
       if (snapshot != null) {
+
+        if (isBoundToResponder) {
+          questionaireResponder.notifyQuestionaireCompleted(questionnaire);
+        }
 
         realm.beginTransaction();
         questionnaire = realm.copyToRealm(questionnaire);
