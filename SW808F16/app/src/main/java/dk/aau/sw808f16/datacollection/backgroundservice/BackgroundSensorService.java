@@ -29,15 +29,15 @@ import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.Proximit
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.SensorProvider;
 import dk.aau.sw808f16.datacollection.campaign.Campaign;
 import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
+import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
-public final class BackgroundSensorService extends IntentService implements QuestionaireResponder, ConfigurationResponder {
+public final class BackgroundSensorService extends IntentService implements QuestionnaireResponder, ConfigurationResponder {
 
   public static final String BINDER_REQUEST_SENDER_CLASS_KEY = "BINDER_REQUEST_SENDER_CLASS_KEY";
-  public static final String SNAPSHOT_REALM_NAME = "snapshot.realm";
   private static final String REALM_NAME = DataCollectionApplication.TAG + ".realm";
-  private static final long SYNCHRONIZATION_INTERVAL = 5000;
+  private static final long SYNCHRONIZATION_INTERVAL = 10000;
 
   private ServiceHandler serviceHandler;
 
@@ -57,8 +57,8 @@ public final class BackgroundSensorService extends IntentService implements Ques
   private SnapshotTimer snapshotTimer;
   private SynchronizationTimer synchronizationTimer;
 
-  public BackgroundSensorService(final String name) {
-    super(name);
+  public BackgroundSensorService() {
+    super("BackgroundSensorService");
     // The number of threads in the pool should correspond to the number of SensorProvider instances
     // this service maintains
     // Dynamically (Reflection) counts the number of SensorProvider instances this service maintains
@@ -67,34 +67,42 @@ public final class BackgroundSensorService extends IntentService implements Ques
     sensorThreadPool = Executors.newFixedThreadPool(numberOfSensorProviders);
   }
 
-  public class ConfigurationBinder extends Binder {
+  public class LocalBinder extends Binder {
 
-    public ConfigurationResponder getResponder() {
+    public ConfigurationResponder getConfigurationResponder() {
       return BackgroundSensorService.this;
     }
-  }
-
-  public class QuestionnaireBinder extends Binder {
-
-    public QuestionaireResponder getResponder() {
+    public QuestionnaireResponder getQuestionnaireResponder() {
       return BackgroundSensorService.this;
     }
   }
 
   @Override
-  public boolean notifyNewCampaign(final Campaign campaign) {
+  public void notifyNewCampaign() {
 
-
-    return false;
+    snapshotTimer.stop();
+    snapshotTimer.start();
   }
 
   @Override
-  public boolean notifyQuestionaireCompleted(final Questionnaire questionnaire) {
+  public void notifyQuestionnaireCompleted(final long snapshotTimeStamp, Questionnaire questionnaire) {
 
+    Realm realm = Realm.getDefaultInstance();
 
+    final Snapshot snapshot = realm.where(Snapshot.class).equalTo("timestamp", snapshotTimeStamp).findFirst();
 
+    if (snapshot != null) {
+      realm.beginTransaction();
+      questionnaire = realm.copyToRealm(questionnaire);
+      realm.commitTransaction();
 
-    return false;
+      realm.beginTransaction();
+      snapshot.setQuestionnaire(questionnaire);
+      realm.copyToRealmOrUpdate(snapshot);
+      realm.commitTransaction();
+    }
+
+    realm.close();
   }
 
   private final class ServiceHandler extends Handler {
@@ -116,16 +124,7 @@ public final class BackgroundSensorService extends IntentService implements Ques
 
   @Override
   public IBinder onBind(final Intent intent) {
-
-    final String suitorName = intent.getStringExtra(BINDER_REQUEST_SENDER_CLASS_KEY);
-
-    if (suitorName.equals(QuestionnaireActivity.class.getName())) {
-      return new QuestionnaireBinder();
-    } else if (suitorName.equals(MainActivity.class.getName())) {
-      return new ConfigurationBinder();
-    }
-
-    return null;
+    return new LocalBinder();
   }
 
   @Override
@@ -166,6 +165,14 @@ public final class BackgroundSensorService extends IntentService implements Ques
     // Get the HandlerThread's Looper and use it for our Handler
     final Looper serviceLooper = thread.getLooper();
     serviceHandler = new ServiceHandler(serviceLooper);
+
+    // Start the sync of snapshots
+    serviceHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        synchronizationTimer.start();
+      }
+    });
   }
 
   @Override
@@ -188,13 +195,6 @@ public final class BackgroundSensorService extends IntentService implements Ques
             snapshotTimer.start();
           }
         });
-        serviceHandler.post(new Runnable() {
-          @Override
-          public void run() {
-            synchronizationTimer.start();
-          }
-        });
-
       }
     } finally {
       if (realm != null) {

@@ -293,7 +293,6 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
   private void bindToResponder() {
     final Intent serviceIntent = new Intent(this, BackgroundSensorService.class);
-    serviceIntent.putExtra(BackgroundSensorService.BINDER_REQUEST_SENDER_CLASS_KEY, this.getClass().getName());
     bindService(serviceIntent, mConnection, Context.BIND_NOT_FOREGROUND);
   }
 
@@ -303,8 +302,8 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
     public void onServiceConnected(final ComponentName className, final IBinder binder) {
 
       // We've bound to LocalService, cast the IBinder and get LocalService instance
-      final BackgroundSensorService.ConfigurationBinder configurationBinder = (BackgroundSensorService.ConfigurationBinder) binder;
-      configurationResponder = configurationBinder.getResponder();
+      final BackgroundSensorService.LocalBinder configurationBinder = (BackgroundSensorService.LocalBinder) binder;
+      configurationResponder = configurationBinder.getConfigurationResponder();
       isBoundToResponder = true;
     }
 
@@ -315,8 +314,8 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
     }
   };
 
-  public void registerCampaign(final Campaign campaign) {
-    configurationResponder.notifyNewCampaign(campaign);
+  public void registerCampaign() {
+    configurationResponder.notifyNewCampaign();
   }
 
   private BandClient bandClient;
@@ -339,5 +338,15 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
     Log.d("Band2", "Band connection status: " + result + " (from " + this.getClass().getName() + ")");
 
     return ConnectionState.CONNECTED == result;
+  }
+
+  @Override
+  protected void onStop() {
+    super.onStop();
+    // Unbind from the service
+    if (isBoundToResponder) {
+      unbindService(mConnection);
+      isBoundToResponder = false;
+    }
   }
 }

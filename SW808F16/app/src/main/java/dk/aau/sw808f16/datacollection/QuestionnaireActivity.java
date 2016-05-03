@@ -12,7 +12,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import dk.aau.sw808f16.datacollection.backgroundservice.BackgroundSensorService;
-import dk.aau.sw808f16.datacollection.backgroundservice.QuestionaireResponder;
+import dk.aau.sw808f16.datacollection.backgroundservice.QuestionnaireResponder;
 import dk.aau.sw808f16.datacollection.campaign.Campaign;
 import dk.aau.sw808f16.datacollection.questionaire.models.Question;
 import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
@@ -22,16 +22,14 @@ import io.realm.Realm;
 public class QuestionnaireActivity extends Activity {
 
   public static final String QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY = "QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY";
-  public static final String CAMPAIGN_ID_KEY = "CAMPAIGN_ID_KEY";
   public static final String SNAPSHOT_TIMESTAMP_KEY = "SNAPSHOT_TIMESTAMP_KEY";
 
   // Questionnaire
   private Questionnaire questionnaire;
   private Question currentQuestion = null;
-  private long campaignID;
   private long snapshotTimestamp;
   private boolean isBoundToResponder = false;
-  private QuestionaireResponder questionaireResponder;
+  private QuestionnaireResponder questionaireResponder;
 
   // Views
   private TextView questionText;
@@ -42,9 +40,11 @@ public class QuestionnaireActivity extends Activity {
     setContentView(R.layout.activity_questionnaire);
 
     final Intent spawnerIntent = getIntent();
-    questionnaire = spawnerIntent.getParcelableExtra(QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY);
-    campaignID = spawnerIntent.getParcelableExtra(CAMPAIGN_ID_KEY);
-    snapshotTimestamp = spawnerIntent.getParcelableExtra(SNAPSHOT_TIMESTAMP_KEY);
+
+    final Bundle extras = spawnerIntent.getExtras();
+
+    questionnaire = extras.getParcelable(QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY);
+    snapshotTimestamp = extras.getLong(SNAPSHOT_TIMESTAMP_KEY);
 
     if (questionnaire == null) {
       throw new IllegalArgumentException("Illegal intent sent to activity. Questionnaire was null");
@@ -79,7 +79,6 @@ public class QuestionnaireActivity extends Activity {
 
   private void bindToResponder() {
     final Intent serviceIntent = new Intent(this, BackgroundSensorService.class);
-    serviceIntent.putExtra(BackgroundSensorService.BINDER_REQUEST_SENDER_CLASS_KEY, this.getClass().getName());
     bindService(serviceIntent, mConnection, Context.BIND_NOT_FOREGROUND);
   }
 
@@ -89,8 +88,8 @@ public class QuestionnaireActivity extends Activity {
     public void onServiceConnected(final ComponentName className, final IBinder binder) {
 
       // We've bound to LocalService, cast the IBinder and get LocalService instance
-      final BackgroundSensorService.QuestionnaireBinder questionnaireBinder = (BackgroundSensorService.QuestionnaireBinder) binder;
-      questionaireResponder = questionnaireBinder.getResponder();
+      final BackgroundSensorService.LocalBinder questionnaireBinder = (BackgroundSensorService.LocalBinder) binder;
+      questionaireResponder = questionnaireBinder.getQuestionnaireResponder();
       isBoundToResponder = true;
     }
 
@@ -113,35 +112,9 @@ public class QuestionnaireActivity extends Activity {
 
       setResult(Activity.RESULT_OK, resultIntent);
 
-      Realm realm = Realm.getDefaultInstance();
-      final Campaign campaign = realm.where(Campaign.class).equalTo("identifier", campaignID).findFirst();
-
-      Snapshot snapshot = null;
-
-      for (Snapshot ss : campaign.getSnapshots()) {
-        if (ss.getTimestamp() == snapshotTimestamp) {
-          snapshot = ss;
-          break;
-        }
+      if (isBoundToResponder) {
+        questionaireResponder.notifyQuestionnaireCompleted(snapshotTimestamp, questionnaire);
       }
-
-      if (snapshot != null) {
-
-        if (isBoundToResponder) {
-          questionaireResponder.notifyQuestionaireCompleted(questionnaire);
-        }
-
-        realm.beginTransaction();
-        questionnaire = realm.copyToRealm(questionnaire);
-        realm.commitTransaction();
-
-        realm.beginTransaction();
-        snapshot.setQuestionnaire(questionnaire);
-        realm.copyToRealmOrUpdate(campaign);
-        realm.commitTransaction();
-      }
-
-      realm.close();
 
       finishActivity(Activity.RESULT_OK);
 
@@ -164,5 +137,15 @@ public class QuestionnaireActivity extends Activity {
 
   public Questionnaire getQuestionnaire() {
     return questionnaire;
+  }
+
+  @Override
+  protected void onStop() {
+    super.onStop();
+    // Unbind from the service
+    if (isBoundToResponder) {
+      unbindService(mConnection);
+      isBoundToResponder = false;
+    }
   }
 }

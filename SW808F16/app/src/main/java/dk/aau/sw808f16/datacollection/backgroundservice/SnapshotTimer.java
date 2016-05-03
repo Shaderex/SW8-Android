@@ -22,11 +22,11 @@ import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.SensorProvider;
 import dk.aau.sw808f16.datacollection.campaign.Campaign;
+import dk.aau.sw808f16.datacollection.campaign.QuestionnairePlacement;
 import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
 import io.realm.Realm;
-import io.realm.Sort;
 
 public class SnapshotTimer {
 
@@ -72,80 +72,96 @@ public class SnapshotTimer {
     @Override
     public void run() {
 
-      Realm realm = Realm.getDefaultInstance();
-      Campaign campaign = realm.where(Campaign.class).findFirst();
+      try {
 
-      final long totalDuration = campaign.getSnapshotLength();
-      final long sampleDuration = campaign.getSampleDuration();
-      final long sampleFrequency = campaign.getSampleFrequency();
-      final long measurementFrequency = campaign.getMeasurementFrequency();
-      final long campaignIdentifier = campaign.getIdentifier();
-      final Questionnaire questionnaire = new Questionnaire(campaign.getQuestionnaire());
 
-      Snapshot snapshot = Snapshot.Create();
-      final long snapshotTimestamp = snapshot.getTimestamp();
+        Realm realm = Realm.getDefaultInstance();
+        Campaign campaign = realm.where(Campaign.class).findFirst();
 
-      realm.beginTransaction();
-      campaign.addSnapshot(snapshot);
-      realm.copyToRealmOrUpdate(campaign);
-      realm.commitTransaction();
+        final long totalDuration = campaign.getSnapshotLength();
+        final long sampleDuration = campaign.getSampleDuration();
+        final long sampleFrequency = campaign.getSampleFrequency();
+        final long measurementFrequency = campaign.getMeasurementFrequency();
+        final long campaignIdentifier = campaign.getIdentifier();
+        final Questionnaire questionnaire = new Questionnaire(campaign.getQuestionnaire());
 
-      startQuestionnaire(questionnaire, campaignIdentifier, snapshotTimestamp);
+        Snapshot snapshot = Snapshot.Create();
+        final long snapshotTimestamp = snapshot.getTimestamp();
 
-      final List<Pair<SensorType, Future<List<Sample>>>> sensorFutures = new ArrayList<>();
+        realm.beginTransaction();
+        campaign.addSnapshot(snapshot);
+        realm.copyToRealmOrUpdate(campaign);
+        realm.commitTransaction();
 
-      for (SensorProvider sensorProvider : sensorProviders) {
-
-        final SensorType sensorType = sensorProvider.getSensorType();
-        // Check if the sensor is required for this campaign
-        if (!campaign.getSensors().contains(sensorType) || !sensorProvider.isSensorAvailable()) {
-          continue;
+        if (campaign.getQuestionnairePlacement() == QuestionnairePlacement.START) {
+          startQuestionnaire(questionnaire, snapshotTimestamp);
         }
-        // Start gathering the samples
-        final Future<List<Sample>> samples = sensorProvider.retrieveSamplesForDuration(totalDuration, sampleFrequency, sampleDuration, measurementFrequency);
-        sensorFutures.add(new Pair<>(sensorType, samples));
-      }
 
-      realm.close();
+        final List<Pair<SensorType, Future<List<Sample>>>> sensorFutures = new ArrayList<>();
 
-      // Join in the gather sample threads
-      final List<Pair<SensorType, List<Sample>>> sensorSamplesForSnapshot = new ArrayList<>();
+        for (SensorProvider sensorProvider : sensorProviders) {
 
-      for (final Pair<SensorType, Future<List<Sample>>> sensorTypeFuturePair : sensorFutures) {
-        try {
-          final List<Sample> samples = sensorTypeFuturePair.second.get();
-          sensorSamplesForSnapshot.add(new Pair<>(sensorTypeFuturePair.first, samples));
-        } catch (InterruptedException | ExecutionException exception) {
-          exception.printStackTrace();
+          final SensorType sensorType = sensorProvider.getSensorType();
+          // Check if the sensor is required for this campaign
+          if (!campaign.getSensors().contains(sensorType) || !sensorProvider.isSensorAvailable()) {
+            continue;
+          }
+          // Start gathering the samples
+          final Future<List<Sample>> samples = sensorProvider.retrieveSamplesForDuration(totalDuration, sampleFrequency, sampleDuration, measurementFrequency);
+          sensorFutures.add(new Pair<>(sensorType, samples));
         }
+
+
+        // Join in the gather sample threads
+        final List<Pair<SensorType, List<Sample>>> sensorSamplesForSnapshot = new ArrayList<>();
+
+        for (final Pair<SensorType, Future<List<Sample>>> sensorTypeFuturePair : sensorFutures) {
+          try {
+            final List<Sample> samples = sensorTypeFuturePair.second.get();
+            sensorSamplesForSnapshot.add(new Pair<>(sensorTypeFuturePair.first, samples));
+          } catch (InterruptedException | ExecutionException exception) {
+            exception.printStackTrace();
+          }
+        }
+
+
+
+        realm.beginTransaction();
+
+        for (final Pair<SensorType, List<Sample>> sensorSamples : sensorSamplesForSnapshot) {
+          snapshot.addSamples(sensorSamples.first, sensorSamples.second);
+        }
+
+        Log.d("SnapshotTimer", "Added snapshot to campaign with ID: " + campaignIdentifier);
+
+        if (campaign.getQuestionnairePlacement() == QuestionnairePlacement.END) {
+          startQuestionnaire(questionnaire, snapshotTimestamp);
+        }
+
+        campaign = realm.where(Campaign.class).findFirst();
+        campaign.addSnapshot(snapshot);
+        realm.copyToRealm(campaign);
+        realm.commitTransaction();
+        realm.close();
+
+      } catch (Exception exception) {
+        exception.printStackTrace();
       }
-
-      realm = Realm.getDefaultInstance();
-
-      realm.beginTransaction();
-      snapshot = realm.where(Snapshot.class).equalTo("timestamp", snapshotTimestamp).findFirst();
-
-      for (final Pair<SensorType, List<Sample>> sensorSamples : sensorSamplesForSnapshot) {
-        snapshot.addSamples(sensorSamples.first, sensorSamples.second);
-      }
-
-      Log.d("SnapshotTimer", "Added snapshot to campaign with ID: " + campaignIdentifier);
-
-      campaign = realm.where(Campaign.class).findFirst();
-      campaign.addSnapshot(snapshot);
-      realm.copyToRealm(campaign);
-      realm.commitTransaction();
-      realm.close();
     }
   }
 
-  private void startQuestionnaire(final Questionnaire questionnaire, final long campaignID, long snapshotTimestamp) {
+  private void startQuestionnaire(final Questionnaire questionnaire, final long snapshotTimestamp) {
+
+    // If there are no questions do not prompt the user
+    if (questionnaire.getQuestions().size() == 0) {
+      return;
+    }
+
     final Intent intent = new Intent(context, QuestionnaireActivity.class);
     intent.putExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY, questionnaire);
-    intent.putExtra(QuestionnaireActivity.CAMPAIGN_ID_KEY, campaignID);
     intent.putExtra(QuestionnaireActivity.SNAPSHOT_TIMESTAMP_KEY, snapshotTimestamp);
-
     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
     final PendingIntent pendingIntent = PendingIntent.getActivity(context, 0 /* Request code */, intent,
         PendingIntent.FLAG_ONE_SHOT);
 
