@@ -8,10 +8,12 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.HandlerThread;
 
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.SensorType;
@@ -76,6 +78,11 @@ public class WifiSensorProvider extends SensorProvider<WifiMeasurement> {
         }
       }
     };
+  }
+
+  @Override
+  protected WifiMeasurement getDefaultMeasurement() {
+    return new WifiMeasurement();
   }
 
   @Override

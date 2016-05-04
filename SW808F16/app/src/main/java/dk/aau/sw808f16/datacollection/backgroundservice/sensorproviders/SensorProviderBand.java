@@ -12,7 +12,7 @@ import com.microsoft.band.ConnectionState;
 
 import java.util.concurrent.ExecutorService;
 
-public abstract class SensorProviderBand<MeasurementType> extends SensorProvider<MeasurementType> {
+public abstract class SensorProviderBand<MeasurementT> extends SensorProvider<MeasurementT> {
   protected BandClient bandClient = null;
 
   public SensorProviderBand(Context context, ExecutorService sensorThreadPool, SensorManager sensorManager) {

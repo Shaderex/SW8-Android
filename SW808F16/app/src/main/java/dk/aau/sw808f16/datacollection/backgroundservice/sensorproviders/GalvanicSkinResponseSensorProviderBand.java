@@ -61,5 +61,10 @@ public class GalvanicSkinResponseSensorProviderBand extends SensorProviderBand<I
       }
     };
   }
+
+  @Override
+  protected IntegerMeasurement getDefaultMeasurement() {
+    return new IntegerMeasurement();
+  }
 }
 

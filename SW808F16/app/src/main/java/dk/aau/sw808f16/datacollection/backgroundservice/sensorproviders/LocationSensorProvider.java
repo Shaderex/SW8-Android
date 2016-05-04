@@ -64,6 +64,11 @@ public class LocationSensorProvider extends SensorProvider<LocationMeasurement> 
   }
 
   @Override
+  protected LocationMeasurement getDefaultMeasurement() {
+    return new LocationMeasurement();
+  }
+
+  @Override
   public boolean isSensorAvailable() {
     LocationManager lm = (LocationManager) contextWeakReference.get().getSystemService(Context.LOCATION_SERVICE);
     boolean gpsEnabled = false;

@@ -91,5 +91,10 @@ public class UltraVioletSensorProviderBand extends SensorProviderBand<IntegerMea
       }
     };
   }
+
+  @Override
+  protected IntegerMeasurement getDefaultMeasurement() {
+    return new IntegerMeasurement();
+  }
 }
 

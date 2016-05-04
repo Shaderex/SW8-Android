@@ -27,13 +27,15 @@ public abstract class SensorProvider<MeasurementT> {
   private final ExecutorService sensorThreadPool;
   final SensorManager sensorManager;
 
-  private MeasurementT cachedMeasurement = null;
+  private MeasurementT cachedMeasurement = getDefaultMeasurement();
   private final Object firstMeasurementLock = new Object();
   private final Timer measurementTimer;
 
   final AtomicBoolean atomicBoolean = new AtomicBoolean(false);
 
   protected abstract EventListenerRegistrationManager createRegManager();
+
+  protected abstract MeasurementT getDefaultMeasurement();
 
   protected void onNewMeasurement(final MeasurementT newMeasurement) {
 

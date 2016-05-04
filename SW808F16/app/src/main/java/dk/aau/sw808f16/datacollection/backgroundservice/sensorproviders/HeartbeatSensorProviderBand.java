@@ -7,6 +7,7 @@ import com.microsoft.band.BandException;
 import com.microsoft.band.BandIOException;
 import com.microsoft.band.sensors.BandHeartRateEvent;
 import com.microsoft.band.sensors.BandHeartRateEventListener;
+import com.microsoft.band.sensors.HeartRateQuality;
 
 import java.util.concurrent.ExecutorService;
 
@@ -60,6 +61,11 @@ public class HeartbeatSensorProviderBand extends SensorProviderBand<HeartRateMea
         }
       }
     };
+  }
+
+  @Override
+  protected HeartRateMeasurement getDefaultMeasurement() {
+    return new HeartRateMeasurement();
   }
 }
 
