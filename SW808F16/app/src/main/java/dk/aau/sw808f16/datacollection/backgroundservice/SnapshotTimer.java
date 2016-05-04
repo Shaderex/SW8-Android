@@ -162,13 +162,12 @@ public class SnapshotTimer {
     intent.putExtra(QuestionnaireActivity.SNAPSHOT_TIMESTAMP_KEY, snapshotTimestamp);
     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-    final PendingIntent pendingIntent = PendingIntent.getActivity(context, 0 /* Request code */, intent,
-        PendingIntent.FLAG_ONE_SHOT);
+    final PendingIntent pendingIntent = PendingIntent.getActivity(context, 0 /* Request code */, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
     final Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
     final NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
         .setSmallIcon(R.mipmap.ic_launcher)
-        .setContentTitle("Questionnaire")
+        .setContentTitle("We have some questions")
         .setVibrate(new long[] {10, 100, 200, 40, 55, 200})
         .setSound(defaultSoundUri)
         .setContentIntent(pendingIntent);
@@ -176,7 +175,7 @@ public class SnapshotTimer {
     final NotificationManager notificationManager =
         (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-    notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+    notificationManager.notify(QuestionnaireActivity.QUESTIONNAIRE_NOTIFICATION_ID, notificationBuilder.build());
   }
 
 }

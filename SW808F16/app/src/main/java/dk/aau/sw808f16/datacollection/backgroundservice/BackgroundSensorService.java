@@ -9,6 +9,7 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.lang.reflect.Field;
@@ -18,8 +19,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
-import dk.aau.sw808f16.datacollection.MainActivity;
-import dk.aau.sw808f16.datacollection.QuestionnaireActivity;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AccelerometerSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AmbientLightSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.BarometerSensorProvider;
@@ -72,6 +71,7 @@ public final class BackgroundSensorService extends IntentService implements Ques
     public ConfigurationResponder getConfigurationResponder() {
       return BackgroundSensorService.this;
     }
+
     public QuestionnaireResponder getQuestionnaireResponder() {
       return BackgroundSensorService.this;
     }
@@ -131,6 +131,8 @@ public final class BackgroundSensorService extends IntentService implements Ques
   public void onCreate() {
     super.onCreate();
 
+    Log.d("BackgroundSensorService", "BackgroundSensorService onCreate() called");
+
     final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(BackgroundSensorService.this)
         .name(REALM_NAME)
         .encryptionKey(getSecretKey())
@@ -166,6 +168,21 @@ public final class BackgroundSensorService extends IntentService implements Ques
     final Looper serviceLooper = thread.getLooper();
     serviceHandler = new ServiceHandler(serviceLooper);
 
+    // Check if device is subscribed to a campaign and then continue that campaign
+    Realm realm = Realm.getDefaultInstance();
+    final Campaign campaign = realm.where(Campaign.class).findFirst();
+
+    if (campaign != null) {
+      serviceHandler.post(new Runnable() {
+        @Override
+        public void run() {
+          snapshotTimer.start();
+        }
+      });
+    }
+
+    realm.close();
+
     // Start the sync of snapshots
     serviceHandler.post(new Runnable() {
       @Override
@@ -177,31 +194,7 @@ public final class BackgroundSensorService extends IntentService implements Ques
 
   @Override
   public int onStartCommand(final Intent intent, final int flags, final int startId) {
-
-    Toast.makeText(this, "BackgroundSensorService was started", Toast.LENGTH_SHORT).show();
-
-    // Check if device is subscribed to a campaign and then continue that campaign
-    Realm realm = null;
-
-    try {
-      realm = Realm.getDefaultInstance();
-
-      final Campaign campaign = realm.where(Campaign.class).findFirst();
-
-      if (campaign != null) {
-        serviceHandler.post(new Runnable() {
-          @Override
-          public void run() {
-            snapshotTimer.start();
-          }
-        });
-      }
-    } finally {
-      if (realm != null) {
-        realm.close();
-      }
-    }
-
+    Log.d("BackgroundSensorService", "BackgroundSensorService onStartCommand() called");
     return START_STICKY;
   }
 
@@ -220,8 +213,7 @@ public final class BackgroundSensorService extends IntentService implements Ques
 
   @Override
   public void onDestroy() {
-
-    Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
+    Log.d("BackgroundSensorService", "BackgroundSensorService onDestroy() called");
     snapshotTimer.stop();
     synchronizationTimer.stop();
   }

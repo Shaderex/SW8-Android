@@ -1,6 +1,7 @@
 package dk.aau.sw808f16.datacollection;
 
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -23,6 +24,7 @@ public class QuestionnaireActivity extends Activity {
 
   public static final String QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY = "QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY";
   public static final String SNAPSHOT_TIMESTAMP_KEY = "SNAPSHOT_TIMESTAMP_KEY";
+  public static final int QUESTIONNAIRE_NOTIFICATION_ID = 42;
 
   // Questionnaire
   private Questionnaire questionnaire;
@@ -115,6 +117,11 @@ public class QuestionnaireActivity extends Activity {
       if (isBoundToResponder) {
         questionaireResponder.notifyQuestionnaireCompleted(snapshotTimestamp, questionnaire);
       }
+
+      final NotificationManager notificationManager =
+          (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+
+      notificationManager.cancel(QUESTIONNAIRE_NOTIFICATION_ID);
 
       finishActivity(Activity.RESULT_OK);
 

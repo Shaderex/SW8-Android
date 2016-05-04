@@ -41,9 +41,9 @@ public class DataCollectionApplication extends Application {
             .getBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false);
 
         if (sentToken) {
-          Toast.makeText(DataCollectionApplication.this, R.string.gcm_register_success, Toast.LENGTH_LONG).show();
+          Log.d("GCM Registration", String.valueOf(R.string.gcm_register_success));
         } else {
-          Toast.makeText(DataCollectionApplication.this, R.string.gcm_register_failed, Toast.LENGTH_LONG).show();
+          Log.d("GCM Registration", String.valueOf(R.string.gcm_register_failed));
         }
 
         LocalBroadcastManager.getInstance(DataCollectionApplication.this).unregisterReceiver(registrationBroadcastReceiver);
