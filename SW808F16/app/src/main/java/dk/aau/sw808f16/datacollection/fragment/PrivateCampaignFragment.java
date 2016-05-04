@@ -1,12 +1,14 @@
 package dk.aau.sw808f16.datacollection.fragment;
 
+import android.content.Context;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -70,4 +72,16 @@ public class PrivateCampaignFragment extends Fragment {
 
     return view;
   }
+
+  @Override
+  public void onResume() {
+    super.onResume();
+
+    // open keyboard automatically for editing ID field
+    final EditText campaignIdField = (EditText) getView().findViewById(R.id.private_campaign_edit_text);
+    campaignIdField.requestFocus();
+    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+    imm.showSoftInput(campaignIdField, InputMethodManager.SHOW_IMPLICIT);
+  }
 }
+
