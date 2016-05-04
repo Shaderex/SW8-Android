@@ -78,11 +78,11 @@ public class PublicCampaignFragment extends Fragment
     final LinearLayout continueButton = (LinearLayout) view.findViewById(R.id.confirm_button_container).findViewById(R.id.campaign_text_container);
 
     final TextView campaignIdTextView = (TextView) continueButton.findViewById(R.id.campaign_id_text_view);
-    campaignIdTextView.setText("Know what you're doing?");
+    campaignIdTextView.setText(R.string.looking_for_campaign);
     campaignIdTextView.setTextColor(getResources().getColor(R.color.white));
 
     final TextView campaignTitleTextView = (TextView) continueButton.findViewById(R.id.campaign_by_line);
-    campaignTitleTextView.setText("Join a specific campaign by clicking here");
+    campaignTitleTextView.setText(R.string.click_to_search);
     campaignTitleTextView.setTextColor(getResources().getColor(R.color.white));
 
     final ImageView infoArrow = (ImageView) continueButton.findViewById(R.id.info_button);
