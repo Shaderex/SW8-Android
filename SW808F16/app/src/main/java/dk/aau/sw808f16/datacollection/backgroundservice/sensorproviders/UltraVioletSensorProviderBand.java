@@ -74,9 +74,6 @@ public class UltraVioletSensorProviderBand extends SensorProviderBand<IntegerMea
     return new EventListenerRegistrationManager() {
       @Override
       public void register(int frequency) {
-        // Set cached value
-        onNewMeasurement(new IntegerMeasurement(-1));
-
         try {
           bandClient.getSensorManager().registerUVEventListener(listener);
         } catch (BandException exception) {
