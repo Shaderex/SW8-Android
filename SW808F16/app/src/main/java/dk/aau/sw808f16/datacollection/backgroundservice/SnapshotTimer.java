@@ -44,11 +44,11 @@ public class SnapshotTimer {
   public synchronized void start() {
 
     if (!isRunning) {
-      Realm realm = Realm.getDefaultInstance();
-      Campaign campaign = realm.where(Campaign.class).findFirst();
+      final Realm realm = Realm.getDefaultInstance();
+      final Campaign campaign = realm.where(Campaign.class).findFirst();
 
       Log.d("SnapshotTimer", "SnapshotTimer started for campaign ID: " + campaign.getIdentifier());
-      long snapshotLength = campaign.getSnapshotLength();
+      final long snapshotLength = campaign.getSnapshotLength();
 
       realm.close();
       timer = new Timer();
@@ -75,7 +75,7 @@ public class SnapshotTimer {
       try {
 
 
-        Realm realm = Realm.getDefaultInstance();
+        final Realm realm = Realm.getDefaultInstance();
         Campaign campaign = realm.where(Campaign.class).findFirst();
 
         final long totalDuration = campaign.getSnapshotLength();
@@ -94,7 +94,7 @@ public class SnapshotTimer {
         realm.commitTransaction();
 
         if (campaign.getQuestionnairePlacement() == QuestionnairePlacement.START) {
-          startQuestionnaire(questionnaire, snapshotTimestamp);
+          startQuestionnaire(questionnaire, snapshotTimestamp, totalDuration);
         }
 
         final List<Pair<SensorType, Future<List<Sample>>>> sensorFutures = new ArrayList<>();
@@ -124,8 +124,6 @@ public class SnapshotTimer {
           }
         }
 
-
-
         realm.beginTransaction();
 
         for (final Pair<SensorType, List<Sample>> sensorSamples : sensorSamplesForSnapshot) {
@@ -135,7 +133,7 @@ public class SnapshotTimer {
         Log.d("SnapshotTimer", "Added snapshot to campaign with ID: " + campaignIdentifier);
 
         if (campaign.getQuestionnairePlacement() == QuestionnairePlacement.END) {
-          startQuestionnaire(questionnaire, snapshotTimestamp);
+          startQuestionnaire(questionnaire, snapshotTimestamp, totalDuration);
         }
 
         campaign = realm.where(Campaign.class).findFirst();
@@ -150,7 +148,7 @@ public class SnapshotTimer {
     }
   }
 
-  private void startQuestionnaire(final Questionnaire questionnaire, final long snapshotTimestamp) {
+  private void startQuestionnaire(final Questionnaire questionnaire, final long snapshotTimestamp, final long snapshotDuration) {
 
     // If there are no questions do not prompt the user
     if (questionnaire.getQuestions().size() == 0) {
@@ -160,6 +158,7 @@ public class SnapshotTimer {
     final Intent intent = new Intent(context, QuestionnaireActivity.class);
     intent.putExtra(QuestionnaireActivity.QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY, questionnaire);
     intent.putExtra(QuestionnaireActivity.SNAPSHOT_TIMESTAMP_KEY, snapshotTimestamp);
+    intent.putExtra(QuestionnaireActivity.QUESTIONNAIRE_TTL_KEY, snapshotDuration);
     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
     final PendingIntent pendingIntent = PendingIntent.getActivity(context, 0 /* Request code */, intent, PendingIntent.FLAG_CANCEL_CURRENT);

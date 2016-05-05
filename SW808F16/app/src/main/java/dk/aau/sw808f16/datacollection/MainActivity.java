@@ -9,6 +9,9 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -36,8 +39,6 @@ import com.microsoft.band.UserConsent;
 import com.microsoft.band.sensors.HeartRateConsentListener;
 
 import dk.aau.sw808f16.datacollection.backgroundservice.BackgroundSensorService;
-import dk.aau.sw808f16.datacollection.backgroundservice.ConfigurationResponder;
-import dk.aau.sw808f16.datacollection.campaign.Campaign;
 import dk.aau.sw808f16.datacollection.fragment.CampaignSpecificationFragment;
 import dk.aau.sw808f16.datacollection.fragment.PrivateCampaignFragment;
 import dk.aau.sw808f16.datacollection.fragment.PublicCampaignFragment;
@@ -103,7 +104,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
   private DrawerLayout drawerLayout;
   private ActionBarDrawerToggle drawerToggle;
   private boolean isBoundToResponder = false;
-  private ConfigurationResponder configurationResponder;
+  private Messenger serviceMessenger = null;
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
@@ -293,7 +294,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
   private void bindToResponder() {
     final Intent serviceIntent = new Intent(this, BackgroundSensorService.class);
-    bindService(serviceIntent, mConnection, Context.BIND_NOT_FOREGROUND);
+    bindService(serviceIntent, mConnection, Context.BIND_ABOVE_CLIENT | BIND_AUTO_CREATE);
   }
 
   private ServiceConnection mConnection = new ServiceConnection() {
@@ -302,20 +303,28 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
     public void onServiceConnected(final ComponentName className, final IBinder binder) {
 
       // We've bound to LocalService, cast the IBinder and get LocalService instance
-      final BackgroundSensorService.LocalBinder configurationBinder = (BackgroundSensorService.LocalBinder) binder;
-      configurationResponder = configurationBinder.getConfigurationResponder();
+      serviceMessenger = new Messenger(binder);
       isBoundToResponder = true;
     }
 
     @Override
     public void onServiceDisconnected(final ComponentName componentName) {
       isBoundToResponder = false;
-      configurationResponder = null;
+      serviceMessenger = null;
     }
   };
 
-  public void registerCampaign() {
-    configurationResponder.notifyNewCampaign();
+  public void registerCampaign(final long campaignId)
+  {
+    final Message msg = Message.obtain(null, BackgroundSensorService.NOTIFY_NEW_CAMPAIGN, 0, 0);
+    Bundle data = new Bundle();
+    data.putLong(BackgroundSensorService.NOTIFY_QUESTIONNAIRE_COMPLETED_CAMPAIGN_ID, campaignId);
+
+    try {
+      serviceMessenger.send(msg);
+    } catch (RemoteException e) {
+      e.printStackTrace();
+    }
   }
 
   private BandClient bandClient;
@@ -343,6 +352,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
   @Override
   protected void onStop() {
     super.onStop();
+
     // Unbind from the service
     if (isBoundToResponder) {
       unbindService(mConnection);

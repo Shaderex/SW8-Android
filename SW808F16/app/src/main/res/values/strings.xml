@@ -31,4 +31,5 @@
     <string name="welcome_message">Start contributing today</string>
     <string name="browse_campaigns">BROWSE CAMPAIGNS</string>
     <string name="CAMPAIGN_CONFIRMATION_FRAGMENT_KEY">CAMPAIGN_CONFIRMATION_FRAGMENT_KEY</string>
+    <string name="questionnaire_expired_message">Questionnaire Expired</string>
 </resources>

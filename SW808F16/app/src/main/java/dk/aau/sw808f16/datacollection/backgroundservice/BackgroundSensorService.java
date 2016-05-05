@@ -3,19 +3,26 @@ package dk.aau.sw808f16.datacollection.backgroundservice;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.hardware.SensorManager;
-import android.os.Binder;
+import android.net.ConnectivityManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.goebl.david.Request;
 import com.goebl.david.Response;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
+
+import org.apache.http.conn.ClientConnectionManager;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -36,6 +43,7 @@ import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.CompassS
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.GyroscopeSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.ProximitySensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.SensorProvider;
+import dk.aau.sw808f16.datacollection.campaign.AsyncHttpCampaignJoinTask;
 import dk.aau.sw808f16.datacollection.campaign.Campaign;
 import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
 import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
@@ -44,7 +52,18 @@ import dk.aau.sw808f16.datacollection.webutil.RequestHostResolver;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
-public final class BackgroundSensorService extends IntentService implements QuestionnaireResponder, ConfigurationResponder {
+public final class BackgroundSensorService extends IntentService {
+
+  public static final int NOTIFY_NEW_CAMPAIGN = 1337;
+  public static final int NOTIFY_QUESTIONNAIRE_COMPLETED = 31337;
+
+  // Messaging acknowledgement constants
+  public static final int SERVICE_ACK_OK = 42;
+  public static final int SERVICE_ACK_BUSY = 43;
+
+  public static final String NOTIFY_QUESTIONNAIRE_COMPLETED_TIMESTAMP = "NOTIFY_QUESTIONNAIRE_COMPLETED_TIMESTAMP";
+  public static final String NOTIFY_QUESTIONNAIRE_COMPLETED_QUESTIONNAIRE = "NOTIFY_QUESTIONNAIRE_COMPLETED_QUESTIONNAIRE";
+  public static final String NOTIFY_QUESTIONNAIRE_COMPLETED_CAMPAIGN_ID = "NOTIFY_QUESTIONNAIRE_COMPLETED_CAMPAIGN_ID";
 
   public static final String BINDER_REQUEST_SENDER_CLASS_KEY = "BINDER_REQUEST_SENDER_CLASS_KEY";
   private static final String REALM_NAME = DataCollectionApplication.TAG + ".realm";
@@ -52,6 +71,7 @@ public final class BackgroundSensorService extends IntentService implements Ques
   private byte[] encryptionKey = null;
 
   private ServiceHandler serviceHandler;
+  private Messenger messenger;
 
   private final ExecutorService sensorThreadPool;
 
@@ -68,6 +88,8 @@ public final class BackgroundSensorService extends IntentService implements Ques
   private SnapshotTimer snapshotTimer;
   private SynchronizationTimer synchronizationTimer;
 
+  private ConnectivityManager connectivityManager;
+
   public BackgroundSensorService() {
     super("BackgroundSensorService");
     // The number of threads in the pool should correspond to the number of SensorProvider instances
@@ -78,69 +100,11 @@ public final class BackgroundSensorService extends IntentService implements Ques
     sensorThreadPool = Executors.newFixedThreadPool(numberOfSensorProviders);
   }
 
-  public class LocalBinder extends Binder {
-
-    public ConfigurationResponder getConfigurationResponder() {
-      return BackgroundSensorService.this;
-    }
-
-    public QuestionnaireResponder getQuestionnaireResponder() {
-      return BackgroundSensorService.this;
-    }
-  }
-
-  @Override
-  public void notifyNewCampaign() {
-    snapshotTimer.stop();
-    snapshotTimer.start();
-  }
-
-  @Override
-  public void notifyQuestionnaireCompleted(final long snapshotTimeStamp, Questionnaire questionnaire) {
-
-    Realm realm = Realm.getDefaultInstance();
-
-    final Snapshot snapshot = realm.where(Snapshot.class).equalTo("timestamp", snapshotTimeStamp).findFirst();
-
-    if (snapshot != null) {
-      realm.beginTransaction();
-      questionnaire = realm.copyToRealm(questionnaire);
-      realm.commitTransaction();
-
-      realm.beginTransaction();
-      snapshot.setQuestionnaire(questionnaire);
-      realm.copyToRealmOrUpdate(snapshot);
-      realm.commitTransaction();
-    }
-
-    realm.close();
-  }
-
-  private final class ServiceHandler extends Handler {
-
-    public ServiceHandler(final Looper looper) {
-      super(looper);
-    }
-
-    @Override
-    public void handleMessage(final Message msg) {
-
-    }
-  }
-
-  @Override
-  protected void onHandleIntent(final Intent intent) {
-
-  }
-
-  @Override
-  public IBinder onBind(final Intent intent) {
-    return new LocalBinder();
-  }
-
   @Override
   public void onCreate() {
     super.onCreate();
+
+    connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(CONNECTIVITY_SERVICE);
 
     final SensorManager sensorManager = (SensorManager) getApplicationContext().getSystemService(SENSOR_SERVICE);
 
@@ -167,108 +131,153 @@ public final class BackgroundSensorService extends IntentService implements Ques
     thread.start();
 
     // Get the HandlerThread's Looper and use it for our Handler
-    final Looper serviceLooper = thread.getLooper();
-    serviceHandler = new ServiceHandler(serviceLooper);
+    serviceHandler = new ServiceHandler();
+    messenger = new Messenger(serviceHandler);
 
     Log.d("BackgroundSensorService", "BackgroundSensorService onCreate() called");
 
+    serviceHandler.post(new RealmSetupRunnable());
+  }
+
+  private void retryRealmSetupOnNetworkChanged() {
+    connectivityManager.regi
+
+    serviceHandler.post(new RealmSetupRunnable());
+
+  }
+
+  private void setupRealmAndStartTimers() {
+    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(BackgroundSensorService.this)
+        .name(REALM_NAME)
+        .encryptionKey(encryptionKey)
+        .build();
+
+    Realm.setDefaultConfiguration(realmConfiguration);
+
+    // Check if device is subscribed to a campaign and then continue that campaign
+    final Realm realm = Realm.getDefaultInstance();
+    final Campaign campaign = realm.where(Campaign.class).findFirst();
+
+    if (campaign != null) {
+      serviceHandler.post(new Runnable() {
+        @Override
+        public void run() {
+          snapshotTimer.start();
+        }
+      });
+    }
+
+    realm.close();
+
+    // Start the sync of snapshots
     serviceHandler.post(new Runnable() {
       @Override
       public void run() {
-
-        final String campaignListResourcePath = RequestHostResolver.resolveHostForRequest(BackgroundSensorService.this, "/key");
-        final WeakReference<Context> weakContextReference = new WeakReference<Context>(BackgroundSensorService.this.getBaseContext());
-
-        final CountDownLatch gotKey = new CountDownLatch(1);
-
-        final AsyncHttpWebbTask<String> keyTask = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.GET,
-            campaignListResourcePath,
-            HttpURLConnection.HTTP_OK) {
-          @Override
-          protected Response<String> sendRequest(Request request) {
-            final Context context = weakContextReference.get();
-
-            if (context != null) {
-              try {
-                final InstanceID instanceId = InstanceID.getInstance(context);
-                final String token = instanceId.getToken(
-                    context.getString(R.string.defaultSenderID),
-                    GoogleCloudMessaging.INSTANCE_ID_SCOPE,
-                    null
-                );
-
-                return request.param("device_id", token).asString();
-
-              } catch (IOException exception) {
-                exception.printStackTrace();
-                return null;
-              }
-            }
-            return null;
-          }
-
-          @Override
-          public void onResponseCodeMatching(Response<String> response) {
-            String encryptStr = response.getBody();
-            int len = encryptStr.length();
-            byte[] data = new byte[len / 2];
-            for (int i = 0; i < len; i += 2) {
-              data[i / 2] = (byte) ((Character.digit(encryptStr.charAt(i), 16) << 4)
-                  + Character.digit(encryptStr.charAt(i + 1), 16));
-            }
-            encryptionKey = data;
-            gotKey.countDown();
-          }
-
-          @Override
-          public void onResponseCodeNotMatching(Response<String> response) {
-
-          }
-
-          @Override
-          public void onConnectionFailure() {
-
-          }
-        };
-
-        keyTask.execute();
-        try {
-          gotKey.await();
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
-
-        final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(BackgroundSensorService.this)
-            .name(REALM_NAME)
-            .encryptionKey(encryptionKey)
-            .build();
-
-        Realm.setDefaultConfiguration(realmConfiguration);
-
-        // Check if device is subscribed to a campaign and then continue that campaign
-        Realm realm = Realm.getDefaultInstance();
-        final Campaign campaign = realm.where(Campaign.class).findFirst();
-
-        if (campaign != null) {
-          serviceHandler.post(new Runnable() {
-            @Override
-            public void run() {
-              snapshotTimer.start();
-            }
-          });
-        }
-
-        realm.close();
-
-        // Start the sync of snapshots
-        serviceHandler.post(new Runnable() {
-          @Override
-          public void run() {
-            synchronizationTimer.start();
-          }
-        });
+        synchronizationTimer.start();
       }
     });
+  }
+
+  private final class ServiceHandler extends Handler {
+
+    @Override
+    public void handleMessage(final Message msg) {
+      // Check if realm has been properly setup by checking the encryption key
+      if(encryptionKey == null) {
+        final Message busy = Message.obtain(null, SERVICE_ACK_BUSY);
+        try {
+          msg.replyTo.send(busy);
+        } catch (RemoteException exception) {
+          exception.printStackTrace();
+        }
+        return;
+      }
+
+      final Message ok = Message.obtain(null, SERVICE_ACK_OK);
+
+      final Bundle data = msg.getData();
+      switch (msg.what) {
+        case NOTIFY_NEW_CAMPAIGN: {
+          final long campaignId = data.getLong(NOTIFY_QUESTIONNAIRE_COMPLETED_CAMPAIGN_ID);
+          notifyNewCampaign(campaignId);
+          try {
+            msg.replyTo.send(ok);
+          } catch (RemoteException exception) {
+            exception.printStackTrace();
+          }
+          return;
+        }
+        case NOTIFY_QUESTIONNAIRE_COMPLETED: {
+
+          final long timestamp = data.getLong(NOTIFY_QUESTIONNAIRE_COMPLETED_TIMESTAMP);
+          final Questionnaire questionnaire = data.getParcelable(NOTIFY_QUESTIONNAIRE_COMPLETED_QUESTIONNAIRE);
+          notifyQuestionnaireCompleted(timestamp, questionnaire);
+          try {
+            msg.replyTo.send(ok);
+          } catch (RemoteException exception) {
+            exception.printStackTrace();
+          }
+          return;
+        }
+      }
+    }
+  }
+
+  public void notifyNewCampaign(final long campaignId) {
+
+    final CountDownLatch hasUpdatedCampaign = new CountDownLatch(1);
+
+    final AsyncHttpCampaignJoinTask joinCampaignTask = new AsyncHttpCampaignJoinTask(this, campaignId) {
+      @Override
+      public void onResponseCodeMatching(final Response<JSONObject> response) {
+        super.onResponseCodeMatching(response);
+
+        final SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(BackgroundSensorService.this).edit();
+        editor.putLong(BackgroundSensorService.this.getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), campaignId);
+        editor.apply();
+        hasUpdatedCampaign.countDown();
+      }
+    };
+    joinCampaignTask.execute();
+
+    try {
+      hasUpdatedCampaign.await();
+    } catch (InterruptedException exception) {
+      exception.printStackTrace();
+    }
+    snapshotTimer.stop();
+    snapshotTimer.start();
+  }
+
+  public void notifyQuestionnaireCompleted(final long snapshotTimeStamp, Questionnaire questionnaire) {
+
+    Realm realm = Realm.getDefaultInstance();
+
+    final Snapshot snapshot = realm.where(Snapshot.class).equalTo("timestamp", snapshotTimeStamp).findFirst();
+
+    if (snapshot != null) {
+      realm.beginTransaction();
+      questionnaire = realm.copyToRealm(questionnaire);
+      realm.commitTransaction();
+
+      realm.beginTransaction();
+      snapshot.setQuestionnaire(questionnaire);
+      realm.copyToRealmOrUpdate(snapshot);
+      realm.commitTransaction();
+    }
+
+    realm.close();
+  }
+
+  @Override
+  protected void onHandleIntent(final Intent intent) {
+
+  }
+
+  @Override
+  public IBinder onBind(final Intent intent) {
+    Log.d("BackgroundSensorService", "BackgroundSensorService onBind() called");
+    return messenger.getBinder();
   }
 
   @Override
@@ -276,7 +285,6 @@ public final class BackgroundSensorService extends IntentService implements Ques
     Log.d("BackgroundSensorService", "BackgroundSensorService onStartCommand() called");
     return START_STICKY;
   }
-
 
   @Override
   public void onDestroy() {
@@ -330,4 +338,67 @@ public final class BackgroundSensorService extends IntentService implements Ques
     }
     return data;
   }
+
+  private class RealmSetupRunnable implements Runnable {
+    @Override
+    public void run() {
+
+      final String campaignListResourcePath = RequestHostResolver.resolveHostForRequest(BackgroundSensorService.this, "/key");
+      final WeakReference<Context> weakContextReference = new WeakReference<Context>(BackgroundSensorService.this.getBaseContext());
+
+      final AsyncHttpWebbTask<String> keyTask = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.GET,
+          campaignListResourcePath,
+          HttpURLConnection.HTTP_OK) {
+        @Override
+        protected Response<String> sendRequest(Request request) {
+          final Context context = weakContextReference.get();
+
+          if (context != null) {
+            try {
+              final InstanceID instanceId = InstanceID.getInstance(context);
+              final String token = instanceId.getToken(
+                  context.getString(R.string.defaultSenderID),
+                  GoogleCloudMessaging.INSTANCE_ID_SCOPE,
+                  null
+              );
+
+              return request.param("device_id", token).retry(3,false).asString();
+
+            } catch (IOException exception) {
+              exception.printStackTrace();
+              return null;
+            }
+          }
+          return null;
+        }
+
+        @Override
+        public void onResponseCodeMatching(Response<String> response) {
+          String encryptStr = response.getBody();
+          int len = encryptStr.length();
+          byte[] data = new byte[len / 2];
+          for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(encryptStr.charAt(i), 16) << 4)
+                + Character.digit(encryptStr.charAt(i + 1), 16));
+          }
+          encryptionKey = data;
+          // Sets up the realm configuration and start collection of snapshots
+          setupRealmAndStartTimers();
+        }
+
+        @Override
+        public void onResponseCodeNotMatching(Response<String> response) {
+          retryRealmSetupOnNetworkChanged();
+        }
+
+        @Override
+        public void onConnectionFailure() {
+          retryRealmSetupOnNetworkChanged();
+        }
+      };
+
+      keyTask.execute();
+    }
+  }
+
 }

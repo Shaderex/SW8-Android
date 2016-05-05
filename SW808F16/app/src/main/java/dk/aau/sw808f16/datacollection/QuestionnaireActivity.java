@@ -8,22 +8,26 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import dk.aau.sw808f16.datacollection.backgroundservice.BackgroundSensorService;
-import dk.aau.sw808f16.datacollection.backgroundservice.QuestionnaireResponder;
-import dk.aau.sw808f16.datacollection.campaign.Campaign;
 import dk.aau.sw808f16.datacollection.questionaire.models.Question;
 import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
-import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
-import io.realm.Realm;
 
 public class QuestionnaireActivity extends Activity {
 
   public static final String QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY = "QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY";
   public static final String SNAPSHOT_TIMESTAMP_KEY = "SNAPSHOT_TIMESTAMP_KEY";
+  public static final String QUESTIONNAIRE_TTL_KEY = "QUESTIONNAIRE_TTL_KEY";
   public static final int QUESTIONNAIRE_NOTIFICATION_ID = 42;
 
   // Questionnaire
@@ -31,7 +35,10 @@ public class QuestionnaireActivity extends Activity {
   private Question currentQuestion = null;
   private long snapshotTimestamp;
   private boolean isBoundToResponder = false;
-  private QuestionnaireResponder questionaireResponder;
+  private long timeToLive;
+  private Messenger serviceMessenger = null;
+
+  private Timer expirationTimer;
 
   // Views
   private TextView questionText;
@@ -42,11 +49,12 @@ public class QuestionnaireActivity extends Activity {
     setContentView(R.layout.activity_questionnaire);
 
     final Intent spawnerIntent = getIntent();
-
     final Bundle extras = spawnerIntent.getExtras();
+    expirationTimer = new Timer();
 
     questionnaire = extras.getParcelable(QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY);
     snapshotTimestamp = extras.getLong(SNAPSHOT_TIMESTAMP_KEY);
+    timeToLive = extras.getLong(QUESTIONNAIRE_TTL_KEY);
 
     if (questionnaire == null) {
       throw new IllegalArgumentException("Illegal intent sent to activity. Questionnaire was null");
@@ -77,6 +85,25 @@ public class QuestionnaireActivity extends Activity {
     });
 
     bindToResponder();
+
+
+    expirationTimer.schedule(new TimerTask() {
+      @Override
+      public void run() {
+
+        runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+
+            Toast.makeText(getApplicationContext(), "Questionnaire Expired", Toast.LENGTH_LONG).show();
+            finish();
+
+          }
+        });
+
+      }
+    }, timeToLive);
+
   }
 
   private void bindToResponder() {
@@ -90,15 +117,14 @@ public class QuestionnaireActivity extends Activity {
     public void onServiceConnected(final ComponentName className, final IBinder binder) {
 
       // We've bound to LocalService, cast the IBinder and get LocalService instance
-      final BackgroundSensorService.LocalBinder questionnaireBinder = (BackgroundSensorService.LocalBinder) binder;
-      questionaireResponder = questionnaireBinder.getQuestionnaireResponder();
+      serviceMessenger = new Messenger(binder);
       isBoundToResponder = true;
     }
 
     @Override
     public void onServiceDisconnected(final ComponentName componentName) {
       isBoundToResponder = false;
-      questionaireResponder = null;
+      serviceMessenger = null;
     }
   };
 
@@ -107,25 +133,44 @@ public class QuestionnaireActivity extends Activity {
       currentQuestion = questionnaire.getNextQuestion();
       questionText.setText(currentQuestion.getQuestion());
     } catch (IndexOutOfBoundsException exception) {
+
       // There are no more questions
+      onQuestionnaireCompleted();
+    }
+  }
 
-      final Intent resultIntent = new Intent();
-      resultIntent.putExtra(QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY, questionnaire);
+  private void onQuestionnaireCompleted() {
+    final Intent resultIntent = new Intent();
+    resultIntent.putExtra(QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY, questionnaire);
 
-      setResult(Activity.RESULT_OK, resultIntent);
+    setResult(Activity.RESULT_OK, resultIntent);
 
-      if (isBoundToResponder) {
-        questionaireResponder.notifyQuestionnaireCompleted(snapshotTimestamp, questionnaire);
-      }
+    if (isBoundToResponder) {
+      notifyQuestionnaireCompleted(snapshotTimestamp, questionnaire);
+    }
 
-      final NotificationManager notificationManager =
-          (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+    final NotificationManager notificationManager =
+        (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
 
-      notificationManager.cancel(QUESTIONNAIRE_NOTIFICATION_ID);
+    notificationManager.cancel(QUESTIONNAIRE_NOTIFICATION_ID);
 
-      finishActivity(Activity.RESULT_OK);
+    finishActivity(Activity.RESULT_OK);
 
-      finish();
+    finish();
+  }
+
+  private void notifyQuestionnaireCompleted(final long snapshotTimestamp, final Questionnaire questionnaire) {
+    final Message msg = Message.obtain(null, BackgroundSensorService.NOTIFY_QUESTIONNAIRE_COMPLETED, 0, 0);
+
+    final Bundle data = new Bundle();
+
+    data.putLong(BackgroundSensorService.NOTIFY_QUESTIONNAIRE_COMPLETED_TIMESTAMP, snapshotTimestamp);
+    data.putParcelable(BackgroundSensorService.NOTIFY_QUESTIONNAIRE_COMPLETED_QUESTIONNAIRE, questionnaire);
+
+    try {
+      serviceMessenger.send(msg);
+    } catch (RemoteException e) {
+      e.printStackTrace();
     }
   }
 
@@ -154,5 +199,7 @@ public class QuestionnaireActivity extends Activity {
       unbindService(mConnection);
       isBoundToResponder = false;
     }
+
+    expirationTimer.cancel();
   }
 }

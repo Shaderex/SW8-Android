@@ -92,27 +92,14 @@ public class CampaignJoinFragment extends Fragment implements ConfirmSaveSelecti
   public void onConfirmedCampaignSave(final long campaignId) {
 
     final Activity context = getActivity();
+    registerCampaign(context, campaignId);
 
-    final AsyncHttpCampaignJoinTask joinCampaignTask = new AsyncHttpCampaignJoinTask(context, campaignId) {
-      @Override
-      public void onResponseCodeMatching(final Response<JSONObject> response) {
-        super.onResponseCodeMatching(response);
-
-        final SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
-        editor.putLong(context.getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), campaignId);
-        editor.apply();
-
-        registerCampaign(context);
-      }
-    };
-
-    joinCampaignTask.execute();
     getFragmentManager().popBackStackImmediate();
   }
 
-  public void registerCampaign(final Activity activity) {
+  public void registerCampaign(final Activity activity, final long campaignId) {
 
     final CampaignRegistrator parentRegistrator = (CampaignRegistrator) activity;
-    parentRegistrator.registerCampaign();
+    parentRegistrator.registerCampaign(campaignId);
   }
 }
