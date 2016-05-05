@@ -1,5 +1,6 @@
 package dk.aau.sw808f16.datacollection.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.ContentLoadingProgressBar;
@@ -236,6 +237,8 @@ public class CampaignSpecificationFragment extends Fragment {
                                                   final String headline,
                                                   final List<SensorType> sensors) {
 
+    final Context context = parent.getContext();
+
     final LinearLayout categoryView = (LinearLayout) parent.findViewById(categoryResource);
 
     // If no description is provided, do not display the view
@@ -245,7 +248,7 @@ public class CampaignSpecificationFragment extends Fragment {
     }
 
     final ImageView indicatorImageView = (ImageView) categoryView.findViewById(R.id.category_indicator);
-    indicatorImageView.setImageDrawable(getResources().getDrawable(indicatorResource));
+    indicatorImageView.setImageDrawable(context.getResources().getDrawable(indicatorResource));
 
     final TextView headlineTextView = (TextView) categoryView.findViewById(R.id.category_headline);
     headlineTextView.setText(headline);

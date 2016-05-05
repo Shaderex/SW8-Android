@@ -21,7 +21,6 @@ import com.goebl.david.Response;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 
-import org.apache.http.conn.ClientConnectionManager;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -88,6 +87,7 @@ public final class BackgroundSensorService extends IntentService {
   private SnapshotTimer snapshotTimer;
   private SynchronizationTimer synchronizationTimer;
 
+  private ConnectivityManager.OnNetworkActiveListener networkActiveListener;
   private ConnectivityManager connectivityManager;
 
   public BackgroundSensorService() {
@@ -140,10 +140,23 @@ public final class BackgroundSensorService extends IntentService {
   }
 
   private void retryRealmSetupOnNetworkChanged() {
-    connectivityManager.regi
+    networkActiveListener = new ConnectivityManager.OnNetworkActiveListener() {
+      @Override
+      public void onNetworkActive() {
 
-    serviceHandler.post(new RealmSetupRunnable());
+        // Wait for the network to truly be ready (can be delayed - at least on AAU)
+        try {
+          Thread.sleep(1000);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
 
+        serviceHandler.post(new RealmSetupRunnable());
+        connectivityManager.removeDefaultNetworkActiveListener(networkActiveListener);
+      }
+    };
+
+    connectivityManager.addDefaultNetworkActiveListener(networkActiveListener);
   }
 
   private void setupRealmAndStartTimers() {
@@ -182,8 +195,9 @@ public final class BackgroundSensorService extends IntentService {
 
     @Override
     public void handleMessage(final Message msg) {
+      Log.d("BackgroundSensorService", "handleMessage called");
       // Check if realm has been properly setup by checking the encryption key
-      if(encryptionKey == null) {
+      if (encryptionKey == null) {
         final Message busy = Message.obtain(null, SERVICE_ACK_BUSY);
         try {
           msg.replyTo.send(busy);
@@ -198,13 +212,9 @@ public final class BackgroundSensorService extends IntentService {
       final Bundle data = msg.getData();
       switch (msg.what) {
         case NOTIFY_NEW_CAMPAIGN: {
+
           final long campaignId = data.getLong(NOTIFY_QUESTIONNAIRE_COMPLETED_CAMPAIGN_ID);
           notifyNewCampaign(campaignId);
-          try {
-            msg.replyTo.send(ok);
-          } catch (RemoteException exception) {
-            exception.printStackTrace();
-          }
           return;
         }
         case NOTIFY_QUESTIONNAIRE_COMPLETED: {
@@ -212,11 +222,6 @@ public final class BackgroundSensorService extends IntentService {
           final long timestamp = data.getLong(NOTIFY_QUESTIONNAIRE_COMPLETED_TIMESTAMP);
           final Questionnaire questionnaire = data.getParcelable(NOTIFY_QUESTIONNAIRE_COMPLETED_QUESTIONNAIRE);
           notifyQuestionnaireCompleted(timestamp, questionnaire);
-          try {
-            msg.replyTo.send(ok);
-          } catch (RemoteException exception) {
-            exception.printStackTrace();
-          }
           return;
         }
       }
@@ -224,29 +229,18 @@ public final class BackgroundSensorService extends IntentService {
   }
 
   public void notifyNewCampaign(final long campaignId) {
-
-    final CountDownLatch hasUpdatedCampaign = new CountDownLatch(1);
-
     final AsyncHttpCampaignJoinTask joinCampaignTask = new AsyncHttpCampaignJoinTask(this, campaignId) {
       @Override
       public void onResponseCodeMatching(final Response<JSONObject> response) {
         super.onResponseCodeMatching(response);
-
         final SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(BackgroundSensorService.this).edit();
         editor.putLong(BackgroundSensorService.this.getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), campaignId);
         editor.apply();
-        hasUpdatedCampaign.countDown();
+        snapshotTimer.stop();
+        snapshotTimer.start();
       }
     };
     joinCampaignTask.execute();
-
-    try {
-      hasUpdatedCampaign.await();
-    } catch (InterruptedException exception) {
-      exception.printStackTrace();
-    }
-    snapshotTimer.stop();
-    snapshotTimer.start();
   }
 
   public void notifyQuestionnaireCompleted(final long snapshotTimeStamp, Questionnaire questionnaire) {
@@ -362,7 +356,7 @@ public final class BackgroundSensorService extends IntentService {
                   null
               );
 
-              return request.param("device_id", token).retry(3,false).asString();
+              return request.param("device_id", token).retry(3, false).asString();
 
             } catch (IOException exception) {
               exception.printStackTrace();
@@ -388,11 +382,13 @@ public final class BackgroundSensorService extends IntentService {
 
         @Override
         public void onResponseCodeNotMatching(Response<String> response) {
+          Log.d("BackgroundSensorService", "onResponseCodeNotMatching called when requesting encryption key");
           retryRealmSetupOnNetworkChanged();
         }
 
         @Override
         public void onConnectionFailure() {
+          Log.d("BackgroundSensorService", "onConnectionFailure called when requesting encryption key");
           retryRealmSetupOnNetworkChanged();
         }
       };

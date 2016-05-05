@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -304,7 +305,9 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
       // We've bound to LocalService, cast the IBinder and get LocalService instance
       serviceMessenger = new Messenger(binder);
+      Toast.makeText(MainActivity.this, "Service is ready", Toast.LENGTH_SHORT).show();
       isBoundToResponder = true;
+
     }
 
     @Override
@@ -319,6 +322,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
     final Message msg = Message.obtain(null, BackgroundSensorService.NOTIFY_NEW_CAMPAIGN, 0, 0);
     Bundle data = new Bundle();
     data.putLong(BackgroundSensorService.NOTIFY_QUESTIONNAIRE_COMPLETED_CAMPAIGN_ID, campaignId);
+    msg.setData(data);
 
     try {
       serviceMessenger.send(msg);
@@ -358,5 +362,14 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
       unbindService(mConnection);
       isBoundToResponder = false;
     }
+  }
+
+  private Messenger getServiceMessanger() {
+
+    if(serviceMessenger == null){
+      Toast.makeText(this, "Service is busy", Toast.LENGTH_SHORT).show();
+    }
+
+    return serviceMessenger;
   }
 }

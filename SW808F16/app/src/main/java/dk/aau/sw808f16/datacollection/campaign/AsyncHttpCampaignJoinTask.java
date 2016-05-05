@@ -1,6 +1,7 @@
 package dk.aau.sw808f16.datacollection.campaign;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.goebl.david.Request;
@@ -35,7 +36,7 @@ public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
 
   @Override
   protected Response<JSONObject> sendRequest(Request request) {
-
+    Log.d("BackgroundSensorService", "sendRequest");
     final Context context = weakContextReference.get();
 
     if (context != null) {
@@ -46,23 +47,28 @@ public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
             GoogleCloudMessaging.INSTANCE_ID_SCOPE,
             null
         );
-        return request
+        Log.d("BackgroundSensorService", "sendRequest : 1");
+        Response<JSONObject> tmp = request
             .param("device_id", token)
             .param("campaign_id", campaignIdToRegister)
-            .retry(2, false)
             .asJsonObject();
 
+        return tmp;
+
       } catch (IOException exception) {
+        Log.d("BackgroundSensorService", "IOException");
         exception.printStackTrace();
+        Log.d("BackgroundSensorService", "sendRequest : 2");
         return null;
       }
     }
+    Log.d("BackgroundSensorService", "sendRequest : 3");
     return null;
   }
 
   @Override
   public void onResponseCodeMatching(final Response<JSONObject> response) {
-
+    Log.d("BackgroundSensorService", "onResponseCodeMatching");
     final Context context = weakContextReference.get();
     if (context != null) {
       try {
@@ -89,6 +95,7 @@ public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
 
   @Override
   public void onResponseCodeNotMatching(final Response<JSONObject> response) {
+    Log.d("BackgroundSensorService", "onResponseCodeNotMatching");
     final Context context = weakContextReference.get();
     if (context != null) {
       Toast.makeText(context, R.string.unable_to_join_campaign_message, Toast.LENGTH_SHORT).show();
@@ -97,6 +104,7 @@ public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
 
   @Override
   public void onConnectionFailure() {
+    Log.d("BackgroundSensorService", "onConnectionFailure");
     final Context context = weakContextReference.get();
     if (context != null) {
       Toast.makeText(context, "Could not connect", Toast.LENGTH_SHORT).show();
