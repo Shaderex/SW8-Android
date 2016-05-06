@@ -12,6 +12,7 @@ import com.google.android.gms.iid.InstanceID;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -37,7 +38,7 @@ public class SynchronizationTimer {
     this.synchronizationInterval = synchronizationInterval;
   }
 
-  public void start() {
+  public synchronized void start() {
     if (!isRunning) {
       Log.d("SynchronizationTimer", "SynchronizationTimer started with " + synchronizationInterval + "ms interval between syncs");
 
@@ -47,7 +48,7 @@ public class SynchronizationTimer {
     }
   }
 
-  public void stop() {
+  public synchronized void stop() {
     if (isRunning) {
       Log.d("SynchronizationTimer", "SynchronizationTimer stopped");
       timer.cancel();
@@ -60,14 +61,14 @@ public class SynchronizationTimer {
     @Override
     public void run() {
       // Check if we have access to wifi. If not, don't try to synchronize
-      WifiManager wifi = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+      final WifiManager wifi = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
       if (!wifi.isWifiEnabled()) {
         Log.d("SynchronizationTimer", "Unable to upload without network");
         return; // Take no further actions
       }
 
       final Realm realm = Realm.getDefaultInstance();
-      RealmResults<Campaign> results = realm.where(Campaign.class).findAll();
+      final RealmResults<Campaign> results = realm.where(Campaign.class).findAll();
 
       if (results.size() == 0) {
         Log.d("SynchronizationTimer", "There are no campaigns to be uploaded");
@@ -79,13 +80,17 @@ public class SynchronizationTimer {
             "/campaigns/" + campaign.getIdentifier() + "/snapshots");
 
         try {
+          final long requestTimestamp = System.currentTimeMillis();
           final String campaignString = campaign.toJsonObject().toString();
+
           final int campaignIdentifer = campaign.getIdentifier();
 
           // Send the campaign to the server
-          final AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, requestUrl, 200) {
+          final AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, requestUrl, HttpURLConnection.HTTP_OK) {
+
             @Override
-            protected Response<String> sendRequest(Request webb) {
+            protected Response<String> sendRequest(final Request webb) {
+
               try {
                 final InstanceID instanceId = InstanceID.getInstance(context);
                 final String token = instanceId.getToken(
@@ -100,8 +105,8 @@ public class SynchronizationTimer {
 
                 Log.d("Service-status", campaignString);
                 return jsonString;
-              } catch (IOException e) {
-                e.printStackTrace();
+              } catch (IOException exception) {
+                exception.printStackTrace();
                 return null;
               }
             }
@@ -113,10 +118,20 @@ public class SynchronizationTimer {
               realm.beginTransaction();
               final RealmResults<Campaign> campaigns = realm.where(Campaign.class).equalTo("identifier", campaignIdentifer).findAll();
 
+              if(campaigns.isEmpty()) {
+                return;
+              }
+
               final Campaign campaign = campaigns.get(0);
 
               for (Snapshot snapshot : campaign.getSnapshots()) {
+
+                if (!campaign.isSnapshotReady(requestTimestamp, snapshot)) {
+                  continue;
+                }
+
                 for (RealmObject obj : snapshot.children()) {
+
                   // Ensure that the object have not been modified elsewhere before trying to delete it
                   if (obj.isValid()) {
                     obj.removeFromRealm();

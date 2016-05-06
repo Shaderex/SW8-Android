@@ -57,7 +57,6 @@ public class PublicCampaignFragment extends Fragment
   @Override
   public void onResume() {
     super.onResume();
-
     onRefresh();
   }
 
@@ -135,16 +134,18 @@ public class PublicCampaignFragment extends Fragment
       public void onResponseCodeMatching(final Response<JSONArray> response) {
         final JSONArray data = response.getBody();
 
-        final ListView listView = (ListView) getView().findViewById(R.id.campaigns_list_view);
+        final View fragmentView = getView();
+        if (fragmentView == null) {
+          return;
+        }
+
+        final ListView listView = (ListView) fragmentView.findViewById(R.id.campaigns_list_view);
 
         if (listView.getEmptyView() != null) {
           listView.getEmptyView().setVisibility(View.GONE);
         }
 
-        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        currentlyMarkedCampaign = preferences.getLong(getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), -1);
-
-        listView.setEmptyView(getView().findViewById(R.id.empty_no_data));
+        listView.setEmptyView(fragmentView.findViewById(R.id.empty_no_data));
 
         listView.setAdapter(adapter);
         adapter.setData(data);
@@ -154,7 +155,13 @@ public class PublicCampaignFragment extends Fragment
 
       @Override
       public void onResponseCodeNotMatching(final Response<JSONArray> response) {
-        final ListView listView = (ListView) getView().findViewById(R.id.campaigns_list_view);
+
+        final View fragmentView = getView();
+        if (fragmentView == null) {
+          return;
+        }
+
+        final ListView listView = (ListView) fragmentView.findViewById(R.id.campaigns_list_view);
 
         if (listView.getEmptyView() != null) {
           listView.getEmptyView().setVisibility(View.GONE);
@@ -162,14 +169,19 @@ public class PublicCampaignFragment extends Fragment
 
         currentGetCampaignsTask = null;
 
-        listView.setEmptyView(getView().findViewById(R.id.empty_unexpected_response));
+        listView.setEmptyView(fragmentView.findViewById(R.id.empty_unexpected_response));
         listView.setAdapter(adapter);
         refreshLayout.setRefreshing(false);
       }
 
       @Override
       public void onConnectionFailure() {
-        final ListView listView = (ListView) getView().findViewById(R.id.campaigns_list_view);
+        final View fragmentView = getView();
+        if (fragmentView == null) {
+          return;
+        }
+
+        final ListView listView = (ListView) fragmentView.findViewById(R.id.campaigns_list_view);
 
         if (listView.getEmptyView() != null) {
           listView.getEmptyView().setVisibility(View.GONE);
@@ -177,7 +189,7 @@ public class PublicCampaignFragment extends Fragment
 
         currentGetCampaignsTask = null;
 
-        listView.setEmptyView(getView().findViewById(R.id.empty_no_connection));
+        listView.setEmptyView(fragmentView.findViewById(R.id.empty_no_connection));
         listView.setAdapter(adapter);
         refreshLayout.setRefreshing(false);
       }
@@ -190,6 +202,15 @@ public class PublicCampaignFragment extends Fragment
     public JSONArray data;
 
     JsonCampaignsAdapter() {
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+
+      final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+      currentlyMarkedCampaign = preferences.getLong(getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), -1);
+
+      super.notifyDataSetChanged();
     }
 
     public void setData(final JSONArray data) {

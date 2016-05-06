@@ -146,11 +146,12 @@ public class Campaign extends RealmObject implements JsonObjectAble {
   public JSONObject toJsonObject() throws JSONException {
     final JSONObject jsonObject = new JSONObject();
 
-    JSONArray snapshotArray = new JSONArray();
+    final JSONArray snapshotArray = new JSONArray();
     for (Snapshot snapshot : getSnapshots()) {
-      snapshotArray.put(snapshot.toJsonObject());
+      if (isSnapshotReady(snapshot)) {
+        snapshotArray.put(snapshot.toJsonObject());
+      }
     }
-
     jsonObject.put("snapshots", snapshotArray);
 
     return jsonObject;
@@ -301,5 +302,24 @@ public class Campaign extends RealmObject implements JsonObjectAble {
       questionnairePlacement = QuestionnairePlacement.getQuestionnairePlacementById(placementId);
     }
     return questionnairePlacement;
+  }
+
+  public boolean isSnapshotReady(final Snapshot snapshot) {
+
+    final long currentTime = System.currentTimeMillis();
+
+    return isSnapshotReady(currentTime, snapshot);
+  }
+
+  public boolean isSnapshotReady(final long timestamp, final Snapshot snapshot) {
+
+    switch (getQuestionnairePlacement()) {
+      case START:
+        return timestamp > (snapshot.getTimestamp() + this.getSnapshotLength());
+      case END:
+        return snapshot.getQuestionnaire() != null || timestamp > (snapshot.getTimestamp() + this.getSnapshotLength() * 2);
+      default:
+        return false;
+    }
   }
 }

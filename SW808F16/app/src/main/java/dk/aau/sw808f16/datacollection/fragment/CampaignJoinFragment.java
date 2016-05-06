@@ -1,6 +1,6 @@
 package dk.aau.sw808f16.datacollection.fragment;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -10,15 +10,11 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
-import com.goebl.david.Response;
-
-import org.json.JSONObject;
 
 import dk.aau.sw808f16.datacollection.R;
-import dk.aau.sw808f16.datacollection.campaign.AsyncHttpCampaignJoinTask;
+import dk.aau.sw808f16.datacollection.webutil.CampaignRegistrator;
 
 public class CampaignJoinFragment extends Fragment implements ConfirmSaveSelectionFragment.SaveConfirmedCampaign {
 
@@ -81,8 +77,6 @@ public class CampaignJoinFragment extends Fragment implements ConfirmSaveSelecti
           confirmSaveSelectionFragment.show(getChildFragmentManager(), null);
           getFragmentManager().executePendingTransactions();
         }
-
-
       }
     });
 
@@ -92,21 +86,15 @@ public class CampaignJoinFragment extends Fragment implements ConfirmSaveSelecti
   @Override
   public void onConfirmedCampaignSave(final long campaignId) {
 
-    final Context context = getActivity();
+    final Activity context = getActivity();
+    registerCampaign(context, campaignId);
 
-    final AsyncHttpCampaignJoinTask joinCampaignTask = new AsyncHttpCampaignJoinTask(context, campaignId) {
-      @Override
-      public void onResponseCodeMatching(final Response<JSONObject> response) {
-        super.onResponseCodeMatching(response);
-
-        final SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
-        editor.putLong(context.getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), campaignId);
-        editor.apply();
-      }
-    };
-
-    joinCampaignTask.execute();
     getFragmentManager().popBackStackImmediate();
+  }
 
+  public void registerCampaign(final Activity activity, final long campaignId) {
+
+    final CampaignRegistrator parentRegistrator = (CampaignRegistrator) activity;
+    parentRegistrator.registerCampaign(campaignId);
   }
 }

@@ -16,6 +16,7 @@
         tools:text="Question Placeholder?"/>
 
     <LinearLayout
+        android:id="@+id/questionnaire_button_bar"
         style="?android:attr/buttonBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
