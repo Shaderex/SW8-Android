@@ -72,10 +72,12 @@ public class SnapshotTimer {
     @Override
     public void run() {
 
+      Realm realm = null;
+
       try {
 
+        realm = Realm.getDefaultInstance();
 
-        final Realm realm = Realm.getDefaultInstance();
         Campaign campaign = realm.where(Campaign.class).findFirst();
 
         final long totalDuration = campaign.getSnapshotLength();
@@ -88,10 +90,15 @@ public class SnapshotTimer {
         Snapshot snapshot = Snapshot.Create();
         final long snapshotTimestamp = snapshot.getTimestamp();
 
-        realm.beginTransaction();
-        campaign.addSnapshot(snapshot);
-        realm.copyToRealmOrUpdate(campaign);
-        realm.commitTransaction();
+        try {
+          realm.beginTransaction();
+          campaign.addSnapshot(snapshot);
+          realm.copyToRealmOrUpdate(campaign);
+          realm.commitTransaction();
+        } catch (Exception exception) {
+          realm.cancelTransaction();
+          throw exception;
+        }
 
         if (campaign.getQuestionnairePlacement() == QuestionnairePlacement.START) {
           startQuestionnaire(questionnaire, snapshotTimestamp, totalDuration);
@@ -124,27 +131,35 @@ public class SnapshotTimer {
           }
         }
 
-        realm.beginTransaction();
+        try {
+          realm.beginTransaction();
 
-        for (final Pair<SensorType, List<Sample>> sensorSamples : sensorSamplesForSnapshot) {
-          snapshot.addSamples(sensorSamples.first, sensorSamples.second);
+          for (final Pair<SensorType, List<Sample>> sensorSamples : sensorSamplesForSnapshot) {
+            snapshot.addSamples(sensorSamples.first, sensorSamples.second);
+          }
+
+          Log.d("SnapshotTimer", "Added snapshot to campaign with ID: " + campaignIdentifier);
+
+          if (campaign.getQuestionnairePlacement() == QuestionnairePlacement.END) {
+            startQuestionnaire(questionnaire, snapshotTimestamp, totalDuration);
+          }
+
+          campaign = realm.where(Campaign.class).findFirst();
+          campaign.addSnapshot(snapshot);
+          realm.copyToRealm(campaign);
+          realm.commitTransaction();
+        } catch (Exception exception) {
+          realm.cancelTransaction();
+          throw exception;
         }
 
-        Log.d("SnapshotTimer", "Added snapshot to campaign with ID: " + campaignIdentifier);
-
-        if (campaign.getQuestionnairePlacement() == QuestionnairePlacement.END) {
-          startQuestionnaire(questionnaire, snapshotTimestamp, totalDuration);
-        }
-
-        campaign = realm.where(Campaign.class).findFirst();
-        campaign.addSnapshot(snapshot);
-        realm.copyToRealm(campaign);
-        realm.commitTransaction();
-        realm.close();
 
       } catch (Exception exception) {
         exception.printStackTrace();
+      } finally {
+        realm.close();
       }
+
     }
   }
 

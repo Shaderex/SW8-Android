@@ -3,7 +3,6 @@ package dk.aau.sw808f16.datacollection.backgroundservice;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.hardware.SensorManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
@@ -13,7 +12,6 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.goebl.david.Request;
@@ -29,19 +27,24 @@ import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 import dk.aau.sw808f16.datacollection.R;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AccelerometerSensorProvider;
+import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AccelerometerSensorProviderBand;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AmbientLightSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.BarometerSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.CompassSensorProvider;
+import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.GalvanicSkinResponseSensorProviderBand;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.GyroscopeSensorProvider;
+import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.HeartbeatSensorProviderBand;
+import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.LocationSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.ProximitySensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.SensorProvider;
+import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.UltraVioletSensorProviderBand;
+import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.WifiSensorProvider;
 import dk.aau.sw808f16.datacollection.campaign.AsyncHttpCampaignJoinTask;
 import dk.aau.sw808f16.datacollection.campaign.Campaign;
 import dk.aau.sw808f16.datacollection.questionaire.models.Questionnaire;
@@ -80,9 +83,14 @@ public final class BackgroundSensorService extends IntentService {
   private CompassSensorProvider compassSensorProvider;
   private GyroscopeSensorProvider gyroscopeSensorProvider;
   private ProximitySensorProvider proximitySensorProvider;
-  // TODO The LocationSensorProvider and WifiSensorProvider is broken (thread already started exception is thrown)
-  // private WifiSensorProvider wifiSensorProvider;
-  // private LocationSensorProvider locationSensorProvider;
+  private WifiSensorProvider wifiSensorProvider;
+  private LocationSensorProvider locationSensorProvider;
+
+  // Band providers
+  private UltraVioletSensorProviderBand ultraVioletSensorProviderBand;
+  private GalvanicSkinResponseSensorProviderBand galvanicSkinResponseSensorProviderBand;
+  private AccelerometerSensorProviderBand accelerometerSensorProviderBand;
+  private HeartbeatSensorProviderBand heartbeatSensorProviderBand;
 
   private SnapshotTimer snapshotTimer;
   private SynchronizationTimer synchronizationTimer;
@@ -115,9 +123,13 @@ public final class BackgroundSensorService extends IntentService {
     compassSensorProvider = new CompassSensorProvider(BackgroundSensorService.this, sensorThreadPool, sensorManager);
     gyroscopeSensorProvider = new GyroscopeSensorProvider(BackgroundSensorService.this, sensorThreadPool, sensorManager);
     proximitySensorProvider = new ProximitySensorProvider(BackgroundSensorService.this, sensorThreadPool, sensorManager);
-    // TODO The LocationSensorProvider and WifiSensorProvider is broken (thread already started exception is thrown)
-    // wifiSensorProvider = new WifiSensorProvider(BackgroundSensorService.this, sensorThreadPool, sensorManager);
-    // locationSensorProvider = new LocationSensorProvider(BackgroundSensorService.this, sensorThreadPool, sensorManager);
+    wifiSensorProvider = new WifiSensorProvider(BackgroundSensorService.this, sensorThreadPool, sensorManager);
+    locationSensorProvider = new LocationSensorProvider(BackgroundSensorService.this, sensorThreadPool, sensorManager);
+
+    ultraVioletSensorProviderBand = new UltraVioletSensorProviderBand (BackgroundSensorService.this, sensorThreadPool, sensorManager);
+    galvanicSkinResponseSensorProviderBand = new GalvanicSkinResponseSensorProviderBand(BackgroundSensorService.this, sensorThreadPool, sensorManager);
+    accelerometerSensorProviderBand = new AccelerometerSensorProviderBand(BackgroundSensorService.this, sensorThreadPool, sensorManager);
+    heartbeatSensorProviderBand = new HeartbeatSensorProviderBand(BackgroundSensorService.this, sensorThreadPool, sensorManager);
 
     snapshotTimer = new SnapshotTimer(BackgroundSensorService.this, getSensorProviders());
     synchronizationTimer = new SynchronizationTimer(BackgroundSensorService.this, SYNCHRONIZATION_INTERVAL);
@@ -195,6 +207,7 @@ public final class BackgroundSensorService extends IntentService {
 
     @Override
     public void handleMessage(final Message msg) {
+
       Log.d("BackgroundSensorService", "handleMessage called");
       // Check if realm has been properly setup by checking the encryption key
       if (encryptionKey == null) {
@@ -207,14 +220,13 @@ public final class BackgroundSensorService extends IntentService {
         return;
       }
 
-      final Message ok = Message.obtain(null, SERVICE_ACK_OK);
 
       final Bundle data = msg.getData();
       switch (msg.what) {
         case NOTIFY_NEW_CAMPAIGN: {
 
           final long campaignId = data.getLong(NOTIFY_QUESTIONNAIRE_COMPLETED_CAMPAIGN_ID);
-          notifyNewCampaign(campaignId);
+          notifyNewCampaign(campaignId, msg);
           return;
         }
         case NOTIFY_QUESTIONNAIRE_COMPLETED: {
@@ -222,20 +234,29 @@ public final class BackgroundSensorService extends IntentService {
           final long timestamp = data.getLong(NOTIFY_QUESTIONNAIRE_COMPLETED_TIMESTAMP);
           final Questionnaire questionnaire = data.getParcelable(NOTIFY_QUESTIONNAIRE_COMPLETED_QUESTIONNAIRE);
           notifyQuestionnaireCompleted(timestamp, questionnaire);
-          return;
         }
       }
     }
   }
 
-  public void notifyNewCampaign(final long campaignId) {
+  public void notifyNewCampaign(final long campaignId, final Message originalMessage) {
+
+    final Messenger replyMessenger = originalMessage.replyTo;
+
     final AsyncHttpCampaignJoinTask joinCampaignTask = new AsyncHttpCampaignJoinTask(this, campaignId) {
       @Override
       public void onResponseCodeMatching(final Response<JSONObject> response) {
         super.onResponseCodeMatching(response);
-        final SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(BackgroundSensorService.this).edit();
-        editor.putLong(BackgroundSensorService.this.getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), campaignId);
-        editor.apply();
+
+
+        final Message ok = Message.obtain(null, SERVICE_ACK_OK);
+
+        try {
+          replyMessenger.send(ok);
+        } catch (RemoteException exception) {
+          exception.printStackTrace();
+        }
+
         snapshotTimer.stop();
         snapshotTimer.start();
       }

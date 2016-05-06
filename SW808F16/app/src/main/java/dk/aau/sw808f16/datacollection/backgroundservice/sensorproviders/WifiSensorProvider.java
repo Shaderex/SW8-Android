@@ -11,7 +11,9 @@ import android.hardware.SensorManager;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.SensorType;
@@ -19,7 +21,7 @@ import dk.aau.sw808f16.datacollection.snapshot.measurement.WifiMeasurement;
 
 public class WifiSensorProvider extends SensorProvider<WifiMeasurement> {
 
-  private final HandlerThread handlerThread = new HandlerThread("WifiSensorProvider HandlerThread");
+  private HandlerThread handlerThread;
 
   public WifiSensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
@@ -41,7 +43,6 @@ public class WifiSensorProvider extends SensorProvider<WifiMeasurement> {
       }
     };
 
-    // TODO: FIX THIS WHEN IT WORKS
     return new EventListenerRegistrationManager() {
 
       final WifiManager wifiManager = (WifiManager) contextWeakReference.get().getSystemService(Context.WIFI_SERVICE);
@@ -56,7 +57,7 @@ public class WifiSensorProvider extends SensorProvider<WifiMeasurement> {
 
       @Override
       public void register(final int frequency) {
-
+        handlerThread = new HandlerThread("WifiSensorProvider HandlerThread");
         handlerThread.start();
         final Context context = contextWeakReference.get();
 
@@ -68,12 +69,13 @@ public class WifiSensorProvider extends SensorProvider<WifiMeasurement> {
 
       @Override
       public void unregister() {
-
         final Context context = contextWeakReference.get();
 
         if (context != null) {
           context.unregisterReceiver(broadcastReceiver);
         }
+
+        handlerThread.quitSafely();
       }
     };
   }

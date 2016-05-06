@@ -160,6 +160,7 @@ public class QuestionnaireActivity extends Activity {
   }
 
   private void notifyQuestionnaireCompleted(final long snapshotTimestamp, final Questionnaire questionnaire) {
+
     final Message msg = Message.obtain(null, BackgroundSensorService.NOTIFY_QUESTIONNAIRE_COMPLETED, 0, 0);
 
     final Bundle data = new Bundle();

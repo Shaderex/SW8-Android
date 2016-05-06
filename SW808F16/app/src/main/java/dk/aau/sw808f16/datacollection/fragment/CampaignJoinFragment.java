@@ -1,7 +1,6 @@
 package dk.aau.sw808f16.datacollection.fragment;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -13,12 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
-import com.goebl.david.Response;
-
-import org.json.JSONObject;
 
 import dk.aau.sw808f16.datacollection.R;
-import dk.aau.sw808f16.datacollection.campaign.AsyncHttpCampaignJoinTask;
 import dk.aau.sw808f16.datacollection.webutil.CampaignRegistrator;
 
 public class CampaignJoinFragment extends Fragment implements ConfirmSaveSelectionFragment.SaveConfirmedCampaign {

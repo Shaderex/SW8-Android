@@ -107,6 +107,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
   private boolean isBoundToResponder = false;
   private Messenger serviceMessenger = null;
 
+
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -305,7 +306,6 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
       // We've bound to LocalService, cast the IBinder and get LocalService instance
       serviceMessenger = new Messenger(binder);
-      Toast.makeText(MainActivity.this, "Service is ready", Toast.LENGTH_SHORT).show();
       isBoundToResponder = true;
 
     }
@@ -317,18 +317,63 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
     }
   };
 
-  public void registerCampaign(final long campaignId)
-  {
+  public void registerCampaign(final long campaignId) {
+
+    final Messenger replyMessenger = new Messenger(new Handler() {
+
+      @Override
+      public void handleMessage(final Message msg) {
+
+        switch (msg.what) {
+
+          case BackgroundSensorService.SERVICE_ACK_BUSY: {
+
+            new Thread(new Runnable() {
+              @Override
+              public void run() {
+
+                try {
+                  Thread.sleep(2000);
+                } catch (InterruptedException exception) {
+                  exception.printStackTrace();
+                }
+                registerCampaign(campaignId);
+              }
+            }).start();
+            break;
+          }
+          case BackgroundSensorService.SERVICE_ACK_OK: {
+            final SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit();
+            editor.putLong(MainActivity.this.getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), campaignId);
+            editor.commit();
+
+            getFragmentManager().executePendingTransactions();
+
+            final ListView listView = (ListView) findViewById(R.id.campaigns_list_view);
+            if (listView != null) {
+              ((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
+            }
+
+            break;
+          }
+        }
+
+      }
+    });
+
     final Message msg = Message.obtain(null, BackgroundSensorService.NOTIFY_NEW_CAMPAIGN, 0, 0);
     Bundle data = new Bundle();
     data.putLong(BackgroundSensorService.NOTIFY_QUESTIONNAIRE_COMPLETED_CAMPAIGN_ID, campaignId);
     msg.setData(data);
+    msg.replyTo = replyMessenger;
 
     try {
       serviceMessenger.send(msg);
     } catch (RemoteException e) {
       e.printStackTrace();
     }
+
+    return;
   }
 
   private BandClient bandClient;
@@ -362,14 +407,5 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
       unbindService(mConnection);
       isBoundToResponder = false;
     }
-  }
-
-  private Messenger getServiceMessanger() {
-
-    if(serviceMessenger == null){
-      Toast.makeText(this, "Service is busy", Toast.LENGTH_SHORT).show();
-    }
-
-    return serviceMessenger;
   }
 }
