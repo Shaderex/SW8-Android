@@ -4,16 +4,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.util.Log;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import dk.aau.sw808f16.datacollection.SensorType;
@@ -29,19 +24,6 @@ public class WifiSensorProvider extends SensorProvider<WifiMeasurement> {
 
   @Override
   protected EventListenerRegistrationManager createRegManager() {
-
-    final SensorEventListener listener = new SensorEventListener() {
-      @Override
-      public void onSensorChanged(SensorEvent event) {
-
-
-      }
-
-      @Override
-      public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-      }
-    };
 
     return new EventListenerRegistrationManager() {
 
@@ -78,6 +60,11 @@ public class WifiSensorProvider extends SensorProvider<WifiMeasurement> {
         handlerThread.quitSafely();
       }
     };
+  }
+
+  @Override
+  protected WifiMeasurement getDefaultMeasurement() {
+    return new WifiMeasurement();
   }
 
   @Override

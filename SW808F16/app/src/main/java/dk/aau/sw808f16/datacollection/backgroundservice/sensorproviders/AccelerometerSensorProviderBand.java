@@ -62,4 +62,9 @@ public class AccelerometerSensorProviderBand extends SensorProviderBand<FloatTri
       }
     };
   }
+
+  @Override
+  protected FloatTripleMeasurement getDefaultMeasurement() {
+    return new FloatTripleMeasurement();
+  }
 }

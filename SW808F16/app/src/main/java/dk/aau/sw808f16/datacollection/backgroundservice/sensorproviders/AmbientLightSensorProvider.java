@@ -43,6 +43,11 @@ public class AmbientLightSensorProvider extends SensorProvider<FloatMeasurement>
   }
 
   @Override
+  protected FloatMeasurement getDefaultMeasurement() {
+    return  new FloatMeasurement();
+  }
+
+  @Override
   public boolean isSensorAvailable() {
     return contextWeakReference.get().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_LIGHT);
   }

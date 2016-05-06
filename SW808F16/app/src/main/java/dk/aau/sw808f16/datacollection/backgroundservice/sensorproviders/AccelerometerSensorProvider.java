@@ -35,6 +35,11 @@ public class AccelerometerSensorProvider extends SensorProvider<FloatTripleMeasu
   }
 
   @Override
+  protected FloatTripleMeasurement getDefaultMeasurement() {
+    return new FloatTripleMeasurement();
+  }
+
+  @Override
   public boolean isSensorAvailable() {
     return contextWeakReference.get().getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_ACCELEROMETER);
   }

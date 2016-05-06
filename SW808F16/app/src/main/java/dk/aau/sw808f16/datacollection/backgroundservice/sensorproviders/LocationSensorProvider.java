@@ -53,7 +53,7 @@ public class LocationSensorProvider extends SensorProvider<LocationMeasurement> 
       public void register(final int frequency) {
         handlerThread = new HandlerThread("LocationSensorProvider HandlerThread");
         handlerThread.start();
-        locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0.0f, listener , handlerThread.getLooper());
+        locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0.0f, listener, handlerThread.getLooper());
         onNewMeasurement(new LocationMeasurement(locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER)));
       }
 
@@ -63,6 +63,11 @@ public class LocationSensorProvider extends SensorProvider<LocationMeasurement> 
         handlerThread.quitSafely();
       }
     };
+  }
+
+  @Override
+  protected LocationMeasurement getDefaultMeasurement() {
+    return new LocationMeasurement();
   }
 
   @Override

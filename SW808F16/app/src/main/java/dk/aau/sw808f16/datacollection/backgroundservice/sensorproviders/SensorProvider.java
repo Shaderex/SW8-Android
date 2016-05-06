@@ -21,13 +21,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
 
-public abstract class SensorProvider<MeasurementType> {
+public abstract class SensorProvider<MeasurementT> {
 
   final WeakReference<Context> contextWeakReference;
   private final ExecutorService sensorThreadPool;
   final SensorManager sensorManager;
 
-  private MeasurementType cachedMeasurement = null;
+  private MeasurementT cachedMeasurement = getDefaultMeasurement();
   private final Object firstMeasurementLock = new Object();
   private final Timer measurementTimer;
 
@@ -35,7 +35,9 @@ public abstract class SensorProvider<MeasurementType> {
 
   protected abstract EventListenerRegistrationManager createRegManager();
 
-  protected void onNewMeasurement(final MeasurementType newMeasurement) {
+  protected abstract MeasurementT getDefaultMeasurement();
+
+  protected void onNewMeasurement(final MeasurementT newMeasurement) {
 
     cachedMeasurement = newMeasurement;
 

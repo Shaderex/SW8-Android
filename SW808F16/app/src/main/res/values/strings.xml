@@ -32,4 +32,6 @@
     <string name="browse_campaigns">BROWSE CAMPAIGNS</string>
     <string name="CAMPAIGN_CONFIRMATION_FRAGMENT_KEY">CAMPAIGN_CONFIRMATION_FRAGMENT_KEY</string>
     <string name="questionnaire_expired_message">Questionnaire Expired</string>
+    <string name="looking_for_campaign">Are you looking for a specific campaign?</string>
+    <string name="click_to_search">Click here to search for one</string>
 </resources>
