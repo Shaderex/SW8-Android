@@ -52,6 +52,10 @@ public class QuestionnaireActivity extends Activity {
     final Bundle extras = spawnerIntent.getExtras();
     expirationTimer = new Timer();
 
+    if (extras == null) {
+      throw new IllegalArgumentException("Illegal intent sent to activity. No bundle was sent with intent");
+    }
+
     questionnaire = extras.getParcelable(QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY);
     snapshotTimestamp = extras.getLong(SNAPSHOT_TIMESTAMP_KEY);
     timeToLive = extras.getLong(QUESTIONNAIRE_TTL_KEY);
