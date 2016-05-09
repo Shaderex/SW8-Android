@@ -126,7 +126,7 @@ public final class BackgroundSensorService extends IntentService {
     wifiSensorProvider = new WifiSensorProvider(BackgroundSensorService.this, sensorThreadPool, sensorManager);
     locationSensorProvider = new LocationSensorProvider(BackgroundSensorService.this, sensorThreadPool, sensorManager);
 
-    ultraVioletSensorProviderBand = new UltraVioletSensorProviderBand (BackgroundSensorService.this, sensorThreadPool, sensorManager);
+    ultraVioletSensorProviderBand = new UltraVioletSensorProviderBand(BackgroundSensorService.this, sensorThreadPool, sensorManager);
     galvanicSkinResponseSensorProviderBand = new GalvanicSkinResponseSensorProviderBand(BackgroundSensorService.this, sensorThreadPool, sensorManager);
     accelerometerSensorProviderBand = new AccelerometerSensorProviderBand(BackgroundSensorService.this, sensorThreadPool, sensorManager);
     heartbeatSensorProviderBand = new HeartbeatSensorProviderBand(BackgroundSensorService.this, sensorThreadPool, sensorManager);
