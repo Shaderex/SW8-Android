@@ -103,6 +103,7 @@ public class SynchronizationTimer {
                         .param("device_id", token)
                         .asString();
 
+                Log.d("Service-status", "Snapshot string length: r " + campaignString.length());
                 Log.d("Service-status", campaignString);
                 return jsonString;
               } catch (IOException exception) {
@@ -147,10 +148,12 @@ public class SynchronizationTimer {
 
             @Override
             public void onResponseCodeNotMatching(final Response<String> response) {
+              Log.d("SynchronizationTimer", "onResponseCodeNotMatching. Got " + response.getStatusCode());
             }
 
             @Override
             public void onConnectionFailure() {
+              Log.d("SynchronizationTimer", "onConnectionFailure");
             }
           };
 

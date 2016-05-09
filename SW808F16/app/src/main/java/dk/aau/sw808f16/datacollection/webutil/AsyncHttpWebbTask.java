@@ -9,7 +9,6 @@ import com.goebl.david.RetryManager;
 import com.goebl.david.Webb;
 import com.goebl.david.WebbException;
 
-import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;

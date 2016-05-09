@@ -43,7 +43,7 @@ public class GalvanicSkinResponseSensorProviderBand extends SensorProviderBand<I
 
     return new EventListenerRegistrationManager() {
       @Override
-      public void register(int frequency) {
+      public void register(final int frequency) {
         try {
           bandClient.getSensorManager().registerGsrEventListener(listener, GsrSampleRate.MS200);
         } catch (InvalidBandVersionException | BandIOException exception) {

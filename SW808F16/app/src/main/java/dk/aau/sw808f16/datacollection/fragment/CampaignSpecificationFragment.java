@@ -199,6 +199,7 @@ public class CampaignSpecificationFragment extends Fragment {
       updateCampaignMeasurementsCategory(parent, R.id.measurement_category_location, R.drawable.ic_room_black_24dp, "Location", sensorsUsed.get(SensorType.SensorCategory.LOCATION));
       updateCampaignMeasurementsCategory(parent, R.id.measurement_category_movement, R.drawable.ic_directions_run_black_24dp, "Movement", sensorsUsed.get(SensorType.SensorCategory.MOVEMENT));
       updateCampaignMeasurementsCategory(parent, R.id.measurement_category_personal_information, R.drawable.ic_favorite_black_24dp, "Personal Information", sensorsUsed.get(SensorType.SensorCategory.PERSONAL_INFORMATION));
+      updateCampaignMeasurementsCategory(parent, R.id.measurement_category_misc, R.drawable.ic_polymer_black_24dp, "Miscellaneous", sensorsUsed.get(SensorType.SensorCategory.MISC));
 
       final int sampleDuration = campaignSpecification.getInt("sample_duration");
       final int sampleFrequency = campaignSpecification.getInt("sample_frequency");

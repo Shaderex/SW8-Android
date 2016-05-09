@@ -5,7 +5,6 @@ import com.microsoft.band.sensors.HeartRateQuality;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import dk.aau.sw808f16.datacollection.snapshot.JsonObjectAble;
 import dk.aau.sw808f16.datacollection.snapshot.JsonValueAble;
 import io.realm.RealmObject;
 
@@ -30,12 +29,12 @@ public class HeartRateMeasurement extends RealmObject implements JsonValueAble {
         && ((HeartRateMeasurement) object).heartRateQualityLocked == this.heartRateQualityLocked);
   }
 
-  public String toJsonValue() throws JSONException {
+  public Object toJsonValue() throws JSONException {
     final JSONObject jsonObject = new JSONObject();
 
     jsonObject.put("heartRate", heartRate);
     jsonObject.put("heartRateQualityLocked", heartRateQualityLocked);
 
-    return jsonObject.toString();
+    return jsonObject;
   }
 }

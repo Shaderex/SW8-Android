@@ -92,7 +92,6 @@ public class SnapshotTimer {
 
         try {
           realm.beginTransaction();
-          campaign.addSnapshot(snapshot);
           realm.copyToRealmOrUpdate(campaign);
           realm.commitTransaction();
         } catch (Exception exception) {
@@ -117,7 +116,6 @@ public class SnapshotTimer {
           final Future<List<Sample>> samples = sensorProvider.retrieveSamplesForDuration(totalDuration, sampleFrequency, sampleDuration, measurementFrequency);
           sensorFutures.add(new Pair<>(sensorType, samples));
         }
-
 
         // Join in the gather sample threads
         final List<Pair<SensorType, List<Sample>>> sensorSamplesForSnapshot = new ArrayList<>();
@@ -181,10 +179,13 @@ public class SnapshotTimer {
     final Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
     final NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
         .setSmallIcon(R.mipmap.ic_launcher)
-        .setContentTitle("We have some questions")
+        .setContentTitle(context.getResources().getString(R.string.app_name))
+        .setContentText("We have some questions")
         .setVibrate(new long[] {10, 100, 200, 40, 55, 200})
         .setSound(defaultSoundUri)
-        .setContentIntent(pendingIntent);
+        .setContentIntent(pendingIntent)
+        .setColor(context.getResources().getColor(R.color.light_blue_dark))
+        .setLights(context.getResources().getColor(R.color.light_blue_dark), 500, 1000);
 
     final NotificationManager notificationManager =
         (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

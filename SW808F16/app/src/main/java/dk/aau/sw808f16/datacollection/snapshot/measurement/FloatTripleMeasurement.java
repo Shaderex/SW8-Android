@@ -117,7 +117,7 @@ public class FloatTripleMeasurement extends RealmObject implements JsonValueAble
   }
 
   @Override
-  public String toJsonValue() {
-    return Long.toString(compressedValues);
+  public Object toJsonValue() {
+    return compressedValues;
   }
 }

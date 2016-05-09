@@ -70,6 +70,15 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/content_area_padding"/>
 
+            <!-- Misc Category -->
+            <include
+                android:id="@+id/measurement_category_misc"
+                layout="@layout/fragment_campaign_specification_measurements_category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/content_area_padding"/>
+
+
             <include
                 android:id="@+id/measurements_headline"
                 layout="@layout/fragment_campaign_specification_headline"

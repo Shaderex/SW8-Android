@@ -125,10 +125,13 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
         try {
           getConnectedBandClient();
 
+          Log.d("BAND", "bandClient:" + (bandClient == null ? "NULL" : bandClient.toString()));
+
           if (bandClient != null && bandClient.getSensorManager().getCurrentHeartRateConsent() != UserConsent.GRANTED) {
             // user has not consented, request consent
             // the calling class is an Activity and implements
             // HeartRateConsentListener
+            Log.d("BAND", "ASK FOR CONSENT");
             bandClient.getSensorManager().requestHeartRateConsent(MainActivity.this, MainActivity.this);
           }
 
@@ -350,7 +353,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
             getFragmentManager().executePendingTransactions();
 
             final ListView listView = (ListView) findViewById(R.id.campaigns_list_view);
-            if (listView != null) {
+            if (listView != null && listView.getAdapter() != null) {
               ((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
             }
 
@@ -369,8 +372,8 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
     try {
       serviceMessenger.send(msg);
-    } catch (RemoteException e) {
-      e.printStackTrace();
+    } catch (RemoteException exception) {
+      exception.printStackTrace();
     }
 
     return;
@@ -380,7 +383,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
   protected boolean getConnectedBandClient() throws InterruptedException, BandException {
     if (bandClient == null) {
-      BandInfo[] devices = BandClientManager.getInstance().getPairedBands();
+      final BandInfo[] devices = BandClientManager.getInstance().getPairedBands();
       if (devices.length == 0) {
         Log.d("Band2", "Band isn't paired with your phone (from " + this.getClass().getName() + ").");
         return false;

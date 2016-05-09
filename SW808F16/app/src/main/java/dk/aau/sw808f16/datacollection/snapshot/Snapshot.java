@@ -1,7 +1,5 @@
 package dk.aau.sw808f16.datacollection.snapshot;
 
-import android.annotation.SuppressLint;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -170,7 +168,7 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
     addSampleListToJsonObject(jsonObject, "bandAccelerometerSamples", bandAccelerometerSamples);
     addSampleListToJsonObject(jsonObject, "heartBeatSamples", heartBeatSamples);
 
-    jsonObject.put("questionnaire", (questionnaire != null ?  questionnaire.toJsonObject() : null));
+    jsonObject.put("questionnaire", (questionnaire != null ? questionnaire.toJsonObject() : null));
 
     return jsonObject;
   }
@@ -212,7 +210,7 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
 
     populateMapIfNull();
 
-    for (List<Sample> sampleList: sensorSampleMap.values()) {
+    for (List<Sample> sampleList : sensorSampleMap.values()) {
       for (Sample sample : sampleList) {
         children.addAll(sample.children());
       }

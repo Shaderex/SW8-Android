@@ -172,6 +172,7 @@ public final class BackgroundSensorService extends IntentService {
   }
 
   private void setupRealmAndStartTimers() {
+
     final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(BackgroundSensorService.this)
         .name(REALM_NAME)
         .encryptionKey(encryptionKey)

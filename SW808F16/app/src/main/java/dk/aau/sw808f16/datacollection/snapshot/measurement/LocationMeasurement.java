@@ -1,6 +1,7 @@
 package dk.aau.sw808f16.datacollection.snapshot.measurement;
 
 import android.location.Location;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -84,8 +85,7 @@ public class LocationMeasurement extends RealmObject implements JsonValueAble {
   }
 
   @Override
-  public String toJsonValue() throws JSONException {
-
+  public Object toJsonValue() throws JSONException {
     final JSONObject jsonObject = new JSONObject();
 
     jsonObject.put("longitude", longitude);
@@ -94,6 +94,6 @@ public class LocationMeasurement extends RealmObject implements JsonValueAble {
     jsonObject.put("speed", speed);
     jsonObject.put("bearing", bearing);
 
-    return jsonObject.toString();
+    return jsonObject;
   }
 }

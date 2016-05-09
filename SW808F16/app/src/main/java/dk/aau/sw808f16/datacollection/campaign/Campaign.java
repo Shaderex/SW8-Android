@@ -93,7 +93,7 @@ public class Campaign extends RealmObject implements JsonObjectAble {
   }
 
   public void addSnapshot(final Snapshot snapshot) {
-    snapshots.add(snapshot);
+      snapshots.add(snapshot);
   }
 
   public List<Snapshot> getSnapshots() {
