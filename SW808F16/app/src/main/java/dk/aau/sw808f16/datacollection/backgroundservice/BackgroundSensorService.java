@@ -127,7 +127,9 @@ public final class BackgroundSensorService extends IntentService {
     locationSensorProvider = new LocationSensorProvider(BackgroundSensorService.this, sensorThreadPool, sensorManager);
 
     ultraVioletSensorProviderBand = new UltraVioletSensorProviderBand(BackgroundSensorService.this, sensorThreadPool, sensorManager);
-    galvanicSkinResponseSensorProviderBand = new GalvanicSkinResponseSensorProviderBand(BackgroundSensorService.this, sensorThreadPool, sensorManager);
+    galvanicSkinResponseSensorProviderBand = new GalvanicSkinResponseSensorProviderBand(BackgroundSensorService.this,
+        sensorThreadPool,
+        sensorManager);
     accelerometerSensorProviderBand = new AccelerometerSensorProviderBand(BackgroundSensorService.this, sensorThreadPool, sensorManager);
     heartbeatSensorProviderBand = new HeartbeatSensorProviderBand(BackgroundSensorService.this, sensorThreadPool, sensorManager);
 
@@ -159,8 +161,8 @@ public final class BackgroundSensorService extends IntentService {
         // Wait for the network to truly be ready (can be delayed - at least on AAU)
         try {
           Thread.sleep(1000);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
+        } catch (InterruptedException exception) {
+          exception.printStackTrace();
         }
 
         serviceHandler.post(new RealmSetupRunnable());
@@ -235,6 +237,10 @@ public final class BackgroundSensorService extends IntentService {
           final long timestamp = data.getLong(NOTIFY_QUESTIONNAIRE_COMPLETED_TIMESTAMP);
           final Questionnaire questionnaire = data.getParcelable(NOTIFY_QUESTIONNAIRE_COMPLETED_QUESTIONNAIRE);
           notifyQuestionnaireCompleted(timestamp, questionnaire);
+          return;
+        }
+        default: {
+          return;
         }
       }
     }
@@ -345,12 +351,12 @@ public final class BackgroundSensorService extends IntentService {
     return sensorProvides;
   }
 
-  public static byte[] hexStringToByteArray(String s) {
-    int len = s.length();
+  public static byte[] hexStringToByteArray(final String hexString) {
+    int len = hexString.length();
     byte[] data = new byte[len / 2];
     for (int i = 0; i < len; i += 2) {
-      data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-          + Character.digit(s.charAt(i + 1), 16));
+      data[i / 2] = (byte) ((Character.digit(hexString.charAt(i), 16) << 4)
+          + Character.digit(hexString.charAt(i + 1), 16));
     }
     return data;
   }

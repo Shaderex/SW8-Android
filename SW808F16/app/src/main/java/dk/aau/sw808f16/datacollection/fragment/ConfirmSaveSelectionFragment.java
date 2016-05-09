@@ -12,11 +12,11 @@ public class ConfirmSaveSelectionFragment extends DialogFragment {
 
   public static final String CAMPAIGN_ID_TAG = "CAMPAIGN_ID_TAG";
 
-  public static ConfirmSaveSelectionFragment newInstance(final long campaignID) {
+  public static ConfirmSaveSelectionFragment newInstance(final long campaignIdentifier) {
     final ConfirmSaveSelectionFragment newFragment = new ConfirmSaveSelectionFragment();
 
     final Bundle args = new Bundle();
-    args.putLong(CAMPAIGN_ID_TAG, campaignID);
+    args.putLong(CAMPAIGN_ID_TAG, campaignIdentifier);
     newFragment.setArguments(args);
 
     return newFragment;

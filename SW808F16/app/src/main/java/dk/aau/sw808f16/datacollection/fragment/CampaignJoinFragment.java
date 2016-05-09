@@ -54,7 +54,8 @@ public class CampaignJoinFragment extends Fragment implements ConfirmSaveSelecti
     final FragmentManager childFragmentManager = getChildFragmentManager();
 
     childFragmentManager.beginTransaction()
-        .replace(R.id.campaign_specification_fragment_container, CampaignSpecificationFragment.newInstance(campaignId), CAMPAIGN_SPECIFICATION_FRAGMENT_KEY)
+        .replace(R.id.campaign_specification_fragment_container, CampaignSpecificationFragment.newInstance(campaignId),
+            CAMPAIGN_SPECIFICATION_FRAGMENT_KEY)
         .addToBackStack(CAMPAIGN_SPECIFICATION_FRAGMENT_KEY)
         .commit();
 

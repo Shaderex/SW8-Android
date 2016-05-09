@@ -93,7 +93,7 @@ public class Campaign extends RealmObject implements JsonObjectAble {
   }
 
   public void addSnapshot(final Snapshot snapshot) {
-      snapshots.add(snapshot);
+    snapshots.add(snapshot);
   }
 
   public List<Snapshot> getSnapshots() {
@@ -108,17 +108,17 @@ public class Campaign extends RealmObject implements JsonObjectAble {
 
     final Campaign that = (Campaign) object;
 
-    boolean isSame = this.identifier == that.identifier &&
-        this.name != null ? this.name.equals(that.name) : that.name == null &&
-        this.description != null ? this.description.equals(that.description) : that.name == null &&
-        this.isPrivate == that.isPrivate &&
-        this.snapshotLength == that.snapshotLength &&
-        this.sampleDuration == that.sampleDuration &&
-        this.sampleFrequency == that.sampleFrequency &&
-        this.measurementFrequency == that.measurementFrequency &&
-        this.sensorString != null ? this.sensorString.equals(that.sensorString) : that.sensorString == null &&
-        this.getSensors().equals(that.getSensors()) &&
-        this.questionnaire != null ? this.questionnaire.equals(that.questionnaire) : that.questionnaire == null;
+    boolean isSame = this.identifier == that.identifier
+        && this.name != null ? this.name.equals(that.name) : that.name == null
+        && this.description != null ? this.description.equals(that.description) : that.name == null
+        && this.isPrivate == that.isPrivate
+        && this.snapshotLength == that.snapshotLength
+        && this.sampleDuration == that.sampleDuration
+        && this.sampleFrequency == that.sampleFrequency
+        && this.measurementFrequency == that.measurementFrequency
+        && this.sensorString != null ? this.sensorString.equals(that.sensorString) : that.sensorString == null
+        && this.getSensors().equals(that.getSensors())
+        && this.questionnaire != null ? this.questionnaire.equals(that.questionnaire) : that.questionnaire == null;
 
     if (!isSame) {
       return false;

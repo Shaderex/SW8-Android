@@ -16,7 +16,9 @@ import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.IntegerMeasurement;
 
 public class GalvanicSkinResponseSensorProviderBand extends SensorProviderBand<IntegerMeasurement> {
-  public GalvanicSkinResponseSensorProviderBand(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
+  public GalvanicSkinResponseSensorProviderBand(final Context context,
+                                                final ExecutorService sensorThreadPool,
+                                                final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
   }
 
