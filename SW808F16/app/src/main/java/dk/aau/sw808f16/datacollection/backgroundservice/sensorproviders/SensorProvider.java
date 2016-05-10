@@ -106,10 +106,6 @@ public abstract class SensorProvider<MeasurementT> {
                                                          final long sampleDuration,
                                                          final long measurementFrequency) {
 
-    final EventListenerRegistrationManager registrationManager = createRegManager();
-
-    registrationManager.register(SensorManager.SENSOR_DELAY_FASTEST);
-
     if (!(totalDuration >= sampleFrequency)) {
       throw new IllegalArgumentException("Total duration must be greater than or equal to sample frequency");
     }
@@ -126,6 +122,10 @@ public abstract class SensorProvider<MeasurementT> {
 
       @Override
       public List<Sample> call() throws InterruptedException {
+
+        final EventListenerRegistrationManager registrationManager = createRegManager();
+
+        registrationManager.register(SensorManager.SENSOR_DELAY_FASTEST);
 
         final List<Sample> samples = new ArrayList<>();
 

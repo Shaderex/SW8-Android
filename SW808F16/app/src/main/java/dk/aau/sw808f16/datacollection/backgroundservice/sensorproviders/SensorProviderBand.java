@@ -13,6 +13,7 @@ import com.microsoft.band.ConnectionState;
 import java.util.concurrent.ExecutorService;
 
 public abstract class SensorProviderBand<MeasurementT> extends SensorProvider<MeasurementT> {
+
   protected BandClient bandClient = null;
 
   public SensorProviderBand(Context context, ExecutorService sensorThreadPool, SensorManager sensorManager) {
@@ -21,12 +22,16 @@ public abstract class SensorProviderBand<MeasurementT> extends SensorProvider<Me
 
   @Override
   public boolean isSensorAvailable() {
-    return bandClient == null;
+    try {
+      return bandClient != null || getConnectedBandClient();
+    } catch (InterruptedException | BandException exception) {
+      return false;
+    }
   }
 
   protected boolean getConnectedBandClient() throws InterruptedException, BandException {
     if (bandClient == null) {
-      BandInfo[] devices = BandClientManager.getInstance().getPairedBands();
+      final BandInfo[] devices = BandClientManager.getInstance().getPairedBands();
       if (devices.length == 0) {
         Log.d("Band2", "Band isn't paired with your phone (from " + this.getClass().getName() + ").");
         return false;

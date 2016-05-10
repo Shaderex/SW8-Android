@@ -25,7 +25,7 @@ public class IntegerMeasurement extends RealmObject implements JsonValueAble {
   }
 
   @Override
-  public String toJsonValue() {
-    return Integer.toString(value);
+  public Object toJsonValue() {
+    return value;
   }
 }

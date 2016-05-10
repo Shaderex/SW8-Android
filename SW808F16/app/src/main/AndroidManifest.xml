@@ -46,13 +46,14 @@
 
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".QuestionnaireActivity"/>
+        <activity android:name=".QuestionnaireActivity" android:screenOrientation="portrait"/>
 
         <receiver
             android:name=".backgroundservice.BootReceiver">
@@ -62,8 +63,10 @@
             </intent-filter>
         </receiver>
 
+        <!-- android:process=":backgroundSensorService"-->
         <service
             android:name=".backgroundservice.BackgroundSensorService"
+            android:process=":backgroundSensorService"
             android:exported="false">
         </service>
         <service

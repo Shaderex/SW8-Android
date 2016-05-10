@@ -26,6 +26,7 @@ public class HeartbeatSensorProviderBand extends SensorProviderBand<HeartRateMea
 
   @Override
   protected EventListenerRegistrationManager createRegManager() {
+
     final BandHeartRateEventListener listener = new BandHeartRateEventListener() {
       @Override
       public void onBandHeartRateChanged(BandHeartRateEvent event) {
@@ -67,5 +68,7 @@ public class HeartbeatSensorProviderBand extends SensorProviderBand<HeartRateMea
   protected HeartRateMeasurement getDefaultMeasurement() {
     return new HeartRateMeasurement();
   }
+
+
 }
 

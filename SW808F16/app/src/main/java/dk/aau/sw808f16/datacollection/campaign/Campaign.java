@@ -108,17 +108,17 @@ public class Campaign extends RealmObject implements JsonObjectAble {
 
     final Campaign that = (Campaign) object;
 
-    boolean isSame = this.identifier == that.identifier &&
-        this.name != null ? this.name.equals(that.name) : that.name == null &&
-        this.description != null ? this.description.equals(that.description) : that.name == null &&
-        this.isPrivate == that.isPrivate &&
-        this.snapshotLength == that.snapshotLength &&
-        this.sampleDuration == that.sampleDuration &&
-        this.sampleFrequency == that.sampleFrequency &&
-        this.measurementFrequency == that.measurementFrequency &&
-        this.sensorString != null ? this.sensorString.equals(that.sensorString) : that.sensorString == null &&
-        this.getSensors().equals(that.getSensors()) &&
-        this.questionnaire != null ? this.questionnaire.equals(that.questionnaire) : that.questionnaire == null;
+    boolean isSame = this.identifier == that.identifier
+        && this.name != null ? this.name.equals(that.name) : that.name == null
+        && this.description != null ? this.description.equals(that.description) : that.name == null
+        && this.isPrivate == that.isPrivate
+        && this.snapshotLength == that.snapshotLength
+        && this.sampleDuration == that.sampleDuration
+        && this.sampleFrequency == that.sampleFrequency
+        && this.measurementFrequency == that.measurementFrequency
+        && this.sensorString != null ? this.sensorString.equals(that.sensorString) : that.sensorString == null
+        && this.getSensors().equals(that.getSensors())
+        && this.questionnaire != null ? this.questionnaire.equals(that.questionnaire) : that.questionnaire == null;
 
     if (!isSame) {
       return false;
@@ -146,11 +146,12 @@ public class Campaign extends RealmObject implements JsonObjectAble {
   public JSONObject toJsonObject() throws JSONException {
     final JSONObject jsonObject = new JSONObject();
 
-    JSONArray snapshotArray = new JSONArray();
+    final JSONArray snapshotArray = new JSONArray();
     for (Snapshot snapshot : getSnapshots()) {
-      snapshotArray.put(snapshot.toJsonObject());
+      if (isSnapshotReady(snapshot)) {
+        snapshotArray.put(snapshot.toJsonObject());
+      }
     }
-
     jsonObject.put("snapshots", snapshotArray);
 
     return jsonObject;
@@ -301,5 +302,24 @@ public class Campaign extends RealmObject implements JsonObjectAble {
       questionnairePlacement = QuestionnairePlacement.getQuestionnairePlacementById(placementId);
     }
     return questionnairePlacement;
+  }
+
+  public boolean isSnapshotReady(final Snapshot snapshot) {
+
+    final long currentTime = System.currentTimeMillis();
+
+    return isSnapshotReady(currentTime, snapshot);
+  }
+
+  public boolean isSnapshotReady(final long timestamp, final Snapshot snapshot) {
+
+    switch (getQuestionnairePlacement()) {
+      case START:
+        return timestamp > (snapshot.getTimestamp() + this.getSnapshotLength());
+      case END:
+        return snapshot.getQuestionnaire() != null || timestamp > (snapshot.getTimestamp() + this.getSnapshotLength() * 2);
+      default:
+        return false;
+    }
   }
 }

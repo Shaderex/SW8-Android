@@ -1,9 +1,18 @@
 package dk.aau.sw808f16.datacollection;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -30,12 +39,14 @@ import com.microsoft.band.ConnectionState;
 import com.microsoft.band.UserConsent;
 import com.microsoft.band.sensors.HeartRateConsentListener;
 
+import dk.aau.sw808f16.datacollection.backgroundservice.BackgroundSensorService;
 import dk.aau.sw808f16.datacollection.fragment.CampaignSpecificationFragment;
 import dk.aau.sw808f16.datacollection.fragment.PrivateCampaignFragment;
 import dk.aau.sw808f16.datacollection.fragment.PublicCampaignFragment;
 import dk.aau.sw808f16.datacollection.fragment.StartFragment;
+import dk.aau.sw808f16.datacollection.webutil.CampaignRegistrator;
 
-public class MainActivity extends ActionBarActivity implements HeartRateConsentListener {
+public class MainActivity extends ActionBarActivity implements HeartRateConsentListener, CampaignRegistrator {
 
   public enum DrawerMenuItems {
 
@@ -93,6 +104,9 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
   private DrawerLayout drawerLayout;
   private ActionBarDrawerToggle drawerToggle;
+  private boolean isBoundToResponder = false;
+  private Messenger serviceMessenger = null;
+
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
@@ -111,10 +125,13 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
         try {
           getConnectedBandClient();
 
+          Log.d("BAND", "bandClient:" + (bandClient == null ? "NULL" : bandClient.toString()));
+
           if (bandClient != null && bandClient.getSensorManager().getCurrentHeartRateConsent() != UserConsent.GRANTED) {
             // user has not consented, request consent
             // the calling class is an Activity and implements
             // HeartRateConsentListener
+            Log.d("BAND", "ASK FOR CONSENT");
             bandClient.getSensorManager().requestHeartRateConsent(MainActivity.this, MainActivity.this);
           }
 
@@ -171,6 +188,8 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
       getSupportActionBar().setDisplayHomeAsUpEnabled(true);
       getSupportActionBar().setHomeButtonEnabled(true);
     }
+
+    bindToResponder();
   }
 
   public class DrawerButtonsAdapter extends BaseAdapter {
@@ -278,11 +297,92 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
     // handle user's heart rate consent decision
   }
 
+  private void bindToResponder() {
+    final Intent serviceIntent = new Intent(this, BackgroundSensorService.class);
+    bindService(serviceIntent, serviceConnection, Context.BIND_ABOVE_CLIENT | BIND_AUTO_CREATE);
+  }
+
+  private ServiceConnection serviceConnection = new ServiceConnection() {
+
+    @Override
+    public void onServiceConnected(final ComponentName className, final IBinder binder) {
+
+      // We've bound to LocalService, cast the IBinder and get LocalService instance
+      serviceMessenger = new Messenger(binder);
+      isBoundToResponder = true;
+    }
+
+    @Override
+    public void onServiceDisconnected(final ComponentName componentName) {
+      isBoundToResponder = false;
+      serviceMessenger = null;
+    }
+  };
+
+  public void registerCampaign(final long campaignId) {
+
+    final Messenger replyMessenger = new Messenger(new Handler() {
+
+      @Override
+      public void handleMessage(final Message msg) {
+
+        switch (msg.what) {
+
+          case BackgroundSensorService.SERVICE_ACK_BUSY: {
+
+            new Thread(new Runnable() {
+              @Override
+              public void run() {
+
+                try {
+                  Thread.sleep(2000);
+                } catch (InterruptedException exception) {
+                  exception.printStackTrace();
+                }
+                registerCampaign(campaignId);
+              }
+            }).start();
+            break;
+          }
+          case BackgroundSensorService.SERVICE_ACK_OK: {
+            final SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit();
+            editor.putLong(MainActivity.this.getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), campaignId);
+            editor.commit();
+
+            getFragmentManager().executePendingTransactions();
+
+            final ListView listView = (ListView) findViewById(R.id.campaigns_list_view);
+            if (listView != null && listView.getAdapter() != null) {
+              ((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
+            }
+
+            break;
+          }
+        }
+
+      }
+    });
+
+    final Message msg = Message.obtain(null, BackgroundSensorService.NOTIFY_NEW_CAMPAIGN, 0, 0);
+    Bundle data = new Bundle();
+    data.putLong(BackgroundSensorService.NOTIFY_QUESTIONNAIRE_COMPLETED_CAMPAIGN_ID, campaignId);
+    msg.setData(data);
+    msg.replyTo = replyMessenger;
+
+    try {
+      serviceMessenger.send(msg);
+    } catch (RemoteException exception) {
+      exception.printStackTrace();
+    }
+
+    return;
+  }
+
   private BandClient bandClient;
 
   protected boolean getConnectedBandClient() throws InterruptedException, BandException {
     if (bandClient == null) {
-      BandInfo[] devices = BandClientManager.getInstance().getPairedBands();
+      final BandInfo[] devices = BandClientManager.getInstance().getPairedBands();
       if (devices.length == 0) {
         Log.d("Band2", "Band isn't paired with your phone (from " + this.getClass().getName() + ").");
         return false;
@@ -298,5 +398,16 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
     Log.d("Band2", "Band connection status: " + result + " (from " + this.getClass().getName() + ")");
 
     return ConnectionState.CONNECTED == result;
+  }
+
+  @Override
+  protected void onStop() {
+    super.onStop();
+
+    // Unbind from the service
+    if (isBoundToResponder && serviceConnection != null) {
+      unbindService(serviceConnection);
+      isBoundToResponder = false;
+    }
   }
 }

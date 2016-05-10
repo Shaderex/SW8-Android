@@ -61,8 +61,7 @@ public class WifiMeasurement extends RealmObject implements JsonValueAble {
   }
 
   @Override
-  public String toJsonValue() throws JSONException {
-
+  public Object toJsonValue() throws JSONException {
     final JSONObject jsonObject = new JSONObject();
     final JSONArray scanResultMeasurementsJsonArray = new JSONArray();
 
@@ -72,7 +71,7 @@ public class WifiMeasurement extends RealmObject implements JsonValueAble {
 
     jsonObject.put("scanResultMeasurements", scanResultMeasurementsJsonArray);
 
-    return jsonObject.toString();
+    return jsonObject;
   }
 
   public List<RealmObject> children() {

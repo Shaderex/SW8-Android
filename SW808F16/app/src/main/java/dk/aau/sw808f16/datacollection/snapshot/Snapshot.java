@@ -1,7 +1,5 @@
 package dk.aau.sw808f16.datacollection.snapshot;
 
-import android.annotation.SuppressLint;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,12 +28,16 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
   private RealmList<Sample> accelerometerSamples = new RealmList<>();
   private RealmList<Sample> ambientLightSamples = new RealmList<>();
   private RealmList<Sample> barometerSamples = new RealmList<>();
-  private RealmList<Sample> cellularSamples = new RealmList<>();
   private RealmList<Sample> compassSamples = new RealmList<>();
   private RealmList<Sample> gyroscopeSamples = new RealmList<>();
   private RealmList<Sample> locationSamples = new RealmList<>();
   private RealmList<Sample> proximitySamples = new RealmList<>();
   private RealmList<Sample> wifiSamples = new RealmList<>();
+
+  private RealmList<Sample> uvSamples = new RealmList<>();
+  private RealmList<Sample> galvanicSamples = new RealmList<>();
+  private RealmList<Sample> bandAccelerometerSamples = new RealmList<>();
+  private RealmList<Sample> heartBeatSamples = new RealmList<>();
 
   private Questionnaire questionnaire;
 
@@ -55,6 +57,10 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
    */
   @Deprecated
   public Snapshot() {
+  }
+
+  public long getTimestamp() {
+    return timestamp;
   }
 
   public Label getLabel() {
@@ -132,12 +138,15 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
     sensorSampleMap.put(SensorType.ACCELEROMETER, accelerometerSamples);
     sensorSampleMap.put(SensorType.AMBIENT_LIGHT, ambientLightSamples);
     sensorSampleMap.put(SensorType.BAROMETER, barometerSamples);
-    sensorSampleMap.put(SensorType.CELLULAR, cellularSamples);
     sensorSampleMap.put(SensorType.COMPASS, compassSamples);
     sensorSampleMap.put(SensorType.GYROSCOPE, gyroscopeSamples);
     sensorSampleMap.put(SensorType.LOCATION, locationSamples);
     sensorSampleMap.put(SensorType.PROXIMITY, proximitySamples);
     sensorSampleMap.put(SensorType.WIFI, wifiSamples);
+    sensorSampleMap.put(SensorType.UV, uvSamples);
+    sensorSampleMap.put(SensorType.GALVANIC_SKIN, galvanicSamples);
+    sensorSampleMap.put(SensorType.WRIST_ACCELEROMETER, bandAccelerometerSamples);
+    sensorSampleMap.put(SensorType.HEARTBEAT, heartBeatSamples);
   }
 
   @Override
@@ -148,13 +157,18 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
     addSampleListToJsonObject(jsonObject, "accelerometerSamples", accelerometerSamples);
     addSampleListToJsonObject(jsonObject, "ambientLightSamples", ambientLightSamples);
     addSampleListToJsonObject(jsonObject, "barometerSamples", barometerSamples);
-    addSampleListToJsonObject(jsonObject, "cellularSamples", cellularSamples);
     addSampleListToJsonObject(jsonObject, "compassSamples", compassSamples);
     addSampleListToJsonObject(jsonObject, "gyroscopeSamples", gyroscopeSamples);
     addSampleListToJsonObject(jsonObject, "locationSamples", locationSamples);
     addSampleListToJsonObject(jsonObject, "proximitySamples", proximitySamples);
     addSampleListToJsonObject(jsonObject, "wifiSamples", wifiSamples);
-    jsonObject.put("questionnaire", (questionnaire != null ?  questionnaire.toJsonObject() : null));
+
+    addSampleListToJsonObject(jsonObject, "uvSamples", uvSamples);
+    addSampleListToJsonObject(jsonObject, "galvanicSamples", galvanicSamples);
+    addSampleListToJsonObject(jsonObject, "bandAccelerometerSamples", bandAccelerometerSamples);
+    addSampleListToJsonObject(jsonObject, "heartBeatSamples", heartBeatSamples);
+
+    jsonObject.put("questionnaire", (questionnaire != null ? questionnaire.toJsonObject() : null));
 
     return jsonObject;
   }
@@ -196,7 +210,7 @@ public class Snapshot extends RealmObject implements JsonObjectAble {
 
     populateMapIfNull();
 
-    for (List<Sample> sampleList: sensorSampleMap.values()) {
+    for (List<Sample> sampleList : sensorSampleMap.values()) {
       for (Sample sample : sampleList) {
         children.addAll(sample.children());
       }

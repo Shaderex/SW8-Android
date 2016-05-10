@@ -1,5 +1,6 @@
 package dk.aau.sw808f16.datacollection.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.ContentLoadingProgressBar;
@@ -38,11 +39,11 @@ public class CampaignSpecificationFragment extends Fragment {
   public static final String CAMPAIGN_ID_TAG = "CAMPAIGN_ID_TAG";
   public static final String CAMPAIGN_JSON_TAG = "CAMPAIGN_JSON_TAG";
 
-  public static CampaignSpecificationFragment newInstance(final long campaignID) {
+  public static CampaignSpecificationFragment newInstance(final long campaignIdentifier) {
     final CampaignSpecificationFragment newFragment = new CampaignSpecificationFragment();
 
     final Bundle args = new Bundle();
-    args.putLong(CAMPAIGN_ID_TAG, campaignID);
+    args.putLong(CAMPAIGN_ID_TAG, campaignIdentifier);
     newFragment.setArguments(args);
 
     return newFragment;
@@ -195,14 +196,35 @@ public class CampaignSpecificationFragment extends Fragment {
         parent.findViewById(R.id.measurements_headline).setVisibility(View.GONE);
       }
 
-      updateCampaignMeasurementsCategory(parent, R.id.measurement_category_location, R.drawable.ic_room_black_24dp, "Location", sensorsUsed.get(SensorType.SensorCategory.LOCATION));
-      updateCampaignMeasurementsCategory(parent, R.id.measurement_category_movement, R.drawable.ic_directions_run_black_24dp, "Movement", sensorsUsed.get(SensorType.SensorCategory.MOVEMENT));
-      updateCampaignMeasurementsCategory(parent, R.id.measurement_category_personal_information, R.drawable.ic_favorite_black_24dp, "Personal Information", sensorsUsed.get(SensorType.SensorCategory.PERSONAL_INFORMATION));
+      updateCampaignMeasurementsCategory(parent,
+          R.id.measurement_category_location,
+          R.drawable.ic_room_black_24dp,
+          "Location",
+          sensorsUsed.get(SensorType.SensorCategory.LOCATION));
+
+      updateCampaignMeasurementsCategory(parent,
+          R.id.measurement_category_movement,
+          R.drawable.ic_directions_run_black_24dp,
+          "Movement",
+          sensorsUsed.get(SensorType.SensorCategory.MOVEMENT));
+
+      updateCampaignMeasurementsCategory(parent,
+          R.id.measurement_category_personal_information,
+          R.drawable.ic_favorite_black_24dp,
+          "Personal Information",
+          sensorsUsed.get(SensorType.SensorCategory.PERSONAL_INFORMATION));
+
+      updateCampaignMeasurementsCategory(parent,
+          R.id.measurement_category_misc,
+          R.drawable.ic_polymer_black_24dp,
+          "Miscellaneous",
+          sensorsUsed.get(SensorType.SensorCategory.MISC));
 
       final int sampleDuration = campaignSpecification.getInt("sample_duration");
       final int sampleFrequency = campaignSpecification.getInt("sample_frequency");
       final int measurementFrequency = campaignSpecification.getInt("measurement_frequency");
-      final int measurementsPerHour = (int) ((double) 3600000 / (double) sampleFrequency * (double) sampleDuration / (double) measurementFrequency);
+      final int measurementsPerHour =
+          (int) ((double) 3600000 / (double) sampleFrequency * (double) sampleDuration / (double) measurementFrequency);
 
       final TextView measurementsRateTextView = (TextView) parent.findViewById(R.id.measurements_rate);
       measurementsRateTextView.setText(measurementsPerHour + " measurements per hour");
@@ -218,8 +240,10 @@ public class CampaignSpecificationFragment extends Fragment {
         parent.findViewById(R.id.questions_headline).setVisibility(View.GONE);
       }
 
-      final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(parent.getContext(), R.layout.fragment_campaign_specification_question_item, questions);
-      final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+      final ArrayAdapter<String> arrayAdapter =
+          new ArrayAdapter<>(parent.getContext(), R.layout.fragment_campaign_specification_question_item, questions);
+      final LinearLayout.LayoutParams layoutParams =
+          new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
       for (int counter = 0; counter < arrayAdapter.getCount(); counter++) {
         lv.addView(arrayAdapter.getView(counter, null, parent), layoutParams);
@@ -236,6 +260,8 @@ public class CampaignSpecificationFragment extends Fragment {
                                                   final String headline,
                                                   final List<SensorType> sensors) {
 
+    final Context context = parent.getContext();
+
     final LinearLayout categoryView = (LinearLayout) parent.findViewById(categoryResource);
 
     // If no description is provided, do not display the view
@@ -245,7 +271,7 @@ public class CampaignSpecificationFragment extends Fragment {
     }
 
     final ImageView indicatorImageView = (ImageView) categoryView.findViewById(R.id.category_indicator);
-    indicatorImageView.setImageDrawable(getResources().getDrawable(indicatorResource));
+    indicatorImageView.setImageDrawable(context.getResources().getDrawable(indicatorResource));
 
     final TextView headlineTextView = (TextView) categoryView.findViewById(R.id.category_headline);
     headlineTextView.setText(headline);

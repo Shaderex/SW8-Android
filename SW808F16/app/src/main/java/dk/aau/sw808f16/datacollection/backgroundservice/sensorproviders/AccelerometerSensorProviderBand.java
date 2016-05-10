@@ -2,6 +2,7 @@ package dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders;
 
 import android.content.Context;
 import android.hardware.SensorManager;
+import android.util.Log;
 
 import com.microsoft.band.BandException;
 import com.microsoft.band.BandIOException;
@@ -43,7 +44,7 @@ public class AccelerometerSensorProviderBand extends SensorProviderBand<FloatTri
 
     return new EventListenerRegistrationManager() {
       @Override
-      public void register(int frequency) {
+      public void register(final int frequency) {
         try {
           // SampleRate describes the accuracy of the measurement (from Band2)
           bandClient.getSensorManager().registerAccelerometerEventListener(listener, SampleRate.MS128);

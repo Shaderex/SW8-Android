@@ -16,7 +16,9 @@ import dk.aau.sw808f16.datacollection.SensorType;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.IntegerMeasurement;
 
 public class GalvanicSkinResponseSensorProviderBand extends SensorProviderBand<IntegerMeasurement> {
-  public GalvanicSkinResponseSensorProviderBand(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
+  public GalvanicSkinResponseSensorProviderBand(final Context context,
+                                                final ExecutorService sensorThreadPool,
+                                                final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
   }
 
@@ -43,7 +45,7 @@ public class GalvanicSkinResponseSensorProviderBand extends SensorProviderBand<I
 
     return new EventListenerRegistrationManager() {
       @Override
-      public void register(int frequency) {
+      public void register(final int frequency) {
         try {
           bandClient.getSensorManager().registerGsrEventListener(listener, GsrSampleRate.MS200);
         } catch (InvalidBandVersionException | BandIOException exception) {

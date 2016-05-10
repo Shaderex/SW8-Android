@@ -37,7 +37,7 @@ public class FloatMeasurement extends RealmObject implements JsonValueAble {
   }
 
   @Override
-  public String toJsonValue() {
-    return Float.toString(value);
+  public Object toJsonValue() {
+    return value;
   }
 }

@@ -15,7 +15,7 @@ import dk.aau.sw808f16.datacollection.snapshot.measurement.LocationMeasurement;
 
 public class LocationSensorProvider extends SensorProvider<LocationMeasurement> {
 
-  private final HandlerThread handlerThread = new HandlerThread("LocationSensorProvider HandlerThread");
+  private HandlerThread handlerThread;
 
   public LocationSensorProvider(final Context context, final ExecutorService sensorThreadPool, final SensorManager sensorManager) {
     super(context, sensorThreadPool, sensorManager);
@@ -51,14 +51,16 @@ public class LocationSensorProvider extends SensorProvider<LocationMeasurement> 
 
       @Override
       public void register(final int frequency) {
+        handlerThread = new HandlerThread("LocationSensorProvider HandlerThread");
         handlerThread.start();
-        locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0.0f, listener , handlerThread.getLooper());
+        locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0.0f, listener, handlerThread.getLooper());
         onNewMeasurement(new LocationMeasurement(locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER)));
       }
 
       @Override
       public void unregister() {
         locationManager.removeUpdates(listener);
+        handlerThread.quitSafely();
       }
     };
   }
