@@ -1,37 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              android:padding="@dimen/activity_padding">
 
-    <TextView
-        style="@style/Base.TextAppearance.AppCompat.Caption"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:text="@string/private_campaign_id"/>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:fab="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/private_campaign_edit_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:inputType="number">
-    </EditText>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:orientation="vertical"
+                  android:padding="@dimen/activity_padding">
 
-    <Button
+        <TextView
+            style="@style/Base.TextAppearance.AppCompat.Headline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/content_area_padding"
+            android:text="Join Specific Campaign"/>
+
+        <TextView
+            style="@style/Base.TextAppearance.AppCompat.Body1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:text="If you have received a campaign identifier, you may enter it below in order to join that campaign."/>
+
+        <TextView
+            style="@style/Base.TextAppearance.AppCompat.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/private_campaign_id"/>
+
+        <EditText
+            android:id="@+id/private_campaign_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number">
+        </EditText>
+
+    </LinearLayout>
+
+    <com.getbase.floatingactionbutton.FloatingActionButton
         android:id="@+id/private_campaign_init_confirmation_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_gravity="center"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:backgroundTint="@color/light_blue"
-        android:elevation="8dp"
-        android:gravity="center"
-        android:padding="18dp"
-        android:text="@string/continue_message"
-        android:textColor="@color/white"/>
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:tint="@color/white"
+        fab:fab_colorNormal="@color/light_blue"
+        fab:fab_icon="@drawable/ic_navigate_next_white_24dp"
+        fab:fab_title="@string/private_campaign_join"/>
 
-</LinearLayout>
+</RelativeLayout>

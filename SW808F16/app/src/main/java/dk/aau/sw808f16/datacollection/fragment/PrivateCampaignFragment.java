@@ -13,6 +13,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.getbase.floatingactionbutton.FloatingActionButton;
+
 import dk.aau.sw808f16.datacollection.R;
 
 public class PrivateCampaignFragment extends Fragment {
@@ -39,7 +41,7 @@ public class PrivateCampaignFragment extends Fragment {
   public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
 
     final View view = inflater.inflate(R.layout.fragment_private_campaign, container, false);
-    final Button continueBtn = (Button) view.findViewById(R.id.private_campaign_init_confirmation_button);
+    final FloatingActionButton continueBtn = (FloatingActionButton) view.findViewById(R.id.private_campaign_init_confirmation_button);
     final EditText campaignIdField = (EditText) view.findViewById(R.id.private_campaign_edit_text);
 
     continueBtn.setOnClickListener(new View.OnClickListener() {
