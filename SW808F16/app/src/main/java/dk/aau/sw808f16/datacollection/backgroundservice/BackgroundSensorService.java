@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
@@ -67,7 +68,6 @@ public final class BackgroundSensorService extends IntentService {
   public static final String NOTIFY_QUESTIONNAIRE_COMPLETED_QUESTIONNAIRE = "NOTIFY_QUESTIONNAIRE_COMPLETED_QUESTIONNAIRE";
   public static final String NOTIFY_QUESTIONNAIRE_COMPLETED_CAMPAIGN_ID = "NOTIFY_QUESTIONNAIRE_COMPLETED_CAMPAIGN_ID";
 
-  public static final String BINDER_REQUEST_SENDER_CLASS_KEY = "BINDER_REQUEST_SENDER_CLASS_KEY";
   private static final String REALM_NAME = DataCollectionApplication.TAG + ".realm";
   private static final long SYNCHRONIZATION_INTERVAL = 10000;
   private byte[] encryptionKey = null;
@@ -75,7 +75,7 @@ public final class BackgroundSensorService extends IntentService {
   private ServiceHandler serviceHandler;
   private Messenger messenger;
 
-  private final ExecutorService sensorThreadPool;
+  private ExecutorService sensorThreadPool;
 
   private AccelerometerSensorProvider accelerometerSensorProvider;
   private AmbientLightSensorProvider ambientLightSensorProvider;
@@ -98,25 +98,28 @@ public final class BackgroundSensorService extends IntentService {
   private ConnectivityManager.OnNetworkActiveListener networkActiveListener;
   private ConnectivityManager connectivityManager;
 
+  private HandlerThread handlerThread;
+
   public BackgroundSensorService() {
     super("BackgroundSensorService");
-    // The number of threads in the pool should correspond to the number of SensorProvider instances
-    // this service maintains
-    // Dynamically (Reflection) counts the number of SensorProvider instances this service maintains
-    final int numberOfSensorProviders = getNumberOfSensorProviders();
-    // Create a thread pool to be shared by all sensor providers
-    sensorThreadPool = Executors.newFixedThreadPool(numberOfSensorProviders);
   }
 
   @Override
   public void onCreate() {
     super.onCreate();
 
+    // The number of threads in the pool should correspond to the number of SensorProvider instances
+    // this service maintains
+    // Dynamically (Reflection) counts the number of SensorProvider instances this service maintains
+    final int numberOfSensorProviders = getNumberOfSensorProviders();
+    // Create a handlerThread pool to be shared by all sensor providers
+    sensorThreadPool = Executors.newFixedThreadPool(numberOfSensorProviders);
+
     connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(CONNECTIVITY_SERVICE);
 
     final SensorManager sensorManager = (SensorManager) getApplicationContext().getSystemService(SENSOR_SERVICE);
 
-    // Initialize SensorProvider instances with the shared thread pool
+    // Initialize SensorProvider instances with the shared handlerThread pool
     accelerometerSensorProvider = new AccelerometerSensorProvider(BackgroundSensorService.this, sensorThreadPool, sensorManager);
     ambientLightSensorProvider = new AmbientLightSensorProvider(BackgroundSensorService.this, sensorThreadPool, sensorManager);
     barometerSensorProvider = new BarometerSensorProvider(BackgroundSensorService.this, sensorThreadPool, sensorManager);
@@ -136,16 +139,16 @@ public final class BackgroundSensorService extends IntentService {
     snapshotTimer = new SnapshotTimer(BackgroundSensorService.this, getSensorProviders());
     synchronizationTimer = new SynchronizationTimer(BackgroundSensorService.this, SYNCHRONIZATION_INTERVAL);
 
-    // Start up the thread running the service.  Note that we create a
-    // separate thread because the service normally runs in the process's
-    // main thread, which we don't want to block.  We also make it
+    // Start up the handlerThread running the service.  Note that we create a
+    // separate handlerThread because the service normally runs in the process's
+    // main handlerThread, which we don't want to block.  We also make it
     // background priority so CPU-intensive work will not disrupt our UI.
-    final HandlerThread thread = new HandlerThread("ServiceStartArguments",
+    handlerThread = new HandlerThread("ServiceStartArguments",
         android.os.Process.THREAD_PRIORITY_BACKGROUND);
-    thread.start();
+    handlerThread.start();
 
     // Get the HandlerThread's Looper and use it for our Handler
-    serviceHandler = new ServiceHandler();
+    serviceHandler = new ServiceHandler(handlerThread.getLooper());
     messenger = new Messenger(serviceHandler);
 
     Log.d("BackgroundSensorService", "BackgroundSensorService onCreate() called");
@@ -171,6 +174,14 @@ public final class BackgroundSensorService extends IntentService {
     };
 
     connectivityManager.addDefaultNetworkActiveListener(networkActiveListener);
+  }
+
+  public static String bytesToHex(byte[] in) {
+    final StringBuilder builder = new StringBuilder();
+    for (byte b : in) {
+      builder.append(String.format("%02x", b));
+    }
+    return builder.toString();
   }
 
   private void setupRealmAndStartTimers() {
@@ -207,6 +218,11 @@ public final class BackgroundSensorService extends IntentService {
   }
 
   private final class ServiceHandler extends Handler {
+
+
+    public ServiceHandler(final Looper looper) {
+      super(looper);
+    }
 
     @Override
     public void handleMessage(final Message msg) {
@@ -273,22 +289,28 @@ public final class BackgroundSensorService extends IntentService {
 
   public void notifyQuestionnaireCompleted(final long snapshotTimeStamp, Questionnaire questionnaire) {
 
-    Realm realm = Realm.getDefaultInstance();
+    Realm realm = null;
 
-    final Snapshot snapshot = realm.where(Snapshot.class).equalTo("timestamp", snapshotTimeStamp).findFirst();
+    try {
+      realm = Realm.getDefaultInstance();
 
-    if (snapshot != null) {
-      realm.beginTransaction();
-      questionnaire = realm.copyToRealm(questionnaire);
-      realm.commitTransaction();
+      final Snapshot snapshot = realm.where(Snapshot.class).equalTo("timestamp", snapshotTimeStamp).findFirst();
 
-      realm.beginTransaction();
-      snapshot.setQuestionnaire(questionnaire);
-      realm.copyToRealmOrUpdate(snapshot);
-      realm.commitTransaction();
+      if (snapshot != null) {
+        realm.beginTransaction();
+        questionnaire = realm.copyToRealm(questionnaire);
+        realm.commitTransaction();
+
+        realm.beginTransaction();
+        snapshot.setQuestionnaire(questionnaire);
+        realm.copyToRealmOrUpdate(snapshot);
+        realm.commitTransaction();
+      }
+    } finally {
+      if (realm != null) {
+        realm.close();
+      }
     }
-
-    realm.close();
   }
 
   @Override
@@ -313,6 +335,8 @@ public final class BackgroundSensorService extends IntentService {
     Log.d("BackgroundSensorService", "BackgroundSensorService onDestroy() called");
     snapshotTimer.stop();
     synchronizationTimer.stop();
+    sensorThreadPool.shutdown();
+    handlerThread.quitSafely();
   }
 
   private static int getNumberOfSensorProviders() {
@@ -351,16 +375,6 @@ public final class BackgroundSensorService extends IntentService {
     return sensorProvides;
   }
 
-  public static byte[] hexStringToByteArray(final String hexString) {
-    int len = hexString.length();
-    byte[] data = new byte[len / 2];
-    for (int i = 0; i < len; i += 2) {
-      data[i / 2] = (byte) ((Character.digit(hexString.charAt(i), 16) << 4)
-          + Character.digit(hexString.charAt(i + 1), 16));
-    }
-    return data;
-  }
-
   private class RealmSetupRunnable implements Runnable {
     @Override
     public void run() {
@@ -395,15 +409,16 @@ public final class BackgroundSensorService extends IntentService {
         }
 
         @Override
-        public void onResponseCodeMatching(Response<String> response) {
-          String encryptStr = response.getBody();
-          int len = encryptStr.length();
-          byte[] data = new byte[len / 2];
+        public void onResponseCodeMatching(final Response<String> response) {
+          final String encryptStr = response.getBody();
+          final int len = encryptStr.length();
+          final byte[] data = new byte[len / 2];
           for (int i = 0; i < len; i += 2) {
             data[i / 2] = (byte) ((Character.digit(encryptStr.charAt(i), 16) << 4)
                 + Character.digit(encryptStr.charAt(i + 1), 16));
           }
           encryptionKey = data;
+
           // Sets up the realm configuration and start collection of snapshots
           setupRealmAndStartTimers();
         }
