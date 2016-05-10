@@ -115,33 +115,45 @@ public class SynchronizationTimer {
             @Override
             public void onResponseCodeMatching(final Response<String> response) {
 
-              final Realm realm = Realm.getDefaultInstance();
-              realm.beginTransaction();
-              final RealmResults<Campaign> campaigns = realm.where(Campaign.class).equalTo("identifier", campaignIdentifer).findAll();
+              Realm realm = null;
+              try {
+                realm = Realm.getDefaultInstance();
 
-              if(campaigns.isEmpty()) {
-                return;
-              }
+                try {
+                  realm.beginTransaction();
+                  final RealmResults<Campaign> campaigns = realm.where(Campaign.class).equalTo("identifier", campaignIdentifer).findAll();
 
-              final Campaign campaign = campaigns.get(0);
-
-              for (Snapshot snapshot : campaign.getSnapshots()) {
-
-                if (!campaign.isSnapshotReady(requestTimestamp, snapshot)) {
-                  continue;
-                }
-
-                for (RealmObject obj : snapshot.children()) {
-
-                  // Ensure that the object have not been modified elsewhere before trying to delete it
-                  if (obj.isValid()) {
-                    obj.removeFromRealm();
+                  if (campaigns.isEmpty()) {
+                    return;
                   }
+
+                  final Campaign campaign = campaigns.get(0);
+
+                  for (Snapshot snapshot : campaign.getSnapshots()) {
+
+                    if (!campaign.isSnapshotReady(requestTimestamp, snapshot)) {
+                      continue;
+                    }
+
+                    for (RealmObject obj : snapshot.children()) {
+
+                      // Ensure that the object have not been modified elsewhere before trying to delete it
+                      if (obj.isValid()) {
+                        obj.removeFromRealm();
+                      }
+                    }
+                  }
+
+                  realm.commitTransaction();
+                } catch (Exception exception) {
+                  realm.cancelTransaction();
+                  throw exception;
+                }
+              } finally {
+                if (realm != null) {
+                  realm.close();
                 }
               }
-
-              realm.commitTransaction();
-              realm.close();
 
               Log.d("SynchronizationTimer", "All campaigns were uploaded");
             }

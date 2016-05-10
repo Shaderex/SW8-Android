@@ -299,7 +299,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
   private void bindToResponder() {
     final Intent serviceIntent = new Intent(this, BackgroundSensorService.class);
-    bindService(serviceIntent, serviceConnection, Context.BIND_ABOVE_CLIENT | BIND_AUTO_CREATE);
+    bindService(serviceIntent, serviceConnection, Context.BIND_ABOVE_CLIENT);
   }
 
   private ServiceConnection serviceConnection = new ServiceConnection() {

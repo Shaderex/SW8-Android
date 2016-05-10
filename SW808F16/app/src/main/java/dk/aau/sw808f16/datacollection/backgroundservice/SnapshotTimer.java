@@ -150,12 +150,12 @@ public class SnapshotTimer {
           realm.cancelTransaction();
           throw exception;
         }
-
-
       } catch (Exception exception) {
         exception.printStackTrace();
       } finally {
-        realm.close();
+        if (realm != null) {
+          realm.close();
+        }
       }
 
     }
