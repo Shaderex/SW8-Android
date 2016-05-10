@@ -68,24 +68,36 @@ public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
 
   @Override
   public void onResponseCodeMatching(final Response<JSONObject> response) {
+
     Log.d("BackgroundSensorService", "onResponseCodeMatching");
+
     final Context context = weakContextReference.get();
     if (context != null) {
       try {
-        Campaign campaign = new Campaign(response.getBody());
 
-        Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-        RealmResults<Campaign> results = realm.where(Campaign.class).findAll();
-        results.clear();
-        realm.copyToRealm(campaign);
-        realm.commitTransaction();
+        final Campaign campaign = new Campaign(response.getBody());
+        Realm realm = null;
 
-        // Manual testing logging
-        campaign.log("SavedCampaign");
+        try {
+          realm = Realm.getDefaultInstance();
 
-        realm.close();
-
+          try {
+            realm.beginTransaction();
+            RealmResults<Campaign> results = realm.where(Campaign.class).findAll();
+            results.clear();
+            realm.copyToRealm(campaign);
+            realm.commitTransaction();
+          } catch (Exception exception) {
+            realm.cancelTransaction();
+            throw exception;
+          }
+          // Manual testing logging
+          campaign.log("SavedCampaign");
+        } finally {
+          if (realm != null) {
+            realm.close();
+          }
+        }
         Toast.makeText(context, R.string.campaign_joined_message, Toast.LENGTH_SHORT).show();
       } catch (JSONException exception) {
         exception.printStackTrace();

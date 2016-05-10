@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import dk.aau.sw808f16.datacollection.DataCollectionApplication;
 import dk.aau.sw808f16.datacollection.R;
@@ -148,7 +149,7 @@ public final class BackgroundSensorService extends IntentService {
     handlerThread.start();
 
     // Get the HandlerThread's Looper and use it for our Handler
-    serviceHandler = new ServiceHandler(handlerThread.getLooper());
+    serviceHandler = new ServiceHandler();
     messenger = new Messenger(serviceHandler);
 
     Log.d("BackgroundSensorService", "BackgroundSensorService onCreate() called");
@@ -191,10 +192,13 @@ public final class BackgroundSensorService extends IntentService {
         .encryptionKey(encryptionKey)
         .build();
 
+    Log.d("BackgroundSensorService", bytesToHex(encryptionKey));
+
     Realm.setDefaultConfiguration(realmConfiguration);
 
     // Check if device is subscribed to a campaign and then continue that campaign
     final Realm realm = Realm.getDefaultInstance();
+
     final Campaign campaign = realm.where(Campaign.class).findFirst();
 
     if (campaign != null) {
@@ -219,6 +223,8 @@ public final class BackgroundSensorService extends IntentService {
 
   private final class ServiceHandler extends Handler {
 
+    public ServiceHandler() {
+    }
 
     public ServiceHandler(final Looper looper) {
       super(looper);
@@ -238,7 +244,6 @@ public final class BackgroundSensorService extends IntentService {
         }
         return;
       }
-
 
       final Bundle data = msg.getData();
       switch (msg.what) {
@@ -271,7 +276,6 @@ public final class BackgroundSensorService extends IntentService {
       public void onResponseCodeMatching(final Response<JSONObject> response) {
         super.onResponseCodeMatching(response);
 
-
         final Message ok = Message.obtain(null, SERVICE_ACK_OK);
 
         try {
@@ -297,14 +301,24 @@ public final class BackgroundSensorService extends IntentService {
       final Snapshot snapshot = realm.where(Snapshot.class).equalTo("timestamp", snapshotTimeStamp).findFirst();
 
       if (snapshot != null) {
-        realm.beginTransaction();
-        questionnaire = realm.copyToRealm(questionnaire);
-        realm.commitTransaction();
+        try {
+          realm.beginTransaction();
+          questionnaire = realm.copyToRealm(questionnaire);
+          realm.commitTransaction();
+        } catch (Exception exception) {
+          realm.cancelTransaction();
+          throw exception;
+        }
+        try {
+          realm.beginTransaction();
+          snapshot.setQuestionnaire(questionnaire);
+          realm.copyToRealmOrUpdate(snapshot);
+          realm.commitTransaction();
+        } catch (Exception exception) {
+          realm.cancelTransaction();
+          throw exception;
+        }
 
-        realm.beginTransaction();
-        snapshot.setQuestionnaire(questionnaire);
-        realm.copyToRealmOrUpdate(snapshot);
-        realm.commitTransaction();
       }
     } finally {
       if (realm != null) {
@@ -327,6 +341,8 @@ public final class BackgroundSensorService extends IntentService {
   @Override
   public int onStartCommand(final Intent intent, final int flags, final int startId) {
     Log.d("BackgroundSensorService", "BackgroundSensorService onStartCommand() called");
+
+
     return START_STICKY;
   }
 
@@ -336,6 +352,18 @@ public final class BackgroundSensorService extends IntentService {
     snapshotTimer.stop();
     synchronizationTimer.stop();
     sensorThreadPool.shutdown();
+
+    try {
+      if (!sensorThreadPool.awaitTermination(100, TimeUnit.MICROSECONDS)) {
+        System.out.println("Still waiting...");
+      }
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    System.out.println("Exiting normally...");
+
+    System.out.println("Exiting normally...");
+
     handlerThread.quitSafely();
   }
 
@@ -385,6 +413,7 @@ public final class BackgroundSensorService extends IntentService {
       final AsyncHttpWebbTask<String> keyTask = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.GET,
           campaignListResourcePath,
           HttpURLConnection.HTTP_OK) {
+
         @Override
         protected Response<String> sendRequest(Request request) {
           final Context context = weakContextReference.get();
@@ -410,6 +439,7 @@ public final class BackgroundSensorService extends IntentService {
 
         @Override
         public void onResponseCodeMatching(final Response<String> response) {
+
           final String encryptStr = response.getBody();
           final int len = encryptStr.length();
           final byte[] data = new byte[len / 2];
@@ -417,6 +447,7 @@ public final class BackgroundSensorService extends IntentService {
             data[i / 2] = (byte) ((Character.digit(encryptStr.charAt(i), 16) << 4)
                 + Character.digit(encryptStr.charAt(i + 1), 16));
           }
+
           encryptionKey = data;
 
           // Sets up the realm configuration and start collection of snapshots
