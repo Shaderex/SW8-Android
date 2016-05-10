@@ -178,7 +178,7 @@ public class SnapshotTimer {
 
     final Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
     final NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
-        .setSmallIcon(R.mipmap.ic_launcher)
+        .setSmallIcon(R.drawable.ic_assignment_white_24dp)
         .setContentTitle(context.getResources().getString(R.string.app_name))
         .setContentText("We have some questions")
         .setVibrate(new long[] {10, 100, 200, 40, 55, 200})
