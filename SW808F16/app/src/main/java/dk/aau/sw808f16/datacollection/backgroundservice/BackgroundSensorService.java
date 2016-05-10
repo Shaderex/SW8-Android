@@ -197,20 +197,28 @@ public final class BackgroundSensorService extends IntentService {
     Realm.setDefaultConfiguration(realmConfiguration);
 
     // Check if device is subscribed to a campaign and then continue that campaign
-    final Realm realm = Realm.getDefaultInstance();
 
-    final Campaign campaign = realm.where(Campaign.class).findFirst();
+    Realm realm = null;
+    try {
 
-    if (campaign != null) {
-      serviceHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          snapshotTimer.start();
-        }
-      });
+
+      realm = Realm.getDefaultInstance();
+
+      final Campaign campaign = realm.where(Campaign.class).findFirst();
+
+      if (campaign != null) {
+        serviceHandler.post(new Runnable() {
+          @Override
+          public void run() {
+            snapshotTimer.start();
+          }
+        });
+      }
+    } finally {
+      if (realm != null) {
+        realm.close();
+      }
     }
-
-    realm.close();
 
     // Start the sync of snapshots
     serviceHandler.post(new Runnable() {
@@ -224,10 +232,6 @@ public final class BackgroundSensorService extends IntentService {
   private final class ServiceHandler extends Handler {
 
     public ServiceHandler() {
-    }
-
-    public ServiceHandler(final Looper looper) {
-      super(looper);
     }
 
     @Override
@@ -349,9 +353,10 @@ public final class BackgroundSensorService extends IntentService {
   @Override
   public void onDestroy() {
     Log.d("BackgroundSensorService", "BackgroundSensorService onDestroy() called");
+    sensorThreadPool.shutdown();
     snapshotTimer.stop();
     synchronizationTimer.stop();
-    sensorThreadPool.shutdown();
+    handlerThread.quitSafely();
 
     try {
       if (!sensorThreadPool.awaitTermination(100, TimeUnit.MICROSECONDS)) {
@@ -364,7 +369,7 @@ public final class BackgroundSensorService extends IntentService {
 
     System.out.println("Exiting normally...");
 
-    handlerThread.quitSafely();
+
   }
 
   private static int getNumberOfSensorProviders() {
