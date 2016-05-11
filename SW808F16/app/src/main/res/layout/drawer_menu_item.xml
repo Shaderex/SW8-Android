@@ -2,13 +2,16 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:orientation="horizontal">
+              android:orientation="horizontal"
+              xmlns:tools="http://schemas.android.com/tools">
 
     <ImageView
         android:id="@+id/drawer_item_icon"
-        android:paddingLeft="16dp"
+        android:paddingTop="@dimen/content_area_padding"
+        android:paddingBottom="@dimen/content_area_padding"
+        android:paddingStart="@dimen/content_area_padding"
         android:layout_gravity="center_vertical"
-        android:gravity="center_vertical"
+        android:gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_public_black_24dp"
@@ -16,11 +19,11 @@
 
     <TextView
         android:id="@+id/menu_item_text_view"
-        android:layout_width="wrap_content"
-        android:paddingLeft="16dp"
-        android:layout_height="48dp"
+        android:layout_width="match_parent"
+        android:padding="@dimen/content_area_padding"
+        android:layout_height="wrap_content"
+        tools:text="Menu item text"
         android:layout_gravity="center_vertical"
-        android:gravity="center"
         android:textAppearance="@android:style/TextAppearance.Material.Body2"/>
 
 </LinearLayout>

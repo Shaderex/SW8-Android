@@ -50,7 +50,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
   public enum DrawerMenuItems {
 
-    CURRENT_CAMPAIGN(R.drawable.ic_assignment_turned_in_black_24dp, "Current campaign") {
+    CURRENT_CAMPAIGN(R.drawable.ic_assignment_black_24dp, "Current campaign") {
       @Override
       public void open(final MainActivity activity) {
 
@@ -67,7 +67,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
         }
       }
     },
-    PUBLIC_CAMPAIGNS(R.drawable.ic_public_black_24dp, "Public campaigns") {
+    PUBLIC_CAMPAIGNS(R.drawable.ic_public_black_24dp, "Browse campaigns") {
       @Override
       public void open(final MainActivity activity) {
 
@@ -75,7 +75,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
         activity.setContent(fragment);
       }
     },
-    PRIVATE_CAMPAIGNS(R.drawable.ic_enhanced_encryption_black_24dp, "Private campaigns") {
+    PRIVATE_CAMPAIGNS(R.drawable.ic_search_black_24dp, "Join specific") {
       @Override
       public void open(final MainActivity activity) {
 
