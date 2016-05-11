@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
@@ -415,12 +414,12 @@ public final class BackgroundSensorService extends IntentService {
       final String campaignListResourcePath = RequestHostResolver.resolveHostForRequest(BackgroundSensorService.this, "/key");
       final WeakReference<Context> weakContextReference = new WeakReference<Context>(BackgroundSensorService.this.getBaseContext());
 
-      final AsyncHttpWebbTask<String> keyTask = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.GET,
+      final AsyncHttpWebbTask<byte[]> keyTask = new AsyncHttpWebbTask<byte[]>(AsyncHttpWebbTask.Method.GET,
           campaignListResourcePath,
           HttpURLConnection.HTTP_OK) {
 
         @Override
-        protected Response<String> sendRequest(Request request) {
+        protected Response<byte[]> sendRequest(Request request) {
           final Context context = weakContextReference.get();
 
           if (context != null) {
@@ -431,8 +430,8 @@ public final class BackgroundSensorService extends IntentService {
                   GoogleCloudMessaging.INSTANCE_ID_SCOPE,
                   null
               );
-
-              return request.param("device_id", token).retry(3, false).asString();
+              return request.param("device_id", token).asBytes();
+              //return request.param("device_id", token).retry(3, false).asString();
 
             } catch (IOException exception) {
               exception.printStackTrace();
@@ -443,24 +442,17 @@ public final class BackgroundSensorService extends IntentService {
         }
 
         @Override
-        public void onResponseCodeMatching(final Response<String> response) {
+        public void onResponseCodeMatching(final Response<byte[]> response) {
 
-          final String encryptStr = response.getBody();
-          final int len = encryptStr.length();
-          final byte[] data = new byte[len / 2];
-          for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(encryptStr.charAt(i), 16) << 4)
-                + Character.digit(encryptStr.charAt(i + 1), 16));
-          }
-
-          encryptionKey = data;
+          byte[] key = response.getBody();
+          encryptionKey = key;
 
           // Sets up the realm configuration and start collection of snapshots
           setupRealmAndStartTimers();
         }
 
         @Override
-        public void onResponseCodeNotMatching(Response<String> response) {
+        public void onResponseCodeNotMatching(Response<byte[]> response) {
           Log.d("BackgroundSensorService", "onResponseCodeNotMatching called when requesting encryption key");
           retryRealmSetupOnNetworkChanged();
         }
