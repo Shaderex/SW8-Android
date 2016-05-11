@@ -411,11 +411,11 @@ public final class BackgroundSensorService extends IntentService {
     @Override
     public void run() {
 
-      final String campaignListResourcePath = RequestHostResolver.resolveHostForRequest(BackgroundSensorService.this, "/key");
+      final String encryptionKeyResourcePath = RequestHostResolver.resolveHostForRequest(BackgroundSensorService.this, "/key");
       final WeakReference<Context> weakContextReference = new WeakReference<Context>(BackgroundSensorService.this.getBaseContext());
 
       final AsyncHttpWebbTask<byte[]> keyTask = new AsyncHttpWebbTask<byte[]>(AsyncHttpWebbTask.Method.GET,
-          campaignListResourcePath,
+          encryptionKeyResourcePath,
           HttpURLConnection.HTTP_OK) {
 
         @Override
@@ -430,12 +430,10 @@ public final class BackgroundSensorService extends IntentService {
                   GoogleCloudMessaging.INSTANCE_ID_SCOPE,
                   null
               );
-              return request.param("device_id", token).asBytes();
-              //return request.param("device_id", token).retry(3, false).asString();
+              return request.param("device_id", token).retry(3, false).asBytes();
 
             } catch (IOException exception) {
               exception.printStackTrace();
-              return null;
             }
           }
           return null;
@@ -444,8 +442,7 @@ public final class BackgroundSensorService extends IntentService {
         @Override
         public void onResponseCodeMatching(final Response<byte[]> response) {
 
-          byte[] key = response.getBody();
-          encryptionKey = key;
+          encryptionKey = response.getBody();
 
           // Sets up the realm configuration and start collection of snapshots
           setupRealmAndStartTimers();
