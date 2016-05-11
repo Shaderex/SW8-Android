@@ -6,7 +6,8 @@
     <string name="private_campaign_id">Campaign Identifier</string>
     <string name="private_campaign_join">Join</string>
     <string name="loading_campaigns_message">Please wait - Loading Campaigns</string>
-    <string name="confirm_save_selection">You previously joined a campaign. Do you wish to abandon your previous selection and join the currently selected campaign?</string>
+    <string name="confirm_save_selection">Do you wish to join this campaign? This will cause you to unsubscribe from the campaign that you are currently contributing to.</string>
+    <string name="confirm_leave">Do you wish to unsubscribe from the campaign that you are currently contributing to?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="select_campaign_first_message">You must select a campaign before pressing submit.</string>
@@ -20,7 +21,8 @@
     <string name="campaign_specification_fragment_title">Campaign Title</string>
     <string name="campaign_specification_name_title">Name:</string>
     <string name="continue_message">Continue</string>
-    <string name="campaign_joined_message">Campaign joined successfully</string>
+    <string name="campaign_joined_message">Successfully subscribed to campaign</string>
+    <string name="campaign_left_message">Successfully unsubscribed from campaign</string>
     <string name="unable_to_join_campaign_message">Unable to join campaign</string>
     <string name="private_campaign_invalid_campaign_id_message">Please enter a valid campaign ID</string>
     <string name="unable_to_locate_campaign_message">Unable to locate a campaign with the specified ID</string>

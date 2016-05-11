@@ -13,6 +13,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.goebl.david.Request;
 import com.goebl.david.Response;
@@ -54,6 +55,7 @@ import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
 import dk.aau.sw808f16.datacollection.webutil.RequestHostResolver;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
 
 public final class BackgroundSensorService extends IntentService {
 
@@ -273,6 +275,39 @@ public final class BackgroundSensorService extends IntentService {
   public void notifyNewCampaign(final long campaignId, final Message originalMessage) {
 
     final Messenger replyMessenger = originalMessage.replyTo;
+
+    if (campaignId == -1L) {
+      snapshotTimer.stop();
+
+      final Message ok = Message.obtain(null, SERVICE_ACK_OK);
+      try {
+        replyMessenger.send(ok);
+      } catch (RemoteException exception) {
+        exception.printStackTrace();
+      }
+
+      Realm realm = null;
+      try {
+        realm = Realm.getDefaultInstance();
+
+        try {
+          realm.beginTransaction();
+          RealmResults<Campaign> results = realm.where(Campaign.class).findAll();
+          results.clear();
+          realm.commitTransaction();
+          Toast.makeText(this, R.string.campaign_left_message, Toast.LENGTH_SHORT).show();
+        } catch (Exception exception) {
+          realm.cancelTransaction();
+          throw exception;
+        }
+      } finally {
+        if (realm != null) {
+          realm.close();
+        }
+      }
+
+      return;
+    }
 
     final AsyncHttpCampaignJoinTask joinCampaignTask = new AsyncHttpCampaignJoinTask(this, campaignId) {
       @Override

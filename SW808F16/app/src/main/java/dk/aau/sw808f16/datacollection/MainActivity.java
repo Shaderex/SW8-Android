@@ -40,6 +40,7 @@ import com.microsoft.band.UserConsent;
 import com.microsoft.band.sensors.HeartRateConsentListener;
 
 import dk.aau.sw808f16.datacollection.backgroundservice.BackgroundSensorService;
+import dk.aau.sw808f16.datacollection.fragment.CampaignJoinFragment;
 import dk.aau.sw808f16.datacollection.fragment.CampaignSpecificationFragment;
 import dk.aau.sw808f16.datacollection.fragment.PrivateCampaignFragment;
 import dk.aau.sw808f16.datacollection.fragment.PublicCampaignFragment;
@@ -59,7 +60,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
         if (currentlyActiveCampaignId != -1) {
 
-          final Fragment fragment = CampaignSpecificationFragment.newInstance(currentlyActiveCampaignId);
+          final Fragment fragment = CampaignJoinFragment.newInstance(currentlyActiveCampaignId);
           activity.setContent(fragment);
 
         } else {

@@ -24,21 +24,22 @@ public class ConfirmSaveSelectionFragment extends DialogFragment {
 
   @Override
   public Dialog onCreateDialog(final Bundle savedInstanceState) {
-
     // Use the Builder class for convenient dialog construction
     final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-    builder.setMessage(R.string.confirm_save_selection)
+
+    final long campaignId = getArguments().getLong(CAMPAIGN_ID_TAG);
+
+    final int message = campaignId == -1L ? R.string.confirm_leave : R.string.confirm_save_selection;
+
+    builder.setMessage(message)
         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
           public void onClick(final DialogInterface dialog, final int id) {
-
             dismiss();
-
-            ((SaveConfirmedCampaign) getParentFragment()).onConfirmedCampaignSave(getArguments().getLong(CAMPAIGN_ID_TAG));
+            ((SaveConfirmedCampaign) getParentFragment()).onConfirmedCampaignSave(campaignId);
           }
         })
         .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
           public void onClick(final DialogInterface dialog, final int id) {
-
             dismiss();
           }
         });
