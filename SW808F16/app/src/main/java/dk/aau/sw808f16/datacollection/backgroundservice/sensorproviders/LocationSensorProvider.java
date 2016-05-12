@@ -72,7 +72,7 @@ public class LocationSensorProvider extends SensorProvider<LocationMeasurement> 
 
   @Override
   public boolean isSensorAvailable() {
-    LocationManager lm = (LocationManager) contextWeakReference.get().getSystemService(Context.LOCATION_SERVICE);
+    final LocationManager lm = (LocationManager) contextWeakReference.get().getSystemService(Context.LOCATION_SERVICE);
     boolean gpsEnabled = false;
 
     try {
@@ -81,11 +81,7 @@ public class LocationSensorProvider extends SensorProvider<LocationMeasurement> 
       exception.printStackTrace();
     }
 
-    if (gpsEnabled) {
-      return lm.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER) != null;
-    }
-
-    return gpsEnabled;
+    return gpsEnabled && lm.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER) != null;
   }
 
   @Override
