@@ -41,7 +41,6 @@ import com.microsoft.band.sensors.HeartRateConsentListener;
 
 import dk.aau.sw808f16.datacollection.backgroundservice.BackgroundSensorService;
 import dk.aau.sw808f16.datacollection.fragment.CampaignJoinFragment;
-import dk.aau.sw808f16.datacollection.fragment.CampaignSpecificationFragment;
 import dk.aau.sw808f16.datacollection.fragment.PrivateCampaignFragment;
 import dk.aau.sw808f16.datacollection.fragment.PublicCampaignFragment;
 import dk.aau.sw808f16.datacollection.fragment.StartFragment;
@@ -340,7 +339,13 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
                 } catch (InterruptedException exception) {
                   exception.printStackTrace();
                 }
-                registerCampaign(campaignId);
+
+                post(new Runnable() {
+                  @Override
+                  public void run() {
+                    registerCampaign(campaignId);
+                  }
+                });
               }
             }).start();
             break;
