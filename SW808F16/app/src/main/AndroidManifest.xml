@@ -32,6 +32,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
+        android:largeHeap="true"
         tools:ignore="GoogleAppIndexingWarning">
 
         <receiver
@@ -66,7 +67,7 @@
         <!-- android:process=":backgroundSensorService"-->
         <service
             android:name=".backgroundservice.BackgroundSensorService"
-            android:process=":backgroundSensorService"
+
             android:exported="false">
         </service>
         <service
