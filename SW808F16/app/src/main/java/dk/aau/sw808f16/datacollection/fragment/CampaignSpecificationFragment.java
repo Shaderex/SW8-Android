@@ -128,25 +128,34 @@ public class CampaignSpecificationFragment extends Fragment {
 
           view.setVisibility(View.VISIBLE);
 
-          final TextView errorMessageTextView = (TextView) getView().findViewById(R.id.error_message_textview);
-          final ScrollView scrollingView = (ScrollView) getView().findViewById(R.id.specification_scroller);
+          final View getView = getView();
+          final TextView errorMessageTextView = getView == null ? null : (TextView) getView.findViewById(R.id.error_message_textview);
+          final ScrollView scrollingView = getView == null ? null : (ScrollView) getView.findViewById(R.id.specification_scroller);
 
           activityIndicator.hide();
 
           switch (response.getStatusCode()) {
             case HttpURLConnection.HTTP_NOT_FOUND: {
-
-              errorMessageTextView.setText(R.string.unable_to_locate_campaign_message);
+              if (errorMessageTextView != null) {
+                errorMessageTextView.setText(R.string.unable_to_locate_campaign_message);
+              }
               break;
             }
             default: {
-              errorMessageTextView.setText(R.string.generic_something_went_wrong_message);
+              if (errorMessageTextView != null) {
+                errorMessageTextView.setText(R.string.generic_something_went_wrong_message);
+              }
               break;
             }
           }
 
-          errorMessageTextView.setVisibility(View.VISIBLE);
-          scrollingView.setVisibility(View.GONE);
+          if (errorMessageTextView != null) {
+            errorMessageTextView.setVisibility(View.VISIBLE);
+          }
+
+          if (scrollingView != null) {
+            scrollingView.setVisibility(View.GONE);
+          }
         }
       };
 

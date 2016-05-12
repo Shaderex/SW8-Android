@@ -40,6 +40,7 @@ import com.microsoft.band.UserConsent;
 import com.microsoft.band.sensors.HeartRateConsentListener;
 
 import dk.aau.sw808f16.datacollection.backgroundservice.BackgroundSensorService;
+import dk.aau.sw808f16.datacollection.fragment.CampaignJoinFragment;
 import dk.aau.sw808f16.datacollection.fragment.CampaignSpecificationFragment;
 import dk.aau.sw808f16.datacollection.fragment.PrivateCampaignFragment;
 import dk.aau.sw808f16.datacollection.fragment.PublicCampaignFragment;
@@ -50,7 +51,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
   public enum DrawerMenuItems {
 
-    CURRENT_CAMPAIGN(R.drawable.ic_assignment_turned_in_black_24dp, "Current campaign") {
+    CURRENT_CAMPAIGN(R.drawable.ic_assignment_black_24dp, "Current campaign") {
       @Override
       public void open(final MainActivity activity) {
 
@@ -59,7 +60,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
         if (currentlyActiveCampaignId != -1) {
 
-          final Fragment fragment = CampaignSpecificationFragment.newInstance(currentlyActiveCampaignId);
+          final Fragment fragment = CampaignJoinFragment.newInstance(currentlyActiveCampaignId);
           activity.setContent(fragment);
 
         } else {
@@ -67,7 +68,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
         }
       }
     },
-    PUBLIC_CAMPAIGNS(R.drawable.ic_public_black_24dp, "Public campaigns") {
+    PUBLIC_CAMPAIGNS(R.drawable.ic_public_black_24dp, "Browse campaigns") {
       @Override
       public void open(final MainActivity activity) {
 
@@ -75,7 +76,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
         activity.setContent(fragment);
       }
     },
-    PRIVATE_CAMPAIGNS(R.drawable.ic_enhanced_encryption_black_24dp, "Private campaigns") {
+    PRIVATE_CAMPAIGNS(R.drawable.ic_search_black_24dp, "Join specific") {
       @Override
       public void open(final MainActivity activity) {
 

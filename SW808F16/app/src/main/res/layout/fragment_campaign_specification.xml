@@ -15,7 +15,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="@dimen/activity_padding">
+            android:paddingBottom="100dp"
+            android:paddingEnd="@dimen/activity_padding"
+            android:paddingStart="@dimen/activity_padding"
+            android:paddingTop="@dimen/activity_padding">
 
             <TextView
                 android:id="@+id/campaign_specification_title"
@@ -115,6 +118,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         tools:visibility="gone"/>
+
     <TextView
         android:id="@+id/error_message_textview"
         android:layout_width="match_parent"
