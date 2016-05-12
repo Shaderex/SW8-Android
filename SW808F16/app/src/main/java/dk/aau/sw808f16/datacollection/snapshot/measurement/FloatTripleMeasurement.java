@@ -1,5 +1,12 @@
 package dk.aau.sw808f16.datacollection.snapshot.measurement;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import dk.aau.sw808f16.datacollection.snapshot.JsonValueAble;
 import io.realm.RealmObject;
 
@@ -118,6 +125,11 @@ public class FloatTripleMeasurement extends RealmObject implements JsonValueAble
 
   @Override
   public Object toJsonValue() {
-    return compressedValues;
+    final List<Float> values = new ArrayList<>();
+    values.add(getFirstValue());
+    values.add(getSecondValue());
+    values.add(getThirdValue());
+
+    return new JSONArray(values);
   }
 }
