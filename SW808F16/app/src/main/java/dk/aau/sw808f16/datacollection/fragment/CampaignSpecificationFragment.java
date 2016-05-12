@@ -238,11 +238,20 @@ public class CampaignSpecificationFragment extends Fragment {
       final TextView measurementsRateTextView = (TextView) parent.findViewById(R.id.measurements_rate);
       measurementsRateTextView.setText(measurementsPerHour + " measurements per hour");
 
+      final TextView QuestionnaireInterval = (TextView) parent.findViewById(R.id.questions_questionnaire_interval);
+      QuestionnaireInterval.setText("You will asked questions every "
+          + snapshotLengthToString(campaignSpecification.getInt("snapshot_length")));
+
       final LinearLayout lv = (LinearLayout) parent.findViewById(R.id.fragment_campaign_specification_questions_listing);
 
       final List<String> questions = new ArrayList<>();
+      int questionCounter = 0;
       for (Question question : campaign.getQuestionnaire().getQuestions()) {
+        questionCounter++;
         questions.add(question.getQuestion());
+        if (questionCounter > 2) {
+          break;
+        }
       }
 
       if (questions.isEmpty()) {
@@ -261,6 +270,29 @@ public class CampaignSpecificationFragment extends Fragment {
     } catch (JSONException exception) {
       exception.printStackTrace();
     }
+  }
+
+  private String snapshotLengthToString(final int timestamp) {
+    final int msPerMinute = (60 * 1000);
+    final int msPerHour = (60 * msPerMinute);
+    final int hours = timestamp / msPerHour;
+    final int restOfHours = timestamp % msPerHour;
+    final int minutes = (restOfHours / msPerMinute) == 0 && hours == 0 ? 1 : (restOfHours / msPerMinute);
+
+    String str = "";
+
+    if (hours > 0) {
+      str += hours;
+      str += "h";
+      str += " ";
+    }
+
+    if (minutes > 0) {
+      str += minutes;
+      str += "m";
+    }
+
+    return str;
   }
 
   private void updateCampaignMeasurementsCategory(final View parent,

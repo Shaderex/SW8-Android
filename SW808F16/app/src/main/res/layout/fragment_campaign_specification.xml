@@ -93,6 +93,7 @@
                 android:id="@+id/measurements_rate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/content_area_padding"
                 android:textAppearance="@android:style/TextAppearance.Material.Body1"
                 tools:text="2.218 measurements hourly"/>
 
@@ -107,7 +108,17 @@
                 android:id="@+id/fragment_campaign_specification_questions_listing"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/content_area_padding"
                 android:orientation="vertical"/>
+
+            <TextView
+                android:id="@+id/questions_questionnaire_interval"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/content_area_padding"
+                android:textAppearance="@android:style/TextAppearance.Material.Body1"
+                tools:text="You will asked questions every 2h 37m"/>
+
         </LinearLayout>
     </ScrollView>
 
