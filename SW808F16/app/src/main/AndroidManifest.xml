@@ -67,7 +67,7 @@
         <!-- android:process=":backgroundSensorService"-->
         <service
             android:name=".backgroundservice.BackgroundSensorService"
-
+            android:process=":backgroundSensorService"
             android:exported="false">
         </service>
         <service
