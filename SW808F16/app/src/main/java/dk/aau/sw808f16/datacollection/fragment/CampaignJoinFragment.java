@@ -59,6 +59,7 @@ public class CampaignJoinFragment extends Fragment implements ConfirmSaveSelecti
         .commit();
 
     final FloatingActionButton joinBtn = (FloatingActionButton) view.findViewById(R.id.private_campaign_join_button);
+    joinBtn.setColorPressedResId(R.color.light_green_dark);
 
     final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
     final boolean joinedThisCampaign = preferences.getLong(getString(R.string.CURRENTLY_CHECKED_CAMPAIGN_ID_KEY), -1L) == campaignId;
