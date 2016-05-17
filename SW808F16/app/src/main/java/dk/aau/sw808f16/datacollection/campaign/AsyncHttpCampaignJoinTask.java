@@ -28,7 +28,7 @@ public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
   final long campaignIdToRegister;
 
   public AsyncHttpCampaignJoinTask(final Context context, final long campaignIdToRegister) {
-    super(AsyncHttpWebbTask.Method.POST, RequestHostResolver.resolveHostForRequest(context, "/campaigns/join"), HttpURLConnection.HTTP_OK);
+    super(AsyncHttpWebbTask.Method.POST, RequestHostResolver.resolveHostForRequest(context, "/campaigns/" + campaignIdToRegister + "/participants"), HttpURLConnection.HTTP_OK);
 
     weakContextReference = new WeakReference<>(context);
     this.campaignIdToRegister = campaignIdToRegister;
@@ -50,7 +50,7 @@ public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
         Log.d("BackgroundSensorService", "sendRequest : 1");
         Response<JSONObject> tmp = request
             .param("device_id", token)
-            .param("campaign_id", campaignIdToRegister)
+//            .param("campaign_id", campaignIdToRegister)
             .asJsonObject();
 
         return tmp;
