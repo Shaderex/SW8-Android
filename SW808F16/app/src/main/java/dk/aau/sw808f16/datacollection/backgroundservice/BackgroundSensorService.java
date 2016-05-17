@@ -201,8 +201,6 @@ public final class BackgroundSensorService extends IntentService {
 
     Realm realm = null;
     try {
-
-
       realm = Realm.getDefaultInstance();
 
       final Campaign campaign = realm.where(Campaign.class).findFirst();

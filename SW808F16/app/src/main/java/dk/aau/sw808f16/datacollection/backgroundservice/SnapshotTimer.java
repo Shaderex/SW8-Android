@@ -44,18 +44,25 @@ public class SnapshotTimer {
   public synchronized void start() {
 
     if (!isRunning) {
-      final Realm realm = Realm.getDefaultInstance();
-      final Campaign campaign = realm.where(Campaign.class).findFirst();
 
-      Log.d("SnapshotTimer", "SnapshotTimer started for campaign ID: " + campaign.getIdentifier());
-      final long snapshotLength = campaign.getSnapshotLength();
+      Realm realm = null;
 
-      realm.close();
-      timer = new Timer();
-      timer.scheduleAtFixedRate(new SnapshotTimerTask(), INITIAL_TIMER_DELAY, snapshotLength);
-      isRunning = true;
+      try {
+        realm = Realm.getDefaultInstance();
+        final Campaign campaign = realm.where(Campaign.class).findFirst();
+
+        Log.d("SnapshotTimer", "SnapshotTimer started for campaign ID: " + campaign.getIdentifier());
+        final long snapshotLength = campaign.getSnapshotLength();
+
+        timer = new Timer();
+        timer.scheduleAtFixedRate(new SnapshotTimerTask(), INITIAL_TIMER_DELAY, snapshotLength);
+        isRunning = true;
+      } finally {
+        if (realm != null) {
+          realm.close();
+        }
+      }
     }
-
   }
 
   public synchronized void stop() {
@@ -75,7 +82,6 @@ public class SnapshotTimer {
       Realm realm = null;
 
       try {
-
         realm = Realm.getDefaultInstance();
 
         Campaign campaign = realm.where(Campaign.class).findFirst();
@@ -143,15 +149,16 @@ public class SnapshotTimer {
           }
 
           campaign = realm.where(Campaign.class).findFirst();
-          campaign.addSnapshot(snapshot);
-          realm.copyToRealm(campaign);
+
+          if (campaign != null) {
+            campaign.addSnapshot(snapshot);
+            realm.copyToRealm(campaign);
+          }
           realm.commitTransaction();
         } catch (Exception exception) {
           realm.cancelTransaction();
           throw exception;
         }
-      } catch (Exception exception) {
-        exception.printStackTrace();
       } finally {
         if (realm != null) {
           realm.close();
