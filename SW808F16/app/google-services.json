@@ -1,18 +1,14 @@
 {
   "project_info": {
-    "project_id": "data-collection-c8e78",
     "project_number": "369415405893",
-    "name": "Data Collection"
+    "project_id": "data-collection-c8e78"
   },
   "client": [
     {
       "client_info": {
         "mobilesdk_app_id": "1:369415405893:android:b92e2c10d33bdb8a",
-        "client_id": "android:dk.aau.sw808f16.datacollection",
-        "client_type": 1,
         "android_client_info": {
-          "package_name": "dk.aau.sw808f16.datacollection",
-          "certificate_hash": []
+          "package_name": "dk.aau.sw808f16.datacollection"
         }
       },
       "oauth_client": [
@@ -29,21 +25,18 @@
           "client_type": 3
         }
       ],
-      "api_key": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqrYDd-FtO1Ifb97L6WhrNbOyQL6b82hY"
+        }
+      ],
       "services": {
         "analytics_service": {
           "status": 1
         },
-        "cloud_messaging_service": {
-          "status": 2,
-          "apns_config": []
-        },
         "appinvite_service": {
           "status": 1,
           "other_platform_oauth_client": []
-        },
-        "google_signin_service": {
-          "status": 2
         },
         "ads_service": {
           "status": 1
@@ -51,6 +44,5 @@
       }
     }
   ],
-  "client_info": [],
-  "ARTIFACT_VERSION": "1"
+  "configuration_version": "1"
 }

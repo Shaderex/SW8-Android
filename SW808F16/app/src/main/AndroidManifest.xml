@@ -88,6 +88,14 @@
             android:name=".gcm.RegistrationIntentService"
             android:exported="false">
         </service>
+        <service android:name=".backgroundservice.UploadManagementService"
+                 android:exported="true"
+                 android:process=":backgroundSensorService"
+                 android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE">
+            <intent-filter>
+                <action android:name="com.google.android.gms.gcm.ACTION_TASK_READY" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

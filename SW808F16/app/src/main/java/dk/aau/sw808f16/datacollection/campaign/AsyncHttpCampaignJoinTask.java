@@ -84,7 +84,7 @@ public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
           try {
             realm.beginTransaction();
             RealmResults<Campaign> results = realm.where(Campaign.class).findAll();
-            results.deleteAllFromRealm();
+            results.clear();
             realm.copyToRealm(campaign);
             realm.commitTransaction();
           } catch (Exception exception) {

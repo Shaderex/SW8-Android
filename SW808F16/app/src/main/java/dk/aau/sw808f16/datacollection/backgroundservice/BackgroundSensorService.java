@@ -71,7 +71,7 @@ public final class BackgroundSensorService extends IntentService {
   public static final String NOTIFY_QUESTIONNAIRE_COMPLETED_CAMPAIGN_ID = "NOTIFY_QUESTIONNAIRE_COMPLETED_CAMPAIGN_ID";
 
   private static final String REALM_NAME = DataCollectionApplication.TAG + ".realm";
-  private static final long SYNCHRONIZATION_INTERVAL = 10000;
+  private static final long SYNCHRONIZATION_INTERVAL_IN_SECONDS = 20;
   private byte[] encryptionKey = null;
 
   private ServiceHandler serviceHandler;
@@ -139,7 +139,7 @@ public final class BackgroundSensorService extends IntentService {
     heartbeatSensorProviderBand = new HeartbeatSensorProviderBand(BackgroundSensorService.this, sensorThreadPool, sensorManager);
 
     snapshotTimer = new SnapshotTimer(BackgroundSensorService.this, getSensorProviders());
-    synchronizationTimer = new SynchronizationTimer(BackgroundSensorService.this, SYNCHRONIZATION_INTERVAL);
+    synchronizationTimer = new SynchronizationTimer(BackgroundSensorService.this, SYNCHRONIZATION_INTERVAL_IN_SECONDS);
 
     // Start up the handlerThread running the service.  Note that we create a
     // separate handlerThread because the service normally runs in the process's
@@ -291,7 +291,7 @@ public final class BackgroundSensorService extends IntentService {
         try {
           realm.beginTransaction();
           RealmResults<Campaign> results = realm.where(Campaign.class).findAll();
-          results.deleteAllFromRealm();
+          results.clear();
           realm.commitTransaction();
           Toast.makeText(this, R.string.campaign_left_message, Toast.LENGTH_SHORT).show();
         } catch (Exception exception) {
