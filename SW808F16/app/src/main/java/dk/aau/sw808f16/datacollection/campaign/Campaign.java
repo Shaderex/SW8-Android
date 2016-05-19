@@ -23,6 +23,7 @@ public class Campaign extends RealmObject implements JsonObjectAble {
 
   @PrimaryKey
   private int identifier;
+
   private RealmList<Snapshot> snapshots;
   private String name;
   private String description;
@@ -35,10 +36,10 @@ public class Campaign extends RealmObject implements JsonObjectAble {
 
   @Ignore
   private List<SensorType> sensors;
+
   @Ignore
   private QuestionnairePlacement questionnairePlacement;
   private int placementId;
-
 
   private Questionnaire questionnaire;
   private int campaignLength;
@@ -68,7 +69,6 @@ public class Campaign extends RealmObject implements JsonObjectAble {
     this.setCampaignLength(jsonObject.getInt("campaign_length"));
     this.placementId = jsonObject.getInt("questionnaire_placement");
 
-
     JSONArray sensors = jsonObject.getJSONArray("sensors");
 
     ArrayList<SensorType> sensorTypes = new ArrayList<>();
@@ -78,7 +78,6 @@ public class Campaign extends RealmObject implements JsonObjectAble {
     }
 
     this.setSensors(sensorTypes);
-
 
     JSONArray questionsArray = jsonObject.getJSONArray("questions");
     List<Question> questions = new ArrayList<>();
@@ -263,8 +262,7 @@ public class Campaign extends RealmObject implements JsonObjectAble {
     Log.d(logTag, "measurementFrequency: " + this.getMeasurementFrequency());
     Log.d(logTag, "campaignLength: " + this.getCampaignLength());
     Log.d(logTag, "questionnairePlacement: " + this.getQuestionnairePlacement());
-
-
+    
     if (this.getQuestionnaire() != null) {
       String questions = "";
       for (Question question : this.getQuestionnaire().getQuestions()) {

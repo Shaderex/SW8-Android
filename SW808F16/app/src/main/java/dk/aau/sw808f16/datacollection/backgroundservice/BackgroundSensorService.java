@@ -291,7 +291,7 @@ public final class BackgroundSensorService extends IntentService {
         try {
           realm.beginTransaction();
           RealmResults<Campaign> results = realm.where(Campaign.class).findAll();
-          results.clear();
+          results.deleteAllFromRealm();
           realm.commitTransaction();
           Toast.makeText(this, R.string.campaign_left_message, Toast.LENGTH_SHORT).show();
         } catch (Exception exception) {
@@ -370,20 +370,23 @@ public final class BackgroundSensorService extends IntentService {
 
   @Override
   public IBinder onBind(final Intent intent) {
+
     Log.d("BackgroundSensorService", "BackgroundSensorService onBind() called");
+
     return messenger.getBinder();
   }
 
   @Override
   public int onStartCommand(final Intent intent, final int flags, final int startId) {
-    Log.d("BackgroundSensorService", "BackgroundSensorService onStartCommand() called");
 
+    Log.d("BackgroundSensorService", "BackgroundSensorService onStartCommand() called");
 
     return START_STICKY;
   }
 
   @Override
   public void onDestroy() {
+
     Log.d("BackgroundSensorService", "BackgroundSensorService onDestroy() called");
     sensorThreadPool.shutdown();
     snapshotTimer.stop();
@@ -397,11 +400,9 @@ public final class BackgroundSensorService extends IntentService {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-    System.out.println("Exiting normally...");
 
     System.out.println("Exiting normally...");
-
-
+    System.out.println("Exiting normally...");
   }
 
   private static int getNumberOfSensorProviders() {
@@ -441,6 +442,7 @@ public final class BackgroundSensorService extends IntentService {
   }
 
   private class RealmSetupRunnable implements Runnable {
+
     @Override
     public void run() {
 
