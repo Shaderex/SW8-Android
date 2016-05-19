@@ -262,7 +262,7 @@ public class Campaign extends RealmObject implements JsonObjectAble {
     Log.d(logTag, "measurementFrequency: " + this.getMeasurementFrequency());
     Log.d(logTag, "campaignLength: " + this.getCampaignLength());
     Log.d(logTag, "questionnairePlacement: " + this.getQuestionnairePlacement());
-    
+
     if (this.getQuestionnaire() != null) {
       String questions = "";
       for (Question question : this.getQuestionnaire().getQuestions()) {
