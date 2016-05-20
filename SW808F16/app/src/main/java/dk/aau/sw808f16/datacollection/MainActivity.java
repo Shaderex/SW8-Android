@@ -176,8 +176,8 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
     @Override
     protected void onPostExecute(String result) {
       hallonuerviherlige = false;
-      Log.d(debug, "Så må du noget igen! " + new Random().nextInt(100));
-      Toast.makeText(MainActivity.this, "Så må du noget igen! " + new Random().nextInt(100), Toast.LENGTH_LONG).show();
+      Log.d(debug, "Activity registered!");
+      Toast.makeText(MainActivity.this, "Activity registered!", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -262,7 +262,6 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
     final Button jumpButton = (Button) findViewById(R.id.jumpbutton);
     final Button sitButton = (Button) findViewById(R.id.sitbutton);
-    final Button dataKnap = (Button) findViewById(R.id.dataknap);
     final Button trainButton = (Button) findViewById(R.id.trainbutton);
     final Button guessButton = (Button) findViewById(R.id.guessbutton);
 
@@ -291,14 +290,6 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
         LongOperation longOperation = new LongOperation();
         longOperation.execute("sit");
-      }
-    });
-
-    assert dataKnap != null;
-    dataKnap.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        Object data = accSamples;
       }
     });
 
@@ -370,6 +361,14 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
         };
 
         new Thread(runnable).start();
+
+        try {
+          Thread.sleep(1000);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+
+        Toast.makeText(MainActivity.this, "Training finished", Toast.LENGTH_SHORT).show();
       }
     });
 
