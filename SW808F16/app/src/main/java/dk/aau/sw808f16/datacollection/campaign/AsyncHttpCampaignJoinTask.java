@@ -28,9 +28,9 @@ public class AsyncHttpCampaignJoinTask extends AsyncHttpWebbTask<JSONObject> {
   final long campaignIdToRegister;
 
   public AsyncHttpCampaignJoinTask(final Context context, final long campaignIdToRegister) {
-    super(AsyncHttpWebbTask.Method.POST, RequestHostResolver.resolveHostForRequest(context, "/campaigns/" + campaignIdToRegister + "/participants"), HttpURLConnection.HTTP_OK);
-
+    super(AsyncHttpWebbTask.Method.POST, RequestHostResolver.resolveHostForRequest(context, "/campaigns/" + campaignIdToRegister + "/participants"), HttpURLConnection.HTTP_OK, context);
     weakContextReference = new WeakReference<>(context);
+
     this.campaignIdToRegister = campaignIdToRegister;
   }
 
