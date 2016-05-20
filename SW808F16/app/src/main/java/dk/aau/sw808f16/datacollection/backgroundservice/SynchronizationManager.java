@@ -29,7 +29,7 @@ import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
 
-public class SynchronizationTimer {
+public class SynchronizationManager {
 
   private Context context;
   private static final long INITIAL_SYNC_DELAY = 1000;
@@ -37,7 +37,7 @@ public class SynchronizationTimer {
   private static boolean isRunning = false;
   private final Timer timer = new Timer();
 
-  public SynchronizationTimer(final Context context, long synchronizationInterval) {
+  public SynchronizationManager(final Context context, long synchronizationInterval) {
     this.context = context;
     this.synchronizationInterval = synchronizationInterval;
   }

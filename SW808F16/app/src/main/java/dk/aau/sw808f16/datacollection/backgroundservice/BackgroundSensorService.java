@@ -1,6 +1,6 @@
 package dk.aau.sw808f16.datacollection.backgroundservice;
 
-import android.app.IntentService;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.SensorManager;
@@ -57,7 +57,7 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
 
-public final class BackgroundSensorService extends IntentService {
+public final class BackgroundSensorService extends Service {
 
   public static final int NOTIFY_NEW_CAMPAIGN = 1337;
   public static final int NOTIFY_QUESTIONNAIRE_COMPLETED = 31337;
@@ -95,16 +95,12 @@ public final class BackgroundSensorService extends IntentService {
   private HeartbeatSensorProviderBand heartbeatSensorProviderBand;
 
   private SnapshotTimer snapshotTimer;
-  private SynchronizationTimer synchronizationTimer;
+  private SynchronizationManager synchronizationTimer;
 
   private ConnectivityManager.OnNetworkActiveListener networkActiveListener;
   private ConnectivityManager connectivityManager;
 
   private HandlerThread handlerThread;
-
-  public BackgroundSensorService() {
-    super("BackgroundSensorService");
-  }
 
   @Override
   public void onCreate() {
@@ -139,7 +135,7 @@ public final class BackgroundSensorService extends IntentService {
     heartbeatSensorProviderBand = new HeartbeatSensorProviderBand(BackgroundSensorService.this, sensorThreadPool, sensorManager);
 
     snapshotTimer = new SnapshotTimer(BackgroundSensorService.this, getSensorProviders());
-    synchronizationTimer = new SynchronizationTimer(BackgroundSensorService.this, SYNCHRONIZATION_INTERVAL_IN_SECONDS);
+    synchronizationTimer = new SynchronizationManager(BackgroundSensorService.this, SYNCHRONIZATION_INTERVAL_IN_SECONDS);
 
     // Start up the handlerThread running the service.  Note that we create a
     // separate handlerThread because the service normally runs in the process's
@@ -193,7 +189,7 @@ public final class BackgroundSensorService extends IntentService {
         .encryptionKey(encryptionKey)
         .build();
 
-    Log.d("BackgroundSensorService", bytesToHex(encryptionKey));
+    Log.d("KEY", "Key: " + bytesToHex(encryptionKey));
 
     Realm.setDefaultConfiguration(realmConfiguration);
 
@@ -295,6 +291,8 @@ public final class BackgroundSensorService extends IntentService {
           realm.commitTransaction();
           Toast.makeText(this, R.string.campaign_left_message, Toast.LENGTH_SHORT).show();
         } catch (Exception exception) {
+          Log.e("BackgroundSensorService", "Exception while performing Realm Transaction");
+          exception.printStackTrace();
           realm.cancelTransaction();
           throw exception;
         }
@@ -343,6 +341,8 @@ public final class BackgroundSensorService extends IntentService {
           questionnaire = realm.copyToRealm(questionnaire);
           realm.commitTransaction();
         } catch (Exception exception) {
+          Log.e("BackgroundSensorService", "Exception while performing Realm Transaction");
+          exception.printStackTrace();
           realm.cancelTransaction();
           throw exception;
         }
@@ -352,6 +352,8 @@ public final class BackgroundSensorService extends IntentService {
           realm.copyToRealmOrUpdate(snapshot);
           realm.commitTransaction();
         } catch (Exception exception) {
+          Log.e("BackgroundSensorService", "Exception while performing Realm Transaction");
+          exception.printStackTrace();
           realm.cancelTransaction();
           throw exception;
         }
@@ -365,11 +367,6 @@ public final class BackgroundSensorService extends IntentService {
   }
 
   @Override
-  protected void onHandleIntent(final Intent intent) {
-
-  }
-
-  @Override
   public IBinder onBind(final Intent intent) {
 
     Log.d("BackgroundSensorService", "BackgroundSensorService onBind() called");
@@ -379,6 +376,7 @@ public final class BackgroundSensorService extends IntentService {
 
   @Override
   public int onStartCommand(final Intent intent, final int flags, final int startId) {
+    super.onStartCommand(intent, flags, startId);
 
     Log.d("BackgroundSensorService", "BackgroundSensorService onStartCommand() called");
 

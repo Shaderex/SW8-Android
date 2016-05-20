@@ -112,7 +112,7 @@ public class QuestionnaireActivity extends Activity {
 
   private void bindToResponder() {
     final Intent serviceIntent = new Intent(this, BackgroundSensorService.class);
-    bindService(serviceIntent, mConnection, Context.BIND_NOT_FOREGROUND);
+    bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE);
   }
 
   private ServiceConnection mConnection = new ServiceConnection() {

@@ -299,7 +299,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
   private void bindToResponder() {
     final Intent serviceIntent = new Intent(this, BackgroundSensorService.class);
-    bindService(serviceIntent, serviceConnection, Context.BIND_ABOVE_CLIENT);
+    bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
   }
 
   private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -413,6 +413,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
     // Unbind from the service
     if (isBoundToResponder && serviceConnection != null) {
       unbindService(serviceConnection);
+      Log.d("MainActivity", "UNBIND!!!");
       isBoundToResponder = false;
     }
   }
