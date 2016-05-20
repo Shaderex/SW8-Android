@@ -54,7 +54,6 @@ import dk.aau.sw808f16.datacollection.snapshot.Snapshot;
 import dk.aau.sw808f16.datacollection.webutil.AsyncHttpWebbTask;
 import dk.aau.sw808f16.datacollection.webutil.RequestHostResolver;
 import io.realm.Realm;
-import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
 
 public final class BackgroundSensorService extends IntentService {
@@ -188,44 +187,6 @@ public final class BackgroundSensorService extends IntentService {
 
   private void setupRealmAndStartTimers() {
 
-    final RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(BackgroundSensorService.this)
-        .name(REALM_NAME)
-        .encryptionKey(encryptionKey)
-        .build();
-
-    Log.d("BackgroundSensorService", bytesToHex(encryptionKey));
-
-    Realm.setDefaultConfiguration(realmConfiguration);
-
-    // Check if device is subscribed to a campaign and then continue that campaign
-
-    Realm realm = null;
-    try {
-      realm = Realm.getDefaultInstance();
-
-      final Campaign campaign = realm.where(Campaign.class).findFirst();
-
-      if (campaign != null) {
-        serviceHandler.post(new Runnable() {
-          @Override
-          public void run() {
-            snapshotTimer.start();
-          }
-        });
-      }
-    } finally {
-      if (realm != null) {
-        realm.close();
-      }
-    }
-
-    // Start the sync of snapshots
-    serviceHandler.post(new Runnable() {
-      @Override
-      public void run() {
-        synchronizationTimer.start();
-      }
-    });
   }
 
   private final class ServiceHandler extends Handler {

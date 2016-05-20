@@ -6,10 +6,12 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.graphics.Color;
+import android.hardware.SensorManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
@@ -24,8 +26,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -36,15 +38,35 @@ import com.microsoft.band.BandClientManager;
 import com.microsoft.band.BandException;
 import com.microsoft.band.BandInfo;
 import com.microsoft.band.ConnectionState;
-import com.microsoft.band.UserConsent;
 import com.microsoft.band.sensors.HeartRateConsentListener;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import dk.aau.sw808f16.datacollection.backgroundservice.BackgroundSensorService;
+import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AccelerometerSensorProvider;
+import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.GyroscopeSensorProvider;
 import dk.aau.sw808f16.datacollection.fragment.CampaignJoinFragment;
 import dk.aau.sw808f16.datacollection.fragment.PrivateCampaignFragment;
 import dk.aau.sw808f16.datacollection.fragment.PublicCampaignFragment;
-import dk.aau.sw808f16.datacollection.fragment.StartFragment;
+import dk.aau.sw808f16.datacollection.snapshot.JsonValueAble;
+import dk.aau.sw808f16.datacollection.snapshot.Sample;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
 import dk.aau.sw808f16.datacollection.webutil.CampaignRegistrator;
+import weka.classifiers.Classifier;
+import weka.classifiers.Evaluation;
+import weka.classifiers.bayes.NaiveBayes;
+import weka.core.Attribute;
+import weka.core.FastVector;
+import weka.core.Instance;
+import weka.core.Instances;
 
 public class MainActivity extends ActionBarActivity implements HeartRateConsentListener, CampaignRegistrator {
 
@@ -107,6 +129,130 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
   private boolean isBoundToResponder = false;
   private Messenger serviceMessenger = null;
 
+  final String debug = "WEKA";
+
+  private boolean hallonuerviherlige = false;
+
+  private AccelerometerSensorProvider accelerometerSensorProvider;
+  private GyroscopeSensorProvider gyroscopeSensorProvider;
+
+  private HashMap<String, List<Sample>> accSamples = new HashMap<>();
+
+  private Classifier classifier = (Classifier) new NaiveBayes();
+  Evaluation eTest = null;
+  Instances isTrainingSet;
+  FastVector fvWekaAttributes;
+
+  private class LongOperation extends AsyncTask<String, Void, String> {
+
+    @Override
+    protected String doInBackground(String... params) {
+      hallonuerviherlige = true;
+
+      final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(2);
+      final SensorManager sensorManager = (SensorManager) getApplicationContext().getSystemService(SENSOR_SERVICE);
+      accelerometerSensorProvider = new AccelerometerSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
+      gyroscopeSensorProvider = new GyroscopeSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
+
+      int[] tid = {3000, 3000, 3000, 100};
+
+      Future<List<Sample>> data1 = accelerometerSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
+      Future<List<Sample>> data2 = gyroscopeSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
+
+      try {
+        if (accSamples.get(params[0]) == null) {
+          accSamples.put(params[0], new ArrayList<Sample>());
+        }
+
+        accSamples.get(params[0]).addAll(data1.get()); // Only 1 element in this list
+
+      } catch (InterruptedException | ExecutionException exception) {
+        exception.printStackTrace();
+      }
+
+      return "Executed";
+    }
+
+    @Override
+    protected void onPostExecute(String result) {
+      hallonuerviherlige = false;
+      Log.d(debug, "Så må du noget igen! " + new Random().nextInt(100));
+      Toast.makeText(MainActivity.this, "Så må du noget igen! " + new Random().nextInt(100), Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    protected void onPreExecute() {
+    }
+
+    @Override
+    protected void onProgressUpdate(Void... values) {
+    }
+  }
+
+  private class MoveBody extends AsyncTask<String, Void, Sample> {
+
+    @Override
+    protected Sample doInBackground(String... params) {
+      final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(2);
+      final SensorManager sensorManager = (SensorManager) getApplicationContext().getSystemService(SENSOR_SERVICE);
+      accelerometerSensorProvider = new AccelerometerSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
+      gyroscopeSensorProvider = new GyroscopeSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
+
+      int[] tid = {3000, 3000, 3000, 100};
+
+      Future<List<Sample>> data1 = accelerometerSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
+      Future<List<Sample>> data2 = gyroscopeSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
+
+      try {
+        final Sample sample = data1.get().get(0);
+        return sample;
+      } catch (InterruptedException | ExecutionException exception) {
+        exception.printStackTrace();
+      }
+
+      return null;
+    }
+
+    @Override
+    protected void onPostExecute(Sample result) {
+      Log.d(debug, "Tak fordi du flyttede din krop " + new Random().nextInt(100));
+
+      Instance test = new Instance(result.getMeasurements().size() * 3);
+      test.setDataset(isTrainingSet);
+
+      int i = 0;
+
+      for (final JsonValueAble measurement : result.getMeasurements()) {
+        final FloatTripleMeasurement floatTripleMeasurement = (FloatTripleMeasurement) measurement;
+
+        Log.d(debug, "SÅ MANGE DATA2: " + i);
+        test.setValue((Attribute) fvWekaAttributes.elementAt(i), floatTripleMeasurement.getFirstValue());
+        test.setValue((Attribute) fvWekaAttributes.elementAt(i + 1), floatTripleMeasurement.getSecondValue());
+        test.setValue((Attribute) fvWekaAttributes.elementAt(i + 2), floatTripleMeasurement.getThirdValue());
+
+        i += 3;
+      }
+
+
+      try {
+        double[] fDistribution = classifier.distributionForInstance(test);
+        Log.d(debug, Arrays.toString(fDistribution));
+
+        Toast.makeText(MainActivity.this, Arrays.toString(fDistribution), Toast.LENGTH_LONG).show();
+
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    @Override
+    protected void onPreExecute() {
+    }
+
+    @Override
+    protected void onProgressUpdate(Void... values) {
+    }
+  }
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
@@ -114,82 +260,130 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
     setContentView(R.layout.activity_main);
 
-    final FragmentManager fragmentManager = getSupportFragmentManager();
+    final Button jumpButton = (Button) findViewById(R.id.jumpbutton);
+    final Button sitButton = (Button) findViewById(R.id.sitbutton);
+    final Button dataKnap = (Button) findViewById(R.id.dataknap);
+    final Button trainButton = (Button) findViewById(R.id.trainbutton);
+    final Button guessButton = (Button) findViewById(R.id.guessbutton);
 
-    fragmentManager.beginTransaction()
-        .replace(R.id.content_frame_layout, StartFragment.newInstance(), START_FRAGMENT_KEY).commit();
-
-    final Thread getConsent = new Thread(new Runnable() {
+    assert jumpButton != null;
+    jumpButton.setOnClickListener(new View.OnClickListener() {
       @Override
-      public void run() {
-        try {
-          getConnectedBandClient();
-
-          Log.d("BAND", "bandClient:" + (bandClient == null ? "NULL" : bandClient.toString()));
-
-          if (bandClient != null && bandClient.getSensorManager().getCurrentHeartRateConsent() != UserConsent.GRANTED) {
-            // user has not consented, request consent
-            // the calling class is an Activity and implements
-            // HeartRateConsentListener
-            Log.d("BAND", "ASK FOR CONSENT");
-            bandClient.getSensorManager().requestHeartRateConsent(MainActivity.this, MainActivity.this);
-          }
-
-          bandClient = null;
-        } catch (InterruptedException | BandException exception) {
-          exception.printStackTrace();
+      public void onClick(View view) {
+        if (hallonuerviherlige) {
+          Log.d(debug, "Det var for fast!");
+          return;
         }
+
+        LongOperation longOperation = new LongOperation();
+        longOperation.execute("jump");
       }
     });
 
-    getConsent.start();
-
-    drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-    drawerToggle = new ActionBarDrawerToggle(
-        this,                  /* host Activity */
-        drawerLayout,         /* DrawerLayout object */
-        R.string.open,  /* "open drawer" description */
-        R.string.close  /* "close drawer" description */
-    ) {
-
+    assert sitButton != null;
+    sitButton.setOnClickListener(new View.OnClickListener() {
       @Override
-      public void onDrawerSlide(View drawerView, float slideOffset) {
-        super.onDrawerSlide(drawerView, slideOffset);
-      }
+      public void onClick(View view) {
+        if (hallonuerviherlige) {
+          Log.d(debug, "Det var for fast!");
+          return;
+        }
 
-      /** Called when a drawer has settled in a completely closed state. */
-      public void onDrawerClosed(View view) {
-        super.onDrawerClosed(view);
-      }
-
-      /** Called when a drawer has settled in a completely open state. */
-      public void onDrawerOpened(View drawerView) {
-        super.onDrawerOpened(drawerView);
-      }
-    };
-
-    // Set the drawer toggle as the DrawerListener
-    drawerLayout.setDrawerListener(drawerToggle);
-    drawerLayout.setScrimColor(Color.TRANSPARENT);
-
-    final ListView listView = (ListView) drawerLayout.findViewById(R.id.left_drawer);
-    listView.setAdapter(new DrawerButtonsAdapter());
-
-    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-      @Override
-      public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
-        drawerLayout.closeDrawers();
-        ((DrawerMenuItems) (parent.getAdapter()).getItem(position)).open(MainActivity.this);
-
+        LongOperation longOperation = new LongOperation();
+        longOperation.execute("sit");
       }
     });
 
-    if (getSupportActionBar() != null) {
-      getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-      getSupportActionBar().setHomeButtonEnabled(true);
-    }
+    assert dataKnap != null;
+    dataKnap.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        Object data = accSamples;
+      }
+    });
 
-    bindToResponder();
+    assert trainButton != null;
+    trainButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        Log.d(debug, "Training Weka...");
+
+        final Runnable runnable = new Runnable() {
+          @Override
+          public void run() {
+
+            // Make attributes
+            fvWekaAttributes = new FastVector(91);
+            for (int i = 0; i < 30; i++) {
+              for (int j = 0; j < 3; j++) {
+                fvWekaAttributes.addElement(new Attribute("acc" + i + "-" + j));
+              }
+            }
+
+            // Make class
+            final FastVector fvClassVal = new FastVector(accSamples.keySet().size());
+            for (final String key : accSamples.keySet()) {
+              fvClassVal.addElement(key);
+            }
+            Attribute classAttribute = new Attribute("class", fvClassVal);
+            fvWekaAttributes.addElement(classAttribute);
+
+            // Specify how to train your dragon
+            isTrainingSet = new Instances("Rel", fvWekaAttributes, 10);
+            isTrainingSet.setClassIndex(fvWekaAttributes.size() - 1); // The class is the last
+
+            Log.d(debug, "Training scheme generated");
+
+            int i = 0;
+            for (final String clazz : accSamples.keySet()) {
+              for (final Sample sample : accSamples.get(clazz)) {
+                i = 0;
+
+                final Instance iExample = new Instance(fvWekaAttributes.size());
+
+                for (final JsonValueAble measurement : sample.getMeasurements()) {
+                  final FloatTripleMeasurement floatTripleMeasurement = (FloatTripleMeasurement) measurement;
+
+                  iExample.setValue((Attribute) fvWekaAttributes.elementAt(i), floatTripleMeasurement.getFirstValue());
+                  iExample.setValue((Attribute) fvWekaAttributes.elementAt(i + 1), floatTripleMeasurement.getSecondValue());
+                  iExample.setValue((Attribute) fvWekaAttributes.elementAt(i + 2), floatTripleMeasurement.getThirdValue());
+
+                  i += 3;
+                }
+
+                Log.d(debug, "SÅ MANGE DATA: " + i);
+
+                iExample.setValue((Attribute) fvWekaAttributes.elementAt(i), clazz);
+                isTrainingSet.add(iExample);
+              }
+            }
+
+            try {
+              classifier.buildClassifier(isTrainingSet);
+
+              Log.d(debug, "Your training is complete young padawan");
+            } catch (Exception exception) {
+              Log.d(debug, "Your training FAILED completely young padawan");
+              exception.printStackTrace();
+            }
+          }
+        };
+
+        new Thread(runnable).start();
+      }
+    });
+
+    assert guessButton != null;
+    guessButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        Log.d(debug, "Weka is analysing.. Please move your body");
+
+        MoveBody moveBody = new MoveBody();
+        moveBody.execute("");
+      }
+    });
+
   }
 
   public class DrawerButtonsAdapter extends BaseAdapter {
@@ -253,7 +447,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
     super.onPostCreate(savedInstanceState);
 
     // Sync the toggle state after onRestoreInstanceState has occurred.
-    drawerToggle.syncState();
+    // drawerToggle.syncState();
   }
 
   @Override
