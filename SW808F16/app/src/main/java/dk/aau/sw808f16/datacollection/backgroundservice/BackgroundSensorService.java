@@ -324,6 +324,7 @@ public final class BackgroundSensorService extends IntentService {
         snapshotTimer.start();
       }
     };
+
     joinCampaignTask.execute();
   }
 
@@ -403,6 +404,7 @@ public final class BackgroundSensorService extends IntentService {
 
     System.out.println("Exiting normally...");
     System.out.println("Exiting normally...");
+
   }
 
   private static int getNumberOfSensorProviders() {

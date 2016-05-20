@@ -157,8 +157,6 @@ public class UploadManagementService extends GcmTaskService {
           }
         }
 
-
-
         return GcmNetworkManager.RESULT_SUCCESS;
       default:
         return GcmNetworkManager.RESULT_FAILURE;

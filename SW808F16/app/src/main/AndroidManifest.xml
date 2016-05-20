@@ -47,6 +47,7 @@
 
         <activity
             android:name=".MainActivity"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <intent-filter>
@@ -68,6 +69,7 @@
         <service
             android:name=".backgroundservice.BackgroundSensorService"
             android:process=":backgroundSensorService"
+
             android:exported="false">
         </service>
         <service
