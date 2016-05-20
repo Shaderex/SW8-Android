@@ -137,7 +137,7 @@ public class UploadManagementService extends GcmTaskService {
           final long requestTimestamp = System.currentTimeMillis();
 
           // Send the campaign to the server
-          final AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, requestUrl, HttpURLConnection.HTTP_OK) {
+          final AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST, requestUrl, HttpURLConnection.HTTP_OK, this) {
 
             @Override
             protected Response<String> sendRequest(final Request webb) {

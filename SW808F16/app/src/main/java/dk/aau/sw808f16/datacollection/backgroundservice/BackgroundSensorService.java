@@ -451,7 +451,8 @@ public final class BackgroundSensorService extends Service {
 
       final AsyncHttpWebbTask<byte[]> keyTask = new AsyncHttpWebbTask<byte[]>(AsyncHttpWebbTask.Method.GET,
           encryptionKeyResourcePath,
-          HttpURLConnection.HTTP_OK) {
+          HttpURLConnection.HTTP_OK,
+          BackgroundSensorService.this) {
 
         @Override
         protected Response<byte[]> sendRequest(Request request) {

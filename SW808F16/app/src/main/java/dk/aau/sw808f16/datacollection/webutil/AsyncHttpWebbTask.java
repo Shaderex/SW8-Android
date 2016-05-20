@@ -1,7 +1,7 @@
 package dk.aau.sw808f16.datacollection.webutil;
 
+import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.goebl.david.Request;
 import com.goebl.david.Response;
@@ -9,86 +9,55 @@ import com.goebl.david.RetryManager;
 import com.goebl.david.Webb;
 import com.goebl.david.WebbException;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+
+import dk.aau.sw808f16.datacollection.R;
 
 public abstract class AsyncHttpWebbTask<ResultT> extends AsyncTask<Void, Void, Response<ResultT>> {
 
+  private static TrustManagerFactory trustManagerFactory;
   private final Method method;
   private final String url;
   private final Webb webb;
+  private final WeakReference<Context> context;
   private int expectedResponseCode;
 
-  public AsyncHttpWebbTask(final Method method, final String url, final int expectedResponseCode) {
+  public AsyncHttpWebbTask(final Method method, final String url, final int expectedResponseCode, Context context) {
     this.url = url;
     this.webb = Webb.create();
     this.expectedResponseCode = expectedResponseCode;
     this.method = method;
+    this.context = new WeakReference<Context>(context);
   }
 
   @Override
   protected Response<ResultT> doInBackground(Void... params) {
 
-    final TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
-
-      public X509Certificate[] getAcceptedIssuers() {
-        return null;
-      }
-
-      @Override
-      public void checkClientTrusted(final X509Certificate[] arg0, final String arg1) throws CertificateException {
-        // Not implemented
-      }
-
-      @Override
-      public void checkServerTrusted(final X509Certificate[] arg0, final String arg1) throws CertificateException {
-        // Not implemented
-      }
-    }
-    };
-
     try {
       final SSLContext sc = SSLContext.getInstance("TLS");
-      sc.init(null, trustAllCerts, new java.security.SecureRandom());
+      sc.init(null, getTrustManagerFactory(context).getTrustManagers(), new java.security.SecureRandom());
       webb.setSSLSocketFactory(sc.getSocketFactory());
     } catch (KeyManagementException | NoSuchAlgorithmException exception) {
       exception.printStackTrace();
     }
 
-    webb.setHostnameVerifier(new HostnameVerifier() {
-      @Override
-      public boolean verify(String hostname, SSLSession session) {
-        Log.e("HOSTNAME", hostname);
-
-
-        String[] domains = {
-            "dev.local.element67.dk",
-            "dev.global.element67.dk",
-            "prod.local.element67.dk",
-            "prod.global.element67.dk"
-        };
-
-        for (String domain : domains) {
-          if (domain.equals(hostname)) {
-            return true;
-          }
-        }
-
-        return false;
-      }
-    });
-
     webb.setRetryManager(new RetryManager());
 
-    webb.setDefaultHeader("X-Requested-With", "XMLHttpRequest");
+    webb.setDefaultHeader("Accept", "application/json");
 
     if (isCancelled()) {
       return null;
@@ -134,6 +103,46 @@ public abstract class AsyncHttpWebbTask<ResultT> extends AsyncTask<Void, Void, R
   public abstract void onResponseCodeNotMatching(Response<ResultT> response);
 
   public abstract void onConnectionFailure();
+
+  public static synchronized TrustManagerFactory getTrustManagerFactory(WeakReference<Context> context) {
+    if (trustManagerFactory == null) {
+      try {
+        // Found at: https://developer.android.com/training/articles/security-ssl.html#SelfSigned
+        // Load CAs from an InputStream
+        // (could be from a resource or ByteArrayInputStream or ...)
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+
+        // From https://www.washington.edu/itconnect/security/ca/load-der.crt
+        InputStream caInput = new BufferedInputStream(context.get().getResources().openRawResource(R.raw.nginx));
+        Certificate ca;
+        try {
+          ca = cf.generateCertificate(caInput);
+        } finally {
+          caInput.close();
+        }
+
+        // Create a KeyStore containing our trusted CAs
+        String keyStoreType = KeyStore.getDefaultType();
+        KeyStore keyStore = KeyStore.getInstance(keyStoreType);
+        keyStore.load(null, null);
+        keyStore.setCertificateEntry("ca", ca);
+
+        // Create a TrustManager that trusts the CAs in our KeyStore
+        String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+        trustManagerFactory = TrustManagerFactory.getInstance(tmfAlgorithm);
+        trustManagerFactory.init(keyStore);
+      } catch (CertificateException e) {
+        e.printStackTrace();
+      } catch (NoSuchAlgorithmException e) {
+        e.printStackTrace();
+      } catch (IOException e) {
+        e.printStackTrace();
+      } catch (KeyStoreException e) {
+        e.printStackTrace();
+      }
+    }
+    return trustManagerFactory;
+  }
 
   public enum Method {
     POST,

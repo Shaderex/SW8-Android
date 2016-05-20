@@ -90,7 +90,8 @@ public class RegistrationIntentService extends IntentService {
 
     final AsyncHttpWebbTask<String> task = new AsyncHttpWebbTask<String>(AsyncHttpWebbTask.Method.POST,
         request,
-        HttpURLConnection.HTTP_OK) {
+        HttpURLConnection.HTTP_OK,
+        this) {
       @Override
       protected Response<String> sendRequest(final Request webb) {
 

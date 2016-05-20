@@ -116,7 +116,8 @@ public class PublicCampaignFragment extends Fragment
 
     currentGetCampaignsTask = new AsyncHttpWebbTask<JSONArray>(AsyncHttpWebbTask.Method.GET,
         campaignListResourcePath,
-        HttpURLConnection.HTTP_OK) {
+        HttpURLConnection.HTTP_OK,
+        this.getActivity()) {
 
       final JsonCampaignsAdapter adapter = new JsonCampaignsAdapter();
 

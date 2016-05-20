@@ -19,7 +19,7 @@ public abstract class AsyncHttpGetCampaignSpecificationTask extends AsyncHttpWeb
   public AsyncHttpGetCampaignSpecificationTask(final Context context, final long campaignId) {
 
     super(AsyncHttpWebbTask.Method.GET,
-        RequestHostResolver.resolveHostForRequest(context, "/campaigns/" + campaignId), HttpURLConnection.HTTP_OK);
+        RequestHostResolver.resolveHostForRequest(context, "/campaigns/" + campaignId), HttpURLConnection.HTTP_OK, context);
   }
 
   @Override
