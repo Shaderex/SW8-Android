@@ -22,7 +22,7 @@ public class StartFragment extends Fragment {
     view.findViewById(R.id.browse_campaign_button).setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        MainActivity.DrawerMenuItems.PUBLIC_CAMPAIGNS.open((MainActivity) view.getContext());
+        MainActivity.DrawerMenuItems.PUBLIC_CAMPAIGNS.open((MainActivity) getActivity());
       }
     });
 
