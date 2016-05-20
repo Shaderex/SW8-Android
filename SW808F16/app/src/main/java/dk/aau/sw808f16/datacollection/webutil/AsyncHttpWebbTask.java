@@ -107,6 +107,7 @@ public abstract class AsyncHttpWebbTask<ResultT> extends AsyncTask<Void, Void, R
   public static synchronized TrustManagerFactory getTrustManagerFactory(WeakReference<Context> context) {
     if (trustManagerFactory == null) {
       try {
+        // Found at: https://developer.android.com/training/articles/security-ssl.html#SelfSigned
         // Load CAs from an InputStream
         // (could be from a resource or ByteArrayInputStream or ...)
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -116,7 +117,6 @@ public abstract class AsyncHttpWebbTask<ResultT> extends AsyncTask<Void, Void, R
         Certificate ca;
         try {
           ca = cf.generateCertificate(caInput);
-          System.out.println("ca=" + ((X509Certificate) ca).getSubjectDN());
         } finally {
           caInput.close();
         }
