@@ -53,6 +53,7 @@ public class SynchronizationManager {
           .setUpdateCurrent(true)
           .setRequiredNetwork(Task.NETWORK_STATE_UNMETERED)
           .setTag(UploadManagementService.CAMPAIGN_SYNCHRONIZATION_TAG)
+          .setPersisted(false)
           .build();
 
       GcmNetworkManager.getInstance(context).schedule(myTask);
