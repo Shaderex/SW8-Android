@@ -11,7 +11,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
@@ -52,16 +51,17 @@ import java.util.concurrent.Future;
 
 import dk.aau.sw808f16.datacollection.backgroundservice.BackgroundSensorService;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.AccelerometerSensorProvider;
+import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.CompassSensorProvider;
 import dk.aau.sw808f16.datacollection.backgroundservice.sensorproviders.GyroscopeSensorProvider;
 import dk.aau.sw808f16.datacollection.fragment.CampaignJoinFragment;
 import dk.aau.sw808f16.datacollection.fragment.PrivateCampaignFragment;
 import dk.aau.sw808f16.datacollection.fragment.PublicCampaignFragment;
 import dk.aau.sw808f16.datacollection.snapshot.JsonValueAble;
 import dk.aau.sw808f16.datacollection.snapshot.Sample;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatMeasurement;
 import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
 import dk.aau.sw808f16.datacollection.webutil.CampaignRegistrator;
 import weka.classifiers.Classifier;
-import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayes;
 import weka.core.Attribute;
 import weka.core.FastVector;
@@ -133,13 +133,9 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
   private boolean hallonuerviherlige = false;
 
-  private AccelerometerSensorProvider accelerometerSensorProvider;
-  private GyroscopeSensorProvider gyroscopeSensorProvider;
-
-  private HashMap<String, List<Sample>> accSamples = new HashMap<>();
+  private HashMap<String, List<Sample>> samplesMap = new HashMap<>();
 
   private Classifier classifier = (Classifier) new NaiveBayes();
-  Evaluation eTest = null;
   Instances isTrainingSet;
   FastVector fvWekaAttributes;
 
@@ -149,35 +145,16 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
     protected String doInBackground(String... params) {
       hallonuerviherlige = true;
 
-      final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(2);
-      final SensorManager sensorManager = (SensorManager) getApplicationContext().getSystemService(SENSOR_SERVICE);
-      accelerometerSensorProvider = new AccelerometerSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
-      gyroscopeSensorProvider = new GyroscopeSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
+      // HER PUTTER DU BARE TING IND I samplesMap
 
-      int[] tid = {3000, 3000, 3000, 100};
-
-      Future<List<Sample>> data1 = accelerometerSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
-      Future<List<Sample>> data2 = gyroscopeSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
-
-      try {
-        if (accSamples.get(params[0]) == null) {
-          accSamples.put(params[0], new ArrayList<Sample>());
-        }
-
-        accSamples.get(params[0]).addAll(data1.get()); // Only 1 element in this list
-
-      } catch (InterruptedException | ExecutionException exception) {
-        exception.printStackTrace();
-      }
-
-      return "Executed";
+      return "!";
     }
 
     @Override
     protected void onPostExecute(String result) {
       hallonuerviherlige = false;
-      Log.d(debug, "Activity registered!");
-      Toast.makeText(MainActivity.this, "Activity registered!", Toast.LENGTH_LONG).show();
+      Log.d(debug, "Results Fetched!");
+      Toast.makeText(MainActivity.this, "Results Fetched!", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -193,18 +170,25 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
     @Override
     protected Sample doInBackground(String... params) {
-      final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(2);
+      final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(3);
       final SensorManager sensorManager = (SensorManager) getApplicationContext().getSystemService(SENSOR_SERVICE);
-      accelerometerSensorProvider = new AccelerometerSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
-      gyroscopeSensorProvider = new GyroscopeSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
 
-      int[] tid = {3000, 3000, 3000, 100};
+      AccelerometerSensorProvider accelerometerSensorProvider = new AccelerometerSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
+      GyroscopeSensorProvider gyroscopeSensorProvider = new GyroscopeSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
+      CompassSensorProvider compassSensorProvider = new CompassSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
+
+      int[] tid = {10 * 1000, 10 * 1000, 10 * 1000, 200};
 
       Future<List<Sample>> data1 = accelerometerSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
       Future<List<Sample>> data2 = gyroscopeSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
+      Future<List<Sample>> data3 = compassSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
 
       try {
-        final Sample sample = data1.get().get(0);
+        final Sample sample = Sample.Create();
+        sample.addMeasurements(data1.get().get(0).getMeasurements());
+        sample.addMeasurements(data2.get().get(0).getMeasurements());
+        sample.addMeasurements(data3.get().get(0).getMeasurements());
+
         return sample;
       } catch (InterruptedException | ExecutionException exception) {
         exception.printStackTrace();
@@ -217,31 +201,36 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
     protected void onPostExecute(Sample result) {
       Log.d(debug, "Tak fordi du flyttede din krop " + new Random().nextInt(100));
 
-      Instance test = new Instance(result.getMeasurements().size() * 3);
+      Instance test = new Instance(150 + 150 + 50);
       test.setDataset(isTrainingSet);
 
       int i = 0;
 
       for (final JsonValueAble measurement : result.getMeasurements()) {
-        final FloatTripleMeasurement floatTripleMeasurement = (FloatTripleMeasurement) measurement;
+        if (measurement instanceof FloatTripleMeasurement) {
+          Log.d(debug, "Added FloatTripleMeasurement");
+          final FloatTripleMeasurement floatTripleMeasurement = (FloatTripleMeasurement) measurement;
+          test.setValue((Attribute) fvWekaAttributes.elementAt(i), floatTripleMeasurement.getFirstValue());
+          test.setValue((Attribute) fvWekaAttributes.elementAt(i + 1), floatTripleMeasurement.getSecondValue());
+          test.setValue((Attribute) fvWekaAttributes.elementAt(i + 2), floatTripleMeasurement.getThirdValue());
 
-        Log.d(debug, "SÅ MANGE DATA2: " + i);
-        test.setValue((Attribute) fvWekaAttributes.elementAt(i), floatTripleMeasurement.getFirstValue());
-        test.setValue((Attribute) fvWekaAttributes.elementAt(i + 1), floatTripleMeasurement.getSecondValue());
-        test.setValue((Attribute) fvWekaAttributes.elementAt(i + 2), floatTripleMeasurement.getThirdValue());
-
-        i += 3;
+          i += 3;
+        } else if (measurement instanceof FloatMeasurement) {
+          Log.d(debug, "Added FloatMeasurement");
+          final FloatMeasurement floatMeasurement = (FloatMeasurement) measurement;
+          test.setValue((Attribute) fvWekaAttributes.elementAt(i), floatMeasurement.getValue());
+          i++;
+        }
       }
 
-
       try {
-        double[] fDistribution = classifier.distributionForInstance(test);
-        Log.d(debug, Arrays.toString(fDistribution));
+        double[] distribution = classifier.distributionForInstance(test);
+        Log.d(debug, Arrays.toString(distribution));
 
-        Toast.makeText(MainActivity.this, Arrays.toString(fDistribution), Toast.LENGTH_LONG).show();
+        Toast.makeText(MainActivity.this, Arrays.toString(distribution), Toast.LENGTH_LONG).show();
 
-      } catch (Exception e) {
-        e.printStackTrace();
+      } catch (Exception exception) {
+        exception.printStackTrace();
       }
     }
 
@@ -260,13 +249,12 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
     setContentView(R.layout.activity_main);
 
-    final Button jumpButton = (Button) findViewById(R.id.jumpbutton);
-    final Button sitButton = (Button) findViewById(R.id.sitbutton);
+    final Button fetchDataButton = (Button) findViewById(R.id.jumpbutton);
     final Button trainButton = (Button) findViewById(R.id.trainbutton);
     final Button guessButton = (Button) findViewById(R.id.guessbutton);
 
-    assert jumpButton != null;
-    jumpButton.setOnClickListener(new View.OnClickListener() {
+    assert fetchDataButton != null;
+    fetchDataButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
         if (hallonuerviherlige) {
@@ -276,20 +264,6 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
         LongOperation longOperation = new LongOperation();
         longOperation.execute("jump");
-      }
-    });
-
-    assert sitButton != null;
-    sitButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        if (hallonuerviherlige) {
-          Log.d(debug, "Det var for fast!");
-          return;
-        }
-
-        LongOperation longOperation = new LongOperation();
-        longOperation.execute("sit");
       }
     });
 
@@ -304,16 +278,24 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
           public void run() {
 
             // Make attributes
-            fvWekaAttributes = new FastVector(91);
-            for (int i = 0; i < 30; i++) {
+            fvWekaAttributes = new FastVector(351);
+            for (int i = 0; i < 50; i++) {
               for (int j = 0; j < 3; j++) {
                 fvWekaAttributes.addElement(new Attribute("acc" + i + "-" + j));
               }
             }
+            for (int i = 0; i < 50; i++) {
+              for (int j = 0; j < 3; j++) {
+                fvWekaAttributes.addElement(new Attribute("gyr" + i + "-" + j));
+              }
+            }
+            for (int i = 0; i < 50; i++) {
+              fvWekaAttributes.addElement(new Attribute("com" + i));
+            }
 
             // Make class
-            final FastVector fvClassVal = new FastVector(accSamples.keySet().size());
-            for (final String key : accSamples.keySet()) {
+            final FastVector fvClassVal = new FastVector(samplesMap.keySet().size());
+            for (final String key : samplesMap.keySet()) {
               fvClassVal.addElement(key);
             }
             Attribute classAttribute = new Attribute("class", fvClassVal);
@@ -326,23 +308,26 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
             Log.d(debug, "Training scheme generated");
 
             int i = 0;
-            for (final String clazz : accSamples.keySet()) {
-              for (final Sample sample : accSamples.get(clazz)) {
+            for (final String clazz : samplesMap.keySet()) {
+              for (final Sample sample : samplesMap.get(clazz)) {
                 i = 0;
 
                 final Instance iExample = new Instance(fvWekaAttributes.size());
 
                 for (final JsonValueAble measurement : sample.getMeasurements()) {
-                  final FloatTripleMeasurement floatTripleMeasurement = (FloatTripleMeasurement) measurement;
+                  if (measurement instanceof FloatTripleMeasurement) {
+                    final FloatTripleMeasurement floatTripleMeasurement = (FloatTripleMeasurement) measurement;
+                    iExample.setValue((Attribute) fvWekaAttributes.elementAt(i), floatTripleMeasurement.getFirstValue());
+                    iExample.setValue((Attribute) fvWekaAttributes.elementAt(i + 1), floatTripleMeasurement.getSecondValue());
+                    iExample.setValue((Attribute) fvWekaAttributes.elementAt(i + 2), floatTripleMeasurement.getThirdValue());
 
-                  iExample.setValue((Attribute) fvWekaAttributes.elementAt(i), floatTripleMeasurement.getFirstValue());
-                  iExample.setValue((Attribute) fvWekaAttributes.elementAt(i + 1), floatTripleMeasurement.getSecondValue());
-                  iExample.setValue((Attribute) fvWekaAttributes.elementAt(i + 2), floatTripleMeasurement.getThirdValue());
-
-                  i += 3;
+                    i += 3;
+                  } else if (measurement instanceof FloatMeasurement) {
+                    final FloatMeasurement floatMeasurement = (FloatMeasurement) measurement;
+                    iExample.setValue((Attribute) fvWekaAttributes.elementAt(i), floatMeasurement.getValue());
+                    i++;
+                  }
                 }
-
-                Log.d(debug, "SÅ MANGE DATA: " + i);
 
                 iExample.setValue((Attribute) fvWekaAttributes.elementAt(i), clazz);
                 isTrainingSet.add(iExample);
@@ -364,8 +349,8 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
         try {
           Thread.sleep(1000);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
+        } catch (InterruptedException exception) {
+          exception.printStackTrace();
         }
 
         Toast.makeText(MainActivity.this, "Training finished", Toast.LENGTH_SHORT).show();

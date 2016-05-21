@@ -17,15 +17,7 @@
             android:id="@+id/jumpbutton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Jumping"
-            android:padding="50dp"
-            android:layout_margin="10dp"/>
-
-        <Button
-            android:id="@+id/sitbutton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Sitting"
+            android:text="Get data"
             android:padding="50dp"
             android:layout_margin="10dp"/>
 
