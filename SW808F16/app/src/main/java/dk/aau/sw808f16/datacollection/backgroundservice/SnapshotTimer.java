@@ -86,6 +86,12 @@ public class SnapshotTimer {
 
         Campaign campaign = realm.where(Campaign.class).findFirst();
 
+        if (campaign.getCampaignLength() == 0) {
+          SnapshotTimer.this.stop();
+          this.cancel();
+          return;
+        }
+
         final long totalDuration = campaign.getSnapshotLength();
         final long sampleDuration = campaign.getSampleDuration();
         final long sampleFrequency = campaign.getSampleFrequency();
@@ -95,15 +101,6 @@ public class SnapshotTimer {
 
         Snapshot snapshot = Snapshot.Create();
         final long snapshotTimestamp = snapshot.getTimestamp();
-
-        try {
-          realm.beginTransaction();
-          realm.copyToRealmOrUpdate(campaign);
-          realm.commitTransaction();
-        } catch (Exception exception) {
-          realm.cancelTransaction();
-          throw exception;
-        }
 
         if (campaign.getQuestionnairePlacement() == QuestionnairePlacement.START) {
           startQuestionnaire(questionnaire, snapshotTimestamp, totalDuration);
@@ -152,8 +149,10 @@ public class SnapshotTimer {
 
           if (campaign != null) {
             campaign.addSnapshot(snapshot);
-            realm.copyToRealm(campaign);
+            campaign.setCampaignLength(campaign.getCampaignLength() - 1);
+            realm.copyToRealmOrUpdate(campaign);
           }
+
           realm.commitTransaction();
         } catch (Exception exception) {
           realm.cancelTransaction();

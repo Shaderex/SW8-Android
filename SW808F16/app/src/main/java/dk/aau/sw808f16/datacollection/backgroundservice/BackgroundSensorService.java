@@ -71,7 +71,7 @@ public final class BackgroundSensorService extends Service {
   public static final String NOTIFY_QUESTIONNAIRE_COMPLETED_CAMPAIGN_ID = "NOTIFY_QUESTIONNAIRE_COMPLETED_CAMPAIGN_ID";
 
   private static final String REALM_NAME = DataCollectionApplication.TAG + ".realm";
-  private static final long SYNCHRONIZATION_INTERVAL_IN_SECONDS = 20;
+  private static final long SYNCHRONIZATION_INTERVAL_IN_SECONDS = 300; // 5 minutes
   private byte[] encryptionKey = null;
 
   private ServiceHandler serviceHandler;
