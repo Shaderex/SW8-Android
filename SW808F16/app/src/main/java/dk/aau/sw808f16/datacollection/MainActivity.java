@@ -9,6 +9,7 @@ import android.content.res.Configuration;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -39,6 +40,13 @@ import com.microsoft.band.BandInfo;
 import com.microsoft.band.ConnectionState;
 import com.microsoft.band.sensors.HeartRateConsentListener;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -145,7 +153,66 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
     protected String doInBackground(String... params) {
       hallonuerviherlige = true;
 
-      // HER PUTTER DU BARE TING IND I samplesMap
+      try {
+        // HER PUTTER DU BARE TING IND I samplesMap
+        File sdcard = Environment.getExternalStorageDirectory();
+        File file = new File(sdcard, "Download/data.json");
+        FileInputStream fileInputStream = new FileInputStream(file);
+        InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, "UTF-8");
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        StringBuilder stringBuilder = new StringBuilder();
+        String line;
+
+        while ((line = bufferedReader.readLine()) != null) {
+          stringBuilder.append(line);
+        }
+
+        JSONArray snapshotsArray = new JSONArray(stringBuilder.toString());
+
+        for (int i = 0; i < snapshotsArray.length(); i++) {
+          JSONObject snapshotObject = snapshotsArray.getJSONObject(i).getJSONObject("data");
+
+          Sample sample = Sample.Create();
+
+          int sampleCounter = 0;
+          JSONArray accelerometerSamples = snapshotObject.getJSONArray("accelerometerSamples");
+          JSONObject accelerometerData = accelerometerSamples.getJSONObject(0);
+          JSONArray accelerometerMeasurements = accelerometerData.getJSONArray("measurements");
+          for (int j = 0; j < accelerometerMeasurements.length(); j++) {
+            if (sampleCounter == 30) {
+              break;
+            }
+            JSONArray measurement = accelerometerMeasurements.getJSONArray(j);
+            float v1 = (float) measurement.getDouble(0);
+            float v2 = (float) measurement.getDouble(1);
+            float v3 = (float) measurement.getDouble(2);
+            sample.addMeasurement(new FloatTripleMeasurement(v1, v2, v3));
+            sampleCounter++;
+          }
+
+          sampleCounter = 0;
+          JSONArray gyroscopeSamples = snapshotObject.getJSONArray("gyroscopeSamples");
+          JSONObject gyroscopeData = gyroscopeSamples.getJSONObject(0);
+          JSONArray gyroscopeMeasurements = gyroscopeData.getJSONArray("measurements");
+          for (int j = 0; j < gyroscopeMeasurements.length(); j++) {
+            if (sampleCounter == 30) {
+              break;
+            }
+            JSONArray measurement = gyroscopeMeasurements.getJSONArray(j);
+            float v1 = (float) measurement.getDouble(0);
+            float v2 = (float) measurement.getDouble(1);
+            float v3 = (float) measurement.getDouble(2);
+            sample.addMeasurement(new FloatTripleMeasurement(v1, v2, v3));
+            sampleCounter++;
+          }
+
+          samplesMap.get("yes").add(sample);
+
+        }
+
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
 
       return "!";
     }
@@ -252,6 +319,9 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
     final Button fetchDataButton = (Button) findViewById(R.id.jumpbutton);
     final Button trainButton = (Button) findViewById(R.id.trainbutton);
     final Button guessButton = (Button) findViewById(R.id.guessbutton);
+
+    samplesMap.put("yes", new ArrayList<Sample>());
+    samplesMap.put("no", new ArrayList<Sample>());
 
     assert fetchDataButton != null;
     fetchDataButton.setOnClickListener(new View.OnClickListener() {
