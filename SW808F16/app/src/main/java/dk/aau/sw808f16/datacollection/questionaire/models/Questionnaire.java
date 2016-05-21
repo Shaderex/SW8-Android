@@ -7,21 +7,20 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import dk.aau.sw808f16.datacollection.snapshot.JsonObjectAble;
 import io.realm.RealmList;
 import io.realm.RealmObject;
-import io.realm.annotations.Ignore;
 
 public class Questionnaire extends RealmObject implements Parcelable, JsonObjectAble {
 
   private RealmList<Question> questions;
   private int currentQuestionIndex = -1;
+
   public static final Parcelable.Creator<Questionnaire> CREATOR = new Creator<Questionnaire>() {
     @Override
-    public Questionnaire createFromParcel(Parcel source) {
+    public Questionnaire createFromParcel(final Parcel source) {
       return new Questionnaire(source);
     }
 
@@ -51,6 +50,17 @@ public class Questionnaire extends RealmObject implements Parcelable, JsonObject
     this(); // Call constructor to initialize fields
     parcel.readList(questions, Question.class.getClassLoader());
     this.currentQuestionIndex = parcel.readInt();
+  }
+
+  public Questionnaire(JSONObject jsonObject) throws JSONException {
+    this(); // Call constructor to initialize fields
+
+    final JSONArray jsonQuestions = jsonObject.getJSONArray("questions");
+
+    for (int counter = 0; counter < jsonQuestions.length(); counter++) {
+      questions.add(new Question(jsonQuestions.getJSONObject(counter)));
+    }
+
   }
 
   public List<Question> getQuestions() {

@@ -67,7 +67,10 @@ public class UploadManagementService extends GcmTaskService {
 
   private void bindToBackgroundService() {
     final Intent serviceIntent = new Intent(this, BackgroundSensorService.class);
-    bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+
+    if (!isBoundToBackgroundService) {
+      bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
   }
 
   private void unbindToBackgroundService() {

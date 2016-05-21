@@ -33,7 +33,7 @@ public class Question extends RealmObject implements Parcelable, JsonObjectAble 
     this.setQuestion(question);
   }
 
-  Question(Parcel in) {
+  public Question(Parcel in) {
     byte byteAnswer = in.readByte();
 
     if (byteAnswer == -1) {
@@ -66,6 +66,29 @@ public class Question extends RealmObject implements Parcelable, JsonObjectAble 
   public Question(String question, long identifier) {
     this.question = question;
     this.identifier = identifier;
+  }
+
+  public Question(final JSONObject jsonObject) throws JSONException {
+    this(null, jsonObject.getLong("id"));
+
+    final String jsonAnswer = jsonObject.getString("answer");
+
+    switch (jsonAnswer) {
+      case "undefined": {
+        this.answer = null;
+        break;
+      }
+      case "true": {
+        this.answer = true;
+        break;
+      }
+      case "false": {
+        this.answer = false;
+        break;
+      }
+    }
+
+    this.timestamp = jsonObject.getLong("timestamp");
   }
 
   public String getQuestion() {
@@ -155,7 +178,6 @@ public class Question extends RealmObject implements Parcelable, JsonObjectAble 
     } else {
       jsonObject.put("answer", "false");
     }
-
 
     jsonObject.put("timestamp", timestamp);
     return jsonObject;

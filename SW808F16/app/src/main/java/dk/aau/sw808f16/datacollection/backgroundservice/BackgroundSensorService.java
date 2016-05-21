@@ -20,6 +20,7 @@ import com.goebl.david.Response;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -245,6 +246,7 @@ public final class BackgroundSensorService extends Service {
       }
 
       final Bundle data = msg.getData();
+
       switch (msg.what) {
         case NOTIFY_NEW_CAMPAIGN: {
 
@@ -255,7 +257,15 @@ public final class BackgroundSensorService extends Service {
         case NOTIFY_QUESTIONNAIRE_COMPLETED: {
 
           final long timestamp = data.getLong(NOTIFY_QUESTIONNAIRE_COMPLETED_TIMESTAMP);
-          final Questionnaire questionnaire = data.getParcelable(NOTIFY_QUESTIONNAIRE_COMPLETED_QUESTIONNAIRE);
+          final String jsonQuestionnaire = data.getString(NOTIFY_QUESTIONNAIRE_COMPLETED_QUESTIONNAIRE);
+
+          Questionnaire questionnaire = null;
+          try {
+            questionnaire = new Questionnaire(new JSONObject(jsonQuestionnaire));
+          } catch (JSONException exception) {
+            exception.printStackTrace();
+          }
+
           notifyQuestionnaireCompleted(timestamp, questionnaire);
           return;
         }

@@ -16,6 +16,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -89,7 +91,6 @@ public class QuestionnaireActivity extends Activity {
     });
 
     bindToResponder();
-
 
     expirationTimer.schedule(new TimerTask() {
       @Override
@@ -170,12 +171,18 @@ public class QuestionnaireActivity extends Activity {
     final Bundle data = new Bundle();
 
     data.putLong(BackgroundSensorService.NOTIFY_QUESTIONNAIRE_COMPLETED_TIMESTAMP, snapshotTimestamp);
-    data.putParcelable(BackgroundSensorService.NOTIFY_QUESTIONNAIRE_COMPLETED_QUESTIONNAIRE, questionnaire);
+    try {
+      data.putString(BackgroundSensorService.NOTIFY_QUESTIONNAIRE_COMPLETED_QUESTIONNAIRE, questionnaire.toJsonObject().toString());
+    } catch (JSONException exception) {
+      exception.printStackTrace();
+    }
+
+    msg.setData(data);
 
     try {
       serviceMessenger.send(msg);
-    } catch (RemoteException e) {
-      e.printStackTrace();
+    } catch (RemoteException exception) {
+      exception.printStackTrace();
     }
   }
 
