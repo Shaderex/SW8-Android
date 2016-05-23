@@ -11,6 +11,7 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.Parcelable;
 import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
@@ -245,6 +246,8 @@ public final class BackgroundSensorService extends Service {
       }
 
       final Bundle data = msg.getData();
+      data.setClassLoader(this.getClass().getClassLoader());
+
       switch (msg.what) {
         case NOTIFY_NEW_CAMPAIGN: {
 
@@ -255,7 +258,13 @@ public final class BackgroundSensorService extends Service {
         case NOTIFY_QUESTIONNAIRE_COMPLETED: {
 
           final long timestamp = data.getLong(NOTIFY_QUESTIONNAIRE_COMPLETED_TIMESTAMP);
-          final Questionnaire questionnaire = data.getParcelable(NOTIFY_QUESTIONNAIRE_COMPLETED_QUESTIONNAIRE);
+
+          Questionnaire questionnaire = null;
+          Parcelable parcelable = data.getParcelable(NOTIFY_QUESTIONNAIRE_COMPLETED_QUESTIONNAIRE);
+          if (parcelable instanceof Questionnaire) {
+            questionnaire = (Questionnaire) parcelable;
+          }
+
           notifyQuestionnaireCompleted(timestamp, questionnaire);
           return;
         }
