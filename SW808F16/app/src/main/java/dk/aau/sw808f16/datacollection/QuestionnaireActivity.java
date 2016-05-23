@@ -16,8 +16,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONException;
-
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -37,7 +35,7 @@ public class QuestionnaireActivity extends Activity {
   private Question currentQuestion = null;
   private long snapshotTimestamp;
   private boolean isBoundToResponder = false;
-  private long timeToLive;
+
   private Messenger serviceMessenger = null;
 
   private Timer expirationTimer;
@@ -60,7 +58,7 @@ public class QuestionnaireActivity extends Activity {
 
     questionnaire = extras.getParcelable(QUESTIONNAIRE_PARCEL_IDENTIFIER_KEY);
     snapshotTimestamp = extras.getLong(SNAPSHOT_TIMESTAMP_KEY);
-    timeToLive = extras.getLong(QUESTIONNAIRE_TTL_KEY);
+    final long timeToLive = extras.getLong(QUESTIONNAIRE_TTL_KEY);
 
     if (questionnaire == null) {
       throw new IllegalArgumentException("Illegal intent sent to activity. Questionnaire was null");
@@ -113,10 +111,10 @@ public class QuestionnaireActivity extends Activity {
 
   private void bindToResponder() {
     final Intent serviceIntent = new Intent(this, BackgroundSensorService.class);
-    bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE);
+    bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
   }
 
-  private ServiceConnection mConnection = new ServiceConnection() {
+  private ServiceConnection serviceConnection = new ServiceConnection() {
 
     @Override
     public void onServiceConnected(final ComponentName className, final IBinder binder) {
@@ -166,16 +164,13 @@ public class QuestionnaireActivity extends Activity {
 
   private void notifyQuestionnaireCompleted(final long snapshotTimestamp, final Questionnaire questionnaire) {
 
-    final Message msg = Message.obtain(null, BackgroundSensorService.NOTIFY_QUESTIONNAIRE_COMPLETED, 0, 0);
+    final Message msg = Message.obtain();
+    msg.what = BackgroundSensorService.NOTIFY_QUESTIONNAIRE_COMPLETED;
 
     final Bundle data = new Bundle();
 
     data.putLong(BackgroundSensorService.NOTIFY_QUESTIONNAIRE_COMPLETED_TIMESTAMP, snapshotTimestamp);
-    try {
-      data.putString(BackgroundSensorService.NOTIFY_QUESTIONNAIRE_COMPLETED_QUESTIONNAIRE, questionnaire.toJsonObject().toString());
-    } catch (JSONException exception) {
-      exception.printStackTrace();
-    }
+    data.putParcelable(BackgroundSensorService.NOTIFY_QUESTIONNAIRE_COMPLETED_QUESTIONNAIRE, questionnaire);
 
     msg.setData(data);
 
@@ -206,9 +201,10 @@ public class QuestionnaireActivity extends Activity {
   @Override
   protected void onStop() {
     super.onStop();
+
     // Unbind from the service
     if (isBoundToResponder) {
-      unbindService(mConnection);
+      unbindService(serviceConnection);
       isBoundToResponder = false;
     }
 

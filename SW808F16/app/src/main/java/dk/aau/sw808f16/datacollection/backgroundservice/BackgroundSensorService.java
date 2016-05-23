@@ -11,6 +11,7 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.Parcelable;
 import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
@@ -20,7 +21,6 @@ import com.goebl.david.Response;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -246,6 +246,7 @@ public final class BackgroundSensorService extends Service {
       }
 
       final Bundle data = msg.getData();
+      data.setClassLoader(this.getClass().getClassLoader());
 
       switch (msg.what) {
         case NOTIFY_NEW_CAMPAIGN: {
@@ -257,13 +258,11 @@ public final class BackgroundSensorService extends Service {
         case NOTIFY_QUESTIONNAIRE_COMPLETED: {
 
           final long timestamp = data.getLong(NOTIFY_QUESTIONNAIRE_COMPLETED_TIMESTAMP);
-          final String jsonQuestionnaire = data.getString(NOTIFY_QUESTIONNAIRE_COMPLETED_QUESTIONNAIRE);
 
           Questionnaire questionnaire = null;
-          try {
-            questionnaire = new Questionnaire(new JSONObject(jsonQuestionnaire));
-          } catch (JSONException exception) {
-            exception.printStackTrace();
+          Parcelable parcelable = data.getParcelable(NOTIFY_QUESTIONNAIRE_COMPLETED_QUESTIONNAIRE);
+          if (parcelable instanceof Questionnaire) {
+            questionnaire = (Questionnaire) parcelable;
           }
 
           notifyQuestionnaireCompleted(timestamp, questionnaire);
