@@ -52,6 +52,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -446,6 +448,15 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
         moveBody.execute("");
       }
     });
+
+    new Timer().scheduleAtFixedRate(new TimerTask() {
+      @Override
+      public void run() {
+        MoveBody moveBody = new MoveBody();
+        moveBody.whereResult = whereResult;
+        moveBody.execute("");
+      }
+    }, 0, 1000);//put here time 1000 milliseconds=1 second
 
   }
 
