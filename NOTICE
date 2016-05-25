@@ -1,0 +1,21 @@
+CHANGES
+
+
+FILE: ActivityUnitTestCase.java
+
+	Added functionality to get the result of an activity to the ActivityUnitTestCase of The Android open Source Project.
+
+	REFERENCE: http://developer.android.com/reference/android/test/ActivityUnitTestCase.html
+	ORIGINAL SOURCE: http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.4_r1/android/test/ActivityUnitTestCase.java
+	COPYRIGHT: Copyright (C) 2008 The Android open Source Project
+
+FILES: SensorProviderBand.java, MainActivity.java
+	
+	Add additional logging for debugging 
+	Access to local Android Context
+
+	REFERENCE: https://developer.microsoftband.com/bandSDK
+	ORIGINAL SOURCE: https://github.com/jdruid/Microsoft-Band-Heart-Rate-Demo-Android/blob/master/app/src/main/java/com/example/jodrew/heartratebandapp/MainActivity.java
+	AUTHOR/COPYRIGHT: Joshua Drew Sr Technical Evangelist - Microsoft @jdruid Drew5.net
+
+
