@@ -275,17 +275,17 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
       try {
         final Sample sample = Sample.Create();
-        sample.addMeasurements(data1.get().get(0).getMeasurements());
-        sample.addMeasurements(data2.get().get(0).getMeasurements());
 
         for (JsonValueAble compassMeasurement : data3.get().get(0).getMeasurements()) {
           compassMeasurements.add(new FloatTripleMeasurement(
-              ((FloatMeasurement) compassMeasurement).getValue(),
-              ((FloatMeasurement) compassMeasurement).getValue(),
-              ((FloatMeasurement) compassMeasurement).getValue()
+              ((FloatMeasurement) compassMeasurement).getValue() / 10,
+              ((FloatMeasurement) compassMeasurement).getValue() / 10,
+              ((FloatMeasurement) compassMeasurement).getValue() / 10
           ));
         }
 
+        sample.addMeasurements(data1.get().get(0).getMeasurements());
+        sample.addMeasurements(data2.get().get(0).getMeasurements());
         sample.addMeasurements(compassMeasurements);
 
         return sample;
