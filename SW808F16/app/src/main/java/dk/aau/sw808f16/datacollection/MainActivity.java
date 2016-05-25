@@ -156,7 +156,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
       try {
         // HER PUTTER DU BARE TING IND I samplesMap
         File sdcard = Environment.getExternalStorageDirectory();
-        File file = new File(sdcard, "Download/data.json");
+        File file = new File(sdcard, "Download/data2.json");
         FileInputStream fileInputStream = new FileInputStream(file);
         InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, "UTF-8");
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
@@ -190,7 +190,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
             sampleCounter++;
           }
 
-          /*
+
           sampleCounter = 0;
           JSONArray gyroscopeSamples = snapshotObject.getJSONArray("gyroscopeSamples");
           JSONObject gyroscopeData = gyroscopeSamples.getJSONObject(0);
@@ -222,7 +222,6 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
             sample.addMeasurement(new FloatTripleMeasurement(v1, v2, v3));
             sampleCounter++;
           }
-          */
 
           JSONObject questionnaire = snapshotObject.getJSONObject("questionnaire");
           JSONArray questions = questionnaire.getJSONArray("questions");
@@ -287,8 +286,8 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
         }
 
         sample.addMeasurements(data1.get().get(0).getMeasurements().subList(0, 29));
-        //sample.addMeasurements(data2.get().get(0).getMeasurements().subList(0, 29));
-        //sample.addMeasurements(compassMeasurements);
+        sample.addMeasurements(data2.get().get(0).getMeasurements().subList(0, 29));
+        sample.addMeasurements(compassMeasurements);
 
         return sample;
       } catch (InterruptedException | ExecutionException exception) {
@@ -302,7 +301,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
     protected void onPostExecute(Sample result) {
       Log.d(debug, "Tak fordi du flyttede din krop " + new Random().nextInt(100));
 
-      Instance test = new Instance(90); // TODO: Tal her
+      Instance test = new Instance(90*3); // TODO: Tal her
       test.setDataset(isTrainingSet);
 
       int i = 0;
@@ -376,13 +375,13 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
           public void run() {
 
             // Make attributes
-            fvWekaAttributes = new FastVector(91); // TODO: Tal her
+            fvWekaAttributes = new FastVector(90*3 + 1); // TODO: Tal her
             for (int i = 0; i < 30; i++) {
               for (int j = 0; j < 3; j++) {
                 fvWekaAttributes.addElement(new Attribute("acc" + i + "-" + j));
               }
             }
-            /*
+
             for (int i = 0; i < 30; i++) {
               for (int j = 0; j < 3; j++) {
                 fvWekaAttributes.addElement(new Attribute("gyr" + i + "-" + j));
@@ -393,7 +392,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
                 fvWekaAttributes.addElement(new Attribute("com" + i + "-" + j));
               }
             }
-            */
+
 
             // Make class
             final FastVector fvClassVal = new FastVector(samplesMap.keySet().size());
