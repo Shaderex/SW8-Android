@@ -51,10 +51,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -332,96 +330,6 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
     }
   }
 
-  private class MoveBody extends AsyncTask<String, Void, Sample> {
-
-    public TextView whereResult;
-
-    @Override
-    protected Sample doInBackground(String... params) {
-      final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(3);
-      final SensorManager sensorManager = (SensorManager) getApplicationContext().getSystemService(SENSOR_SERVICE);
-
-      AccelerometerSensorProvider accelerometerSensorProvider = new AccelerometerSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
-      GyroscopeSensorProvider gyroscopeSensorProvider = new GyroscopeSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
-      CompassSensorProvider compassSensorProvider = new CompassSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
-
-      int[] tid = {10 * 1000, 10 * 1000, 10 * 1000, 200};
-
-      Future<List<Sample>> data1 = accelerometerSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
-      Future<List<Sample>> data2 = gyroscopeSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
-      Future<List<Sample>> data3 = compassSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
-
-      List<FloatTripleMeasurement> compassMeasurements = new ArrayList<>();
-
-      try {
-        final Sample sample = Sample.Create();
-
-        for (JsonValueAble compassMeasurement : data3.get().get(0).getMeasurements().subList(0, 29)) {
-          compassMeasurements.add(new FloatTripleMeasurement(
-              ((FloatMeasurement) compassMeasurement).getValue() / 10,
-              ((FloatMeasurement) compassMeasurement).getValue() / 10,
-              ((FloatMeasurement) compassMeasurement).getValue() / 10
-          ));
-        }
-
-        sample.addMeasurements(data1.get().get(0).getMeasurements().subList(0, 29));
-        sample.addMeasurements(data2.get().get(0).getMeasurements().subList(0, 29));
-        sample.addMeasurements(compassMeasurements);
-
-        return sample;
-      } catch (InterruptedException | ExecutionException exception) {
-        exception.printStackTrace();
-      }
-
-      return null;
-    }
-
-    @Override
-    protected void onPostExecute(Sample result) {
-      Log.d(debug, "Tak fordi du flyttede din krop " + new Random().nextInt(100));
-
-      Instance test = new Instance(90 * 3); // TODO: Tal her
-      test.setDataset(isTrainingSet);
-
-      int i = 0;
-
-      for (final JsonValueAble measurement : result.getMeasurements()) {
-        if (measurement instanceof FloatTripleMeasurement) {
-          final FloatTripleMeasurement floatTripleMeasurement = (FloatTripleMeasurement) measurement;
-          test.setValue((Attribute) fvWekaAttributes.elementAt(i), floatTripleMeasurement.getFirstValue());
-          test.setValue((Attribute) fvWekaAttributes.elementAt(i + 1), floatTripleMeasurement.getSecondValue());
-          test.setValue((Attribute) fvWekaAttributes.elementAt(i + 2), floatTripleMeasurement.getThirdValue());
-
-          i += 3;
-        }
-      }
-
-      try {
-        double[] distribution = classifier.distributionForInstance(test);
-        Log.d(debug, Arrays.toString(distribution));
-
-        // Toast.makeText(MainActivity.this, Arrays.toString(distribution), Toast.LENGTH_LONG).show();
-
-        if (distribution[0] > distribution[1]) {
-          whereResult.setText("On the table");
-        } else {
-          whereResult.setText("In the pocket");
-        }
-
-      } catch (Exception exception) {
-        exception.printStackTrace();
-      }
-    }
-
-    @Override
-    protected void onPreExecute() {
-    }
-
-    @Override
-    protected void onProgressUpdate(Void... values) {
-    }
-  }
-
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -452,9 +360,65 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
         assert progress != null;
         progress.setProgress(counter[0]);
 
-        MoveBody moveBody = new MoveBody();
-        moveBody.whereResult = whereResult;
-        moveBody.execute("");
+        final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(3);
+        final SensorManager sensorManager = (SensorManager) getApplicationContext().getSystemService(SENSOR_SERVICE);
+
+        AccelerometerSensorProvider accelerometerSensorProvider = new AccelerometerSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
+        GyroscopeSensorProvider gyroscopeSensorProvider = new GyroscopeSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
+        CompassSensorProvider compassSensorProvider = new CompassSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
+
+        int[] tid = {10 * 1000, 10 * 1000, 10 * 1000, 200};
+
+        Future<List<Sample>> data1 = accelerometerSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
+        Future<List<Sample>> data2 = gyroscopeSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
+        Future<List<Sample>> data3 = compassSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
+
+        List<FloatTripleMeasurement> compassMeasurements = new ArrayList<>();
+
+        try {
+          final Sample sample = Sample.Create();
+
+          for (JsonValueAble compassMeasurement : data3.get().get(0).getMeasurements().subList(0, 29)) {
+            compassMeasurements.add(new FloatTripleMeasurement(
+                ((FloatMeasurement) compassMeasurement).getValue() / 10,
+                ((FloatMeasurement) compassMeasurement).getValue() / 10,
+                ((FloatMeasurement) compassMeasurement).getValue() / 10
+            ));
+          }
+
+          sample.addMeasurements(data1.get().get(0).getMeasurements().subList(0, 29));
+          sample.addMeasurements(data2.get().get(0).getMeasurements().subList(0, 29));
+          sample.addMeasurements(compassMeasurements);
+
+          Instance test = new Instance(90 * 3); // TODO: Tal her
+          test.setDataset(isTrainingSet);
+
+          int i = 0;
+
+          for (final JsonValueAble measurement : sample.getMeasurements()) {
+            if (measurement instanceof FloatTripleMeasurement) {
+              final FloatTripleMeasurement floatTripleMeasurement = (FloatTripleMeasurement) measurement;
+              test.setValue((Attribute) fvWekaAttributes.elementAt(i), floatTripleMeasurement.getFirstValue());
+              test.setValue((Attribute) fvWekaAttributes.elementAt(i + 1), floatTripleMeasurement.getSecondValue());
+              test.setValue((Attribute) fvWekaAttributes.elementAt(i + 2), floatTripleMeasurement.getThirdValue());
+
+              i += 3;
+            }
+          }
+
+          double[] distribution = classifier.distributionForInstance(test);
+          Log.d(debug, Arrays.toString(distribution));
+
+          // Toast.makeText(MainActivity.this, Arrays.toString(distribution), Toast.LENGTH_LONG).show();
+
+          if (distribution[0] > distribution[1]) {
+            whereResult.setText("On the table");
+          } else {
+            whereResult.setText("In the pocket");
+          }
+        } catch (Exception exception) {
+          exception.printStackTrace();
+        }
       }
     }, 0, 10);
 
