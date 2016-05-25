@@ -27,9 +27,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -428,8 +428,8 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
     setContentView(R.layout.activity_main);
 
-    final Button guessButton = (Button) findViewById(R.id.guessbutton);
     final TextView whereResult = (TextView) findViewById(R.id.where_result);
+    final ProgressBar progress = (ProgressBar) findViewById(R.id.progress);
 
     samplesMap.put("true", new ArrayList<Sample>());
     samplesMap.put("false", new ArrayList<Sample>());
@@ -437,26 +437,26 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
     LongOperation longOperation = new LongOperation();
     longOperation.execute("jump");
 
-    assert guessButton != null;
-    guessButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        Log.d(debug, "Weka is analysing.. Please move your body");
-
-        MoveBody moveBody = new MoveBody();
-        moveBody.whereResult = whereResult;
-        moveBody.execute("");
-      }
-    });
+    final int[] counter = {0};
 
     new Timer().scheduleAtFixedRate(new TimerTask() {
       @Override
       public void run() {
+        counter[0]++;
+
+        if (counter[0] % 100 == 0) {
+          counter[0] = 0;
+          return;
+        }
+
+        assert progress != null;
+        progress.setProgress(counter[0]);
+
         MoveBody moveBody = new MoveBody();
         moveBody.whereResult = whereResult;
         moveBody.execute("");
       }
-    }, 0, 1000);//put here time 1000 milliseconds=1 second
+    }, 0, 10);
 
   }
 
