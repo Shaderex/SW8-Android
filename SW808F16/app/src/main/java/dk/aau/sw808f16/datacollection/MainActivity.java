@@ -206,7 +206,28 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
             sampleCounter++;
           }
 
-          samplesMap.get("yes").add(sample);
+          sampleCounter = 0;
+          JSONArray compassSamples = snapshotObject.getJSONArray("compassSamples");
+          JSONObject compassData = compassSamples.getJSONObject(0);
+          JSONArray compassMeasurements = compassData.getJSONArray("measurements");
+          for (int j = 0; j < compassMeasurements.length(); j++) {
+            if (sampleCounter == 30) {
+              break;
+            }
+            double measurement = compassMeasurements.getDouble(j);
+            float v1 = (float) measurement / 10;
+            float v2 = (float) measurement / 10 ;
+            float v3 = (float) measurement / 10 ;
+            sample.addMeasurement(new FloatTripleMeasurement(v1, v2, v3));
+            sampleCounter++;
+          }
+
+          JSONObject questionnaire = snapshotObject.getJSONObject("questionnaire");
+          JSONArray questions = questionnaire.getJSONArray("questions");
+
+          String answer = questions.getJSONObject(0).getString("answer");
+
+          samplesMap.get(answer).add(sample);
 
         }
 
@@ -315,8 +336,8 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
     final Button trainButton = (Button) findViewById(R.id.trainbutton);
     final Button guessButton = (Button) findViewById(R.id.guessbutton);
 
-    samplesMap.put("yes", new ArrayList<Sample>());
-    samplesMap.put("no", new ArrayList<Sample>());
+    samplesMap.put("true", new ArrayList<Sample>());
+    samplesMap.put("false", new ArrayList<Sample>());
 
     assert fetchDataButton != null;
     fetchDataButton.setOnClickListener(new View.OnClickListener() {
