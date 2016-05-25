@@ -41,8 +41,9 @@ public class Question extends RealmObject implements Parcelable, JsonObjectAble 
     } else {
       answer = byteAnswer == 1;
     }
-
     question = in.readString();
+    timestamp = in.readLong();
+    identifier = in.readLong();
   }
 
   public static final Creator<Question> CREATOR = new Creator<Question>() {
@@ -156,6 +157,8 @@ public class Question extends RealmObject implements Parcelable, JsonObjectAble 
 
     dest.writeByte(byteAnswer);
     dest.writeString(question);
+    dest.writeLong(timestamp);
+    dest.writeLong(identifier);
   }
 
   public long getIdentifier() {
