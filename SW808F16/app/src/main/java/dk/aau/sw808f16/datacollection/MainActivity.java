@@ -216,8 +216,8 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
             }
             double measurement = compassMeasurements.getDouble(j);
             float v1 = (float) measurement / 10;
-            float v2 = (float) measurement / 10 ;
-            float v3 = (float) measurement / 10 ;
+            float v2 = (float) measurement / 10;
+            float v3 = (float) measurement / 10;
             sample.addMeasurement(new FloatTripleMeasurement(v1, v2, v3));
             sampleCounter++;
           }
@@ -271,11 +271,22 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
       Future<List<Sample>> data2 = gyroscopeSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
       Future<List<Sample>> data3 = compassSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
 
+      List<FloatTripleMeasurement> compassMeasurements = new ArrayList<>();
+
       try {
         final Sample sample = Sample.Create();
         sample.addMeasurements(data1.get().get(0).getMeasurements());
         sample.addMeasurements(data2.get().get(0).getMeasurements());
-        sample.addMeasurements(data3.get().get(0).getMeasurements());
+
+        for (JsonValueAble compassMeasurement : data3.get().get(0).getMeasurements()) {
+          compassMeasurements.add(new FloatTripleMeasurement(
+              ((FloatMeasurement) compassMeasurement).getValue(),
+              ((FloatMeasurement) compassMeasurement).getValue(),
+              ((FloatMeasurement) compassMeasurement).getValue()
+          ));
+        }
+
+        sample.addMeasurements(compassMeasurements);
 
         return sample;
       } catch (InterruptedException | ExecutionException exception) {
