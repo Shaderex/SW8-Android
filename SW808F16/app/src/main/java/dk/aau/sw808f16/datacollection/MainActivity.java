@@ -190,6 +190,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
             sampleCounter++;
           }
 
+          /*
           sampleCounter = 0;
           JSONArray gyroscopeSamples = snapshotObject.getJSONArray("gyroscopeSamples");
           JSONObject gyroscopeData = gyroscopeSamples.getJSONObject(0);
@@ -221,6 +222,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
             sample.addMeasurement(new FloatTripleMeasurement(v1, v2, v3));
             sampleCounter++;
           }
+          */
 
           JSONObject questionnaire = snapshotObject.getJSONObject("questionnaire");
           JSONArray questions = questionnaire.getJSONArray("questions");
@@ -276,7 +278,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
       try {
         final Sample sample = Sample.Create();
 
-        for (JsonValueAble compassMeasurement : data3.get().get(0).getMeasurements()) {
+        for (JsonValueAble compassMeasurement : data3.get().get(0).getMeasurements().subList(0,29)) {
           compassMeasurements.add(new FloatTripleMeasurement(
               ((FloatMeasurement) compassMeasurement).getValue() / 10,
               ((FloatMeasurement) compassMeasurement).getValue() / 10,
@@ -284,9 +286,9 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
           ));
         }
 
-        sample.addMeasurements(data1.get().get(0).getMeasurements());
-        sample.addMeasurements(data2.get().get(0).getMeasurements());
-        sample.addMeasurements(compassMeasurements);
+        sample.addMeasurements(data1.get().get(0).getMeasurements().subList(0, 29));
+        //sample.addMeasurements(data2.get().get(0).getMeasurements().subList(0, 29));
+        //sample.addMeasurements(compassMeasurements);
 
         return sample;
       } catch (InterruptedException | ExecutionException exception) {
@@ -300,14 +302,13 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
     protected void onPostExecute(Sample result) {
       Log.d(debug, "Tak fordi du flyttede din krop " + new Random().nextInt(100));
 
-      Instance test = new Instance(450); // TODO: Tal her
+      Instance test = new Instance(90); // TODO: Tal her
       test.setDataset(isTrainingSet);
 
       int i = 0;
 
       for (final JsonValueAble measurement : result.getMeasurements()) {
         if (measurement instanceof FloatTripleMeasurement) {
-          Log.d(debug, "Added FloatTripleMeasurement");
           final FloatTripleMeasurement floatTripleMeasurement = (FloatTripleMeasurement) measurement;
           test.setValue((Attribute) fvWekaAttributes.elementAt(i), floatTripleMeasurement.getFirstValue());
           test.setValue((Attribute) fvWekaAttributes.elementAt(i + 1), floatTripleMeasurement.getSecondValue());
@@ -375,22 +376,24 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
           public void run() {
 
             // Make attributes
-            fvWekaAttributes = new FastVector(451); // TODO: Tal her
-            for (int i = 0; i < 50; i++) {
+            fvWekaAttributes = new FastVector(91); // TODO: Tal her
+            for (int i = 0; i < 30; i++) {
               for (int j = 0; j < 3; j++) {
                 fvWekaAttributes.addElement(new Attribute("acc" + i + "-" + j));
               }
             }
-            for (int i = 0; i < 50; i++) {
+            /*
+            for (int i = 0; i < 30; i++) {
               for (int j = 0; j < 3; j++) {
                 fvWekaAttributes.addElement(new Attribute("gyr" + i + "-" + j));
               }
             }
-            for (int i = 0; i < 50; i++) {
+            for (int i = 0; i < 30; i++) {
               for (int j = 0; j < 3; j++) {
                 fvWekaAttributes.addElement(new Attribute("com" + i + "-" + j));
               }
             }
+            */
 
             // Make class
             final FastVector fvClassVal = new FastVector(samplesMap.keySet().size());
@@ -424,7 +427,6 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
                   }
                 }
 
-                Log.d(debug, "i: " + i + "Attr: " + fvWekaAttributes.elementAt(i).toString() + " Clazz: " + clazz);
                 iExample.setValue((Attribute) fvWekaAttributes.elementAt(i), clazz);
                 isTrainingSet.add(iExample);
               }
