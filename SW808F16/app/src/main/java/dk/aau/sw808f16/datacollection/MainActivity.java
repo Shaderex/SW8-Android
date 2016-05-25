@@ -336,7 +336,6 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
     setContentView(R.layout.activity_main);
 
-    final TextView whereResult = (TextView) findViewById(R.id.where_result);
     final ProgressBar progress = (ProgressBar) findViewById(R.id.progress);
 
     samplesMap.put("true", new ArrayList<Sample>());
@@ -412,9 +411,9 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
           // Toast.makeText(MainActivity.this, Arrays.toString(distribution), Toast.LENGTH_LONG).show();
 
           if (distribution[0] > distribution[1]) {
-            whereResult.setText("On the table");
+            MainActivity.this.opdaterText("On the table");
           } else {
-            whereResult.setText("In the pocket");
+            MainActivity.this.opdaterText("In the pocket");
           }
         } catch (Exception exception) {
           exception.printStackTrace();
@@ -422,6 +421,11 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
       }
     }, 0, 10);
 
+  }
+
+  private void opdaterText(String s) {
+    final TextView whereResult = (TextView) findViewById(R.id.where_result);
+    whereResult.setText(s);
   }
 
   public class DrawerButtonsAdapter extends BaseAdapter {
