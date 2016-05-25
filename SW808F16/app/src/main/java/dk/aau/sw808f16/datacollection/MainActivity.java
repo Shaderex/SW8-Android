@@ -268,7 +268,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
     protected void onPostExecute(Sample result) {
       Log.d(debug, "Tak fordi du flyttede din krop " + new Random().nextInt(100));
 
-      Instance test = new Instance(150 + 150 + 50);
+      Instance test = new Instance(450); // TODO: Tal her
       test.setDataset(isTrainingSet);
 
       int i = 0;
@@ -282,11 +282,6 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
           test.setValue((Attribute) fvWekaAttributes.elementAt(i + 2), floatTripleMeasurement.getThirdValue());
 
           i += 3;
-        } else if (measurement instanceof FloatMeasurement) {
-          Log.d(debug, "Added FloatMeasurement");
-          final FloatMeasurement floatMeasurement = (FloatMeasurement) measurement;
-          test.setValue((Attribute) fvWekaAttributes.elementAt(i), floatMeasurement.getValue());
-          i++;
         }
       }
 
@@ -348,7 +343,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
           public void run() {
 
             // Make attributes
-            fvWekaAttributes = new FastVector(351);
+            fvWekaAttributes = new FastVector(451); // TODO: Tal her
             for (int i = 0; i < 50; i++) {
               for (int j = 0; j < 3; j++) {
                 fvWekaAttributes.addElement(new Attribute("acc" + i + "-" + j));
@@ -360,7 +355,9 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
               }
             }
             for (int i = 0; i < 50; i++) {
-              fvWekaAttributes.addElement(new Attribute("com" + i));
+              for (int j = 0; j < 3; j++) {
+                fvWekaAttributes.addElement(new Attribute("com" + i + "-" + j));
+              }
             }
 
             // Make class
@@ -392,10 +389,6 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
                     iExample.setValue((Attribute) fvWekaAttributes.elementAt(i + 2), floatTripleMeasurement.getThirdValue());
 
                     i += 3;
-                  } else if (measurement instanceof FloatMeasurement) {
-                    final FloatMeasurement floatMeasurement = (FloatMeasurement) measurement;
-                    iExample.setValue((Attribute) fvWekaAttributes.elementAt(i), floatMeasurement.getValue());
-                    i++;
                   }
                 }
 
