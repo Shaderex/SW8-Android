@@ -424,6 +424,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
                   }
                 }
 
+                Log.d(debug, "i: " + i + "Attr: " + fvWekaAttributes.elementAt(i).toString() + " Clazz: " + clazz);
                 iExample.setValue((Attribute) fvWekaAttributes.elementAt(i), clazz);
                 isTrainingSet.add(iExample);
               }
