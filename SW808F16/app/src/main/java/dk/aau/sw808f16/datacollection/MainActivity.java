@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -24,7 +23,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -36,14 +34,16 @@ import com.microsoft.band.BandClientManager;
 import com.microsoft.band.BandException;
 import com.microsoft.band.BandInfo;
 import com.microsoft.band.ConnectionState;
-import com.microsoft.band.UserConsent;
 import com.microsoft.band.sensors.HeartRateConsentListener;
+
+import java.util.HashMap;
+import java.util.Random;
 
 import dk.aau.sw808f16.datacollection.backgroundservice.BackgroundSensorService;
 import dk.aau.sw808f16.datacollection.fragment.CampaignJoinFragment;
 import dk.aau.sw808f16.datacollection.fragment.PrivateCampaignFragment;
 import dk.aau.sw808f16.datacollection.fragment.PublicCampaignFragment;
-import dk.aau.sw808f16.datacollection.fragment.StartFragment;
+import dk.aau.sw808f16.datacollection.snapshot.measurement.FloatTripleMeasurement;
 import dk.aau.sw808f16.datacollection.webutil.CampaignRegistrator;
 
 public class MainActivity extends ActionBarActivity implements HeartRateConsentListener, CampaignRegistrator {
@@ -112,84 +112,49 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
   protected void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    setContentView(R.layout.activity_main);
+    final String debug = "debug";
 
-    final FragmentManager fragmentManager = getSupportFragmentManager();
-
-    fragmentManager.beginTransaction()
-        .replace(R.id.content_frame_layout, StartFragment.newInstance(), START_FRAGMENT_KEY).commit();
-
-    final Thread getConsent = new Thread(new Runnable() {
+    final Runnable doStuff = new Runnable() {
       @Override
       public void run() {
-        try {
-          getConnectedBandClient();
+        HashMap<Integer, Long> testCases = new HashMap<>();
 
-          Log.d("BAND", "bandClient:" + (bandClient == null ? "NULL" : bandClient.toString()));
+        final int base = 1000;
+        final int tests = 25;
+        final int repetitions = 1000;
 
-          if (bandClient != null && bandClient.getSensorManager().getCurrentHeartRateConsent() != UserConsent.GRANTED) {
-            // user has not consented, request consent
-            // the calling class is an Activity and implements
-            // HeartRateConsentListener
-            Log.d("BAND", "ASK FOR CONSENT");
-            bandClient.getSensorManager().requestHeartRateConsent(MainActivity.this, MainActivity.this);
+        for (int i = 1; i <= tests; i++) {
+          testCases.put(i * base, null);
+        }
+
+        final Random rng = new Random();
+
+        for (Integer amountOfCompressions : testCases.keySet()) {
+          final float[] floats = {rng.nextFloat(), rng.nextFloat(), rng.nextFloat()};
+
+          final long time1 = System.currentTimeMillis();
+          for (int j = 0; j < repetitions; j++) {
+            for (int i = 0; i < amountOfCompressions; i++) {
+              final FloatTripleMeasurement ftm = new FloatTripleMeasurement(floats);
+              ftm.doSomething();
+            }
           }
+          final long time2 = System.currentTimeMillis();
 
-          bandClient = null;
-        } catch (InterruptedException | BandException exception) {
-          exception.printStackTrace();
+          testCases.put(amountOfCompressions, (time2 - time1) / repetitions);
+          Log.d(debug, "amountOfCompressions: " + amountOfCompressions);
+        }
+
+        Log.d(debug, "Finished!");
+
+        for (Integer key : testCases.keySet()) {
+          String value = testCases.get(key).toString();
+          Log.d(debug, "@" + key + "\t" + value);
         }
       }
-    });
-
-    getConsent.start();
-
-    drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-    drawerToggle = new ActionBarDrawerToggle(
-        this,                  /* host Activity */
-        drawerLayout,         /* DrawerLayout object */
-        R.string.open,  /* "open drawer" description */
-        R.string.close  /* "close drawer" description */
-    ) {
-
-      @Override
-      public void onDrawerSlide(View drawerView, float slideOffset) {
-        super.onDrawerSlide(drawerView, slideOffset);
-      }
-
-      /** Called when a drawer has settled in a completely closed state. */
-      public void onDrawerClosed(View view) {
-        super.onDrawerClosed(view);
-      }
-
-      /** Called when a drawer has settled in a completely open state. */
-      public void onDrawerOpened(View drawerView) {
-        super.onDrawerOpened(drawerView);
-      }
     };
+    new Thread(doStuff).start();
 
-    // Set the drawer toggle as the DrawerListener
-    drawerLayout.setDrawerListener(drawerToggle);
-    drawerLayout.setScrimColor(Color.TRANSPARENT);
-
-    final ListView listView = (ListView) drawerLayout.findViewById(R.id.left_drawer);
-    listView.setAdapter(new DrawerButtonsAdapter());
-
-    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-      @Override
-      public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
-        drawerLayout.closeDrawers();
-        ((DrawerMenuItems) (parent.getAdapter()).getItem(position)).open(MainActivity.this);
-
-      }
-    });
-
-    if (getSupportActionBar() != null) {
-      getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-      getSupportActionBar().setHomeButtonEnabled(true);
-    }
-
-    bindToResponder();
   }
 
   public class DrawerButtonsAdapter extends BaseAdapter {
@@ -251,9 +216,6 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
   @Override
   protected void onPostCreate(final Bundle savedInstanceState) {
     super.onPostCreate(savedInstanceState);
-
-    // Sync the toggle state after onRestoreInstanceState has occurred.
-    drawerToggle.syncState();
   }
 
   @Override

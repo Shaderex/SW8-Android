@@ -27,6 +27,10 @@ public class FloatTripleMeasurement extends RealmObject implements JsonValueAble
 
   }
 
+  public void doSomething() {
+    return;
+  }
+
   public FloatTripleMeasurement(final float v1, final float v2, final float v3) {
     this(new float[] {v1, v2, v3});
   }
