@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -46,6 +47,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -154,11 +156,9 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
       hallonuerviherlige = true;
 
       try {
-        // HER PUTTER DU BARE TING IND I samplesMap
-        File sdcard = Environment.getExternalStorageDirectory();
-        File file = new File(sdcard, "Download/data2.json");
-        FileInputStream fileInputStream = new FileInputStream(file);
-        InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, "UTF-8");
+        Resources res = getResources();
+        InputStream inputStream = res.openRawResource(R.raw.training_data);
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
         StringBuilder stringBuilder = new StringBuilder();
         String line;
@@ -351,81 +351,96 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
       public void run() {
         counter[0]++;
 
-        if (counter[0] % 100 == 0) {
-          counter[0] = 0;
-          return;
-        }
-
         assert progress != null;
         progress.setProgress(counter[0]);
 
-        final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(3);
-        final SensorManager sensorManager = (SensorManager) getApplicationContext().getSystemService(SENSOR_SERVICE);
+        if (counter[0] == 100) {
+          counter[0] = 0;
+        } else {
+          return;
+        }
 
-        AccelerometerSensorProvider accelerometerSensorProvider = new AccelerometerSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
-        GyroscopeSensorProvider gyroscopeSensorProvider = new GyroscopeSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
-        CompassSensorProvider compassSensorProvider = new CompassSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
+        Log.d(debug, "Startede tråd");
 
-        int[] tid = {10 * 1000, 10 * 1000, 10 * 1000, 200};
+        Runnable trainModelAndUseIt = new Runnable() {
+          @Override
+          public void run() {
+            final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(3);
+            final SensorManager sensorManager = (SensorManager) getApplicationContext().getSystemService(SENSOR_SERVICE);
 
-        Future<List<Sample>> data1 = accelerometerSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
-        Future<List<Sample>> data2 = gyroscopeSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
-        Future<List<Sample>> data3 = compassSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
+            AccelerometerSensorProvider accelerometerSensorProvider = new AccelerometerSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
+            GyroscopeSensorProvider gyroscopeSensorProvider = new GyroscopeSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
+            CompassSensorProvider compassSensorProvider = new CompassSensorProvider(MainActivity.this, sensorThreadPool, sensorManager);
 
-        List<FloatTripleMeasurement> compassMeasurements = new ArrayList<>();
+            int[] tid = {250, 250, 250, 5};
 
-        try {
-          final Sample sample = Sample.Create();
+            Future<List<Sample>> data1 = accelerometerSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
+            Future<List<Sample>> data2 = gyroscopeSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
+            Future<List<Sample>> data3 = compassSensorProvider.retrieveSamplesForDuration(tid[0], tid[1], tid[2], tid[3]);
 
-          for (JsonValueAble compassMeasurement : data3.get().get(0).getMeasurements().subList(0, 29)) {
-            compassMeasurements.add(new FloatTripleMeasurement(
-                ((FloatMeasurement) compassMeasurement).getValue() / 10,
-                ((FloatMeasurement) compassMeasurement).getValue() / 10,
-                ((FloatMeasurement) compassMeasurement).getValue() / 10
-            ));
-          }
+            List<FloatTripleMeasurement> compassMeasurements = new ArrayList<>();
 
-          sample.addMeasurements(data1.get().get(0).getMeasurements().subList(0, 29));
-          sample.addMeasurements(data2.get().get(0).getMeasurements().subList(0, 29));
-          sample.addMeasurements(compassMeasurements);
+            try {
+              final Sample sample = Sample.Create();
 
-          Instance test = new Instance(90 * 3); // TODO: Tal her
-          test.setDataset(isTrainingSet);
+              for (JsonValueAble compassMeasurement : data3.get().get(0).getMeasurements().subList(0, 29)) {
+                compassMeasurements.add(new FloatTripleMeasurement(
+                    ((FloatMeasurement) compassMeasurement).getValue() / 10,
+                    ((FloatMeasurement) compassMeasurement).getValue() / 10,
+                    ((FloatMeasurement) compassMeasurement).getValue() / 10
+                ));
+              }
 
-          int i = 0;
+              sample.addMeasurements(data1.get().get(0).getMeasurements().subList(0, 29));
+              sample.addMeasurements(data2.get().get(0).getMeasurements().subList(0, 29));
+              sample.addMeasurements(compassMeasurements);
 
-          for (final JsonValueAble measurement : sample.getMeasurements()) {
-            if (measurement instanceof FloatTripleMeasurement) {
-              final FloatTripleMeasurement floatTripleMeasurement = (FloatTripleMeasurement) measurement;
-              test.setValue((Attribute) fvWekaAttributes.elementAt(i), floatTripleMeasurement.getFirstValue());
-              test.setValue((Attribute) fvWekaAttributes.elementAt(i + 1), floatTripleMeasurement.getSecondValue());
-              test.setValue((Attribute) fvWekaAttributes.elementAt(i + 2), floatTripleMeasurement.getThirdValue());
+              Instance test = new Instance(90 * 3); // TODO: Tal her
+              test.setDataset(isTrainingSet);
 
-              i += 3;
+              int i = 0;
+
+              for (final JsonValueAble measurement : sample.getMeasurements()) {
+                if (measurement instanceof FloatTripleMeasurement) {
+                  final FloatTripleMeasurement floatTripleMeasurement = (FloatTripleMeasurement) measurement;
+                  test.setValue((Attribute) fvWekaAttributes.elementAt(i), floatTripleMeasurement.getFirstValue());
+                  test.setValue((Attribute) fvWekaAttributes.elementAt(i + 1), floatTripleMeasurement.getSecondValue());
+                  test.setValue((Attribute) fvWekaAttributes.elementAt(i + 2), floatTripleMeasurement.getThirdValue());
+
+                  i += 3;
+                }
+              }
+
+              double[] distribution = classifier.distributionForInstance(test);
+              Log.d(debug, Arrays.toString(distribution));
+
+              // Toast.makeText(MainActivity.this, Arrays.toString(distribution), Toast.LENGTH_LONG).show();
+
+              if (distribution[0] > distribution[1]) {
+                MainActivity.this.updateText("On the table");
+              } else {
+                MainActivity.this.updateText("In the pocket");
+              }
+            } catch (Exception exception) {
+              exception.printStackTrace();
             }
           }
-
-          double[] distribution = classifier.distributionForInstance(test);
-          Log.d(debug, Arrays.toString(distribution));
-
-          // Toast.makeText(MainActivity.this, Arrays.toString(distribution), Toast.LENGTH_LONG).show();
-
-          if (distribution[0] > distribution[1]) {
-            MainActivity.this.opdaterText("On the table");
-          } else {
-            MainActivity.this.opdaterText("In the pocket");
-          }
-        } catch (Exception exception) {
-          exception.printStackTrace();
-        }
+        };
+        new Thread(trainModelAndUseIt).start();
       }
     }, 0, 10);
 
   }
 
-  private void opdaterText(String s) {
-    final TextView whereResult = (TextView) findViewById(R.id.where_result);
-    whereResult.setText(s);
+  private void updateText(final String s) {
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        final TextView whereResult = (TextView) findViewById(R.id.where_result);
+        whereResult.setText(s);
+      }
+    });
+
   }
 
   public class DrawerButtonsAdapter extends BaseAdapter {
