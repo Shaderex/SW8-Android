@@ -236,6 +236,81 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
         e.printStackTrace();
       }
 
+      Log.d(debug, "Training Weka...");
+
+      final Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+          // Make attributes
+          fvWekaAttributes = new FastVector(90 * 3 + 1); // TODO: Tal her
+          for (int i = 0; i < 30; i++) {
+            for (int j = 0; j < 3; j++) {
+              fvWekaAttributes.addElement(new Attribute("acc" + i + "-" + j));
+            }
+          }
+
+          for (int i = 0; i < 30; i++) {
+            for (int j = 0; j < 3; j++) {
+              fvWekaAttributes.addElement(new Attribute("gyr" + i + "-" + j));
+            }
+          }
+          for (int i = 0; i < 30; i++) {
+            for (int j = 0; j < 3; j++) {
+              fvWekaAttributes.addElement(new Attribute("com" + i + "-" + j));
+            }
+          }
+
+
+          // Make class
+          final FastVector fvClassVal = new FastVector(samplesMap.keySet().size());
+          for (final String key : samplesMap.keySet()) {
+            fvClassVal.addElement(key);
+          }
+          Attribute classAttribute = new Attribute("class", fvClassVal);
+          fvWekaAttributes.addElement(classAttribute);
+
+          // Specify how to train your dragon
+          isTrainingSet = new Instances("Rel", fvWekaAttributes, 10);
+          isTrainingSet.setClassIndex(fvWekaAttributes.size() - 1); // The class is the last
+
+          Log.d(debug, "Training scheme generated");
+
+          int i = 0;
+          for (final String clazz : samplesMap.keySet()) {
+            for (final Sample sample : samplesMap.get(clazz)) {
+              i = 0;
+
+              final Instance iExample = new Instance(fvWekaAttributes.size());
+
+              for (final JsonValueAble measurement : sample.getMeasurements()) {
+                if (measurement instanceof FloatTripleMeasurement) {
+                  final FloatTripleMeasurement floatTripleMeasurement = (FloatTripleMeasurement) measurement;
+                  iExample.setValue((Attribute) fvWekaAttributes.elementAt(i), floatTripleMeasurement.getFirstValue());
+                  iExample.setValue((Attribute) fvWekaAttributes.elementAt(i + 1), floatTripleMeasurement.getSecondValue());
+                  iExample.setValue((Attribute) fvWekaAttributes.elementAt(i + 2), floatTripleMeasurement.getThirdValue());
+
+                  i += 3;
+                }
+              }
+
+              iExample.setValue((Attribute) fvWekaAttributes.elementAt(i), clazz);
+              isTrainingSet.add(iExample);
+            }
+          }
+
+          try {
+            classifier.buildClassifier(isTrainingSet);
+
+            Log.d(debug, "Your training is complete young padawan");
+          } catch (Exception exception) {
+            Log.d(debug, "Your training FAILED completely young padawan");
+            exception.printStackTrace();
+          }
+        }
+      };
+
+      new Thread(runnable).start();
+
       return "!";
     }
 
@@ -257,6 +332,8 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
   private class MoveBody extends AsyncTask<String, Void, Sample> {
 
+    public TextView whereResult;
+
     @Override
     protected Sample doInBackground(String... params) {
       final ExecutorService sensorThreadPool = Executors.newFixedThreadPool(3);
@@ -277,7 +354,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
       try {
         final Sample sample = Sample.Create();
 
-        for (JsonValueAble compassMeasurement : data3.get().get(0).getMeasurements().subList(0,29)) {
+        for (JsonValueAble compassMeasurement : data3.get().get(0).getMeasurements().subList(0, 29)) {
           compassMeasurements.add(new FloatTripleMeasurement(
               ((FloatMeasurement) compassMeasurement).getValue() / 10,
               ((FloatMeasurement) compassMeasurement).getValue() / 10,
@@ -301,7 +378,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
     protected void onPostExecute(Sample result) {
       Log.d(debug, "Tak fordi du flyttede din krop " + new Random().nextInt(100));
 
-      Instance test = new Instance(90*3); // TODO: Tal her
+      Instance test = new Instance(90 * 3); // TODO: Tal her
       test.setDataset(isTrainingSet);
 
       int i = 0;
@@ -321,7 +398,13 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
         double[] distribution = classifier.distributionForInstance(test);
         Log.d(debug, Arrays.toString(distribution));
 
-        Toast.makeText(MainActivity.this, Arrays.toString(distribution), Toast.LENGTH_LONG).show();
+        // Toast.makeText(MainActivity.this, Arrays.toString(distribution), Toast.LENGTH_LONG).show();
+
+        if (distribution[0] > distribution[1]) {
+          whereResult.setText("On the table");
+        } else {
+          whereResult.setText("In the pocket");
+        }
 
       } catch (Exception exception) {
         exception.printStackTrace();
@@ -343,116 +426,14 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
 
     setContentView(R.layout.activity_main);
 
-    final Button fetchDataButton = (Button) findViewById(R.id.jumpbutton);
-    final Button trainButton = (Button) findViewById(R.id.trainbutton);
     final Button guessButton = (Button) findViewById(R.id.guessbutton);
+    final TextView whereResult = (TextView) findViewById(R.id.where_result);
 
     samplesMap.put("true", new ArrayList<Sample>());
     samplesMap.put("false", new ArrayList<Sample>());
 
-    assert fetchDataButton != null;
-    fetchDataButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        if (hallonuerviherlige) {
-          Log.d(debug, "Det var for fast!");
-          return;
-        }
-
-        LongOperation longOperation = new LongOperation();
-        longOperation.execute("jump");
-      }
-    });
-
-    assert trainButton != null;
-    trainButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        Log.d(debug, "Training Weka...");
-
-        final Runnable runnable = new Runnable() {
-          @Override
-          public void run() {
-
-            // Make attributes
-            fvWekaAttributes = new FastVector(90*3 + 1); // TODO: Tal her
-            for (int i = 0; i < 30; i++) {
-              for (int j = 0; j < 3; j++) {
-                fvWekaAttributes.addElement(new Attribute("acc" + i + "-" + j));
-              }
-            }
-
-            for (int i = 0; i < 30; i++) {
-              for (int j = 0; j < 3; j++) {
-                fvWekaAttributes.addElement(new Attribute("gyr" + i + "-" + j));
-              }
-            }
-            for (int i = 0; i < 30; i++) {
-              for (int j = 0; j < 3; j++) {
-                fvWekaAttributes.addElement(new Attribute("com" + i + "-" + j));
-              }
-            }
-
-
-            // Make class
-            final FastVector fvClassVal = new FastVector(samplesMap.keySet().size());
-            for (final String key : samplesMap.keySet()) {
-              fvClassVal.addElement(key);
-            }
-            Attribute classAttribute = new Attribute("class", fvClassVal);
-            fvWekaAttributes.addElement(classAttribute);
-
-            // Specify how to train your dragon
-            isTrainingSet = new Instances("Rel", fvWekaAttributes, 10);
-            isTrainingSet.setClassIndex(fvWekaAttributes.size() - 1); // The class is the last
-
-            Log.d(debug, "Training scheme generated");
-
-            int i = 0;
-            for (final String clazz : samplesMap.keySet()) {
-              for (final Sample sample : samplesMap.get(clazz)) {
-                i = 0;
-
-                final Instance iExample = new Instance(fvWekaAttributes.size());
-
-                for (final JsonValueAble measurement : sample.getMeasurements()) {
-                  if (measurement instanceof FloatTripleMeasurement) {
-                    final FloatTripleMeasurement floatTripleMeasurement = (FloatTripleMeasurement) measurement;
-                    iExample.setValue((Attribute) fvWekaAttributes.elementAt(i), floatTripleMeasurement.getFirstValue());
-                    iExample.setValue((Attribute) fvWekaAttributes.elementAt(i + 1), floatTripleMeasurement.getSecondValue());
-                    iExample.setValue((Attribute) fvWekaAttributes.elementAt(i + 2), floatTripleMeasurement.getThirdValue());
-
-                    i += 3;
-                  }
-                }
-
-                iExample.setValue((Attribute) fvWekaAttributes.elementAt(i), clazz);
-                isTrainingSet.add(iExample);
-              }
-            }
-
-            try {
-              classifier.buildClassifier(isTrainingSet);
-
-              Log.d(debug, "Your training is complete young padawan");
-            } catch (Exception exception) {
-              Log.d(debug, "Your training FAILED completely young padawan");
-              exception.printStackTrace();
-            }
-          }
-        };
-
-        new Thread(runnable).start();
-
-        try {
-          Thread.sleep(1000);
-        } catch (InterruptedException exception) {
-          exception.printStackTrace();
-        }
-
-        Toast.makeText(MainActivity.this, "Training finished", Toast.LENGTH_SHORT).show();
-      }
-    });
+    LongOperation longOperation = new LongOperation();
+    longOperation.execute("jump");
 
     assert guessButton != null;
     guessButton.setOnClickListener(new View.OnClickListener() {
@@ -461,6 +442,7 @@ public class MainActivity extends ActionBarActivity implements HeartRateConsentL
         Log.d(debug, "Weka is analysing.. Please move your body");
 
         MoveBody moveBody = new MoveBody();
+        moveBody.whereResult = whereResult;
         moveBody.execute("");
       }
     });

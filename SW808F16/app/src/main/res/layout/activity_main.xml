@@ -16,37 +16,26 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Where am I?"
             android:textSize="20dp"
-            android:text="Where am i?"
-            android:gravity="center"/>
+            android:layout_margin="@dimen/activity_vertical_margin"/>
+
         <TextView
+            android:id="@+id/where_result"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
+            tools:text="Uknown"
             android:textSize="40dp"
-            android:text="Uknown"
-            android:gravity="center"/>
-
-        <Button
-            android:id="@+id/jumpbutton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Get data"
-            android:padding="50dp"
-            android:layout_margin="10dp"/>
-
-        <Button
-            android:id="@+id/trainbutton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Train WEKA"
-            android:layout_margin="10dp"/>
+            android:layout_margin="@dimen/activity_vertical_margin"/>
 
         <Button
             android:id="@+id/guessbutton"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Guess what im doing"
-            android:layout_margin="10dp"/>
+            android:layout_margin="@dimen/activity_vertical_margin"
+            android:text="Guess where I am!"/>
 
     </LinearLayout>
 
